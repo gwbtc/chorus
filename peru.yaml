@@ -1,17 +1,16 @@
 imports:
   base-dev: ./dist
-  tlon-lib: ./dist
+  mcp:      ./dist
   suite:    ./dist
+  tlon-lib: ./dist
 
-git module suite:
-  url: https://github.com/fang-/suite
-  reup: master
+git module mcp:
+  url:    https://github.com/gwbtc/urbit-mcp
+  reup:   main
+  export: desk
   pick:
-    - lib/gossip.hoon
-    - lib/pals.hoon
-    - mar/gossip/rumor.hoon
-    - sur/pals.hoon
-  rev: 5b45467060cdc47f567355e0e55fcc96e73d495d
+    - desk/sur/mcp.hoon
+  # rev: 1ccaeefabf6467d7ea775f2f6a4ee19925a7cb9d
 
 git module tlon-lib:
   url:    https://github.com/tloncorp/tlon-apps
@@ -20,6 +19,16 @@ git module tlon-lib:
   pick:
     - desk/lib/test-agent.hoon
   rev: 9f0c94771e4773567a2f55a727ffa31b0f6e8e9f
+
+git module suite:
+  url:  https://github.com/fang-/suite
+  reup: master
+  pick:
+    - lib/gossip.hoon
+    - lib/pals.hoon
+    - mar/gossip/rumor.hoon
+    - sur/pals.hoon
+  rev: 5b45467060cdc47f567355e0e55fcc96e73d495d
 
 git module base-dev:
   url:    https://github.com/urbit/urbit

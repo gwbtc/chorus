@@ -1,5 +1,5 @@
 /-  *chorus
-|_  val=(map ship tool-catalog)
+|_  val=(map ship (set tool-listing))
 ++  grad  %noun
 ++  grow
   |%
@@ -9,26 +9,31 @@
     :-  %o
     %-  ~(gas by *(map @t ^json))
     %+  turn  ~(tap by val)
-    |=  [=ship cat=tool-catalog]
+    |=  [=ship tools=(set tool-listing)]
     :-  (scot %p ship)
+    :-  %a
+    %+  turn  ~(tap in tools)
+    |=  t=tool-listing
     :-  %o
     %-  ~(gas by *(map @t ^json))
-    :~  ['from' s+(scot %p from.cat)]
-        ['time' s+(scot %da time.cat)]
-        :-  'tools'
-        :-  %a
-        %+  turn  tools.cat
-        |=  =tool-entry
+    :~  ['name' s+name.t]
+        ['desc' s+desc.t]
+        :-  'parameters'
         :-  %o
         %-  ~(gas by *(map @t ^json))
-        :~  ['name' s+(crip (trip name.tool-entry))]
-            ['desc' s+desc.tool-entry]
-            ['schema' s+schema.tool-entry]
+        %+  turn  ~(tap by parameters.t)
+        |=  [pname=@t =def:parameter:tool:mcp]
+        :-  pname
+        :-  %o
+        %-  ~(gas by *(map @t ^json))
+        :~  ['type' s+(crip (trip type.def))]
+            ['desc' s+desc.def]
         ==
+        ['required' a+(turn required.t |=(r=@t s+r))]
     ==
   --
 ++  grab
   |%
-  ++  noun  ,(map ship tool-catalog)
+  ++  noun  ,(map ship (set tool-listing))
   --
 --

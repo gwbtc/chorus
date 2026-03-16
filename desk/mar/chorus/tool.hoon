@@ -1,5 +1,5 @@
 /-  *chorus
-|_  val=tool-catalog
+|_  val=[=ship tools=(set tool-listing)]
 ++  grad  %noun
 ++  grow
   |%
@@ -7,6 +7,6 @@
   --
 ++  grab
   |%
-  ++  noun  ,tool-catalog
+  ++  noun  ,[ship (set tool-listing)]
   --
 --

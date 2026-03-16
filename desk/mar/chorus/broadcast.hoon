@@ -1,5 +1,5 @@
 /-  *chorus
-|_  val=heartbeat
+|_  val=broadcast
 ++  grad  %noun
 ++  grow
   |%
@@ -7,6 +7,6 @@
   --
 ++  grab
   |%
-  ++  noun  ,heartbeat
+  ++  noun  ,broadcast
   --
 --
