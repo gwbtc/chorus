@@ -1,6 +1,17 @@
 imports:
   base-dev: ./dist
   tlon-lib: ./dist
+  suite:    ./dist
+
+git module suite:
+  url: https://github.com/fang-/suite
+  reup: master
+  pick:
+    - lib/gossip.hoon
+    - lib/pals.hoon
+    - mar/gossip/rumor.hoon
+    - sur/pals.hoon
+  rev: 5b45467060cdc47f567355e0e55fcc96e73d495d
 
 git module tlon-lib:
   url:    https://github.com/tloncorp/tlon-apps
