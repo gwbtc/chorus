@@ -25,6 +25,8 @@
 ^-  agent:gall
 |_  =bowl:gall
 +*  this  .
+    sour  (scot %p our.bowl)
+    snow  (scot %da now.bowl)
     def   ~(. (default-agent this %|) bowl)
 ::
 ++  on-leave  on-leave:def
@@ -50,7 +52,7 @@
   ::  .^(json %gx /=/chorus/=/catalog/json)
   ::  .^((map ship (set tool-listing)) %gx /=/chorus/=/catalog/noun)
       [%x %catalog ~]
-    ``chorus-catalog+!>(catalog)
+    ``chorus-catalog+!>(tool-catalog)
   ==
 ::
 ++  on-watch
@@ -86,26 +88,16 @@
     (on-poke:def mark vase)
   ::
       %noun
-    =/  act  !<(action vase)
-    ?-  -.act
-        %set-description
-      ::  XX 256 character limit
-      `this(desc text.act)
-    ::
-        %broadcast
-      :_  this(desc text.act)
-      ::  XX populate with jammed noun
-      :~  (invent:gossip %chorus-broadcast !>([our.bowl *]))
-      ==
-    ::
-    ::  XX should only be one tool at a time
-        %publish-tools
-      =/  ts=(set tool-listing)
-        (~(gas in *(set tool-listing)) tools.act)
-      =.  catalog  (~(put by catalog) our.bowl ts)
-      :_  this
-      :~  (invent:gossip %chorus-tool !>([our.bowl ts]))
-      ==
+    =/  lyf  .^(@ud %j /sour/life/snow/sour)
+    =/  cic  (nol:nu:cric:crypto .^(ring %j /sour/vein/snow/(scot %ud lyf)))
+    =/  act  !<(chorus-action vase)
+    =/  jmd  (jam act)
+    ?~  sek.cic
+      ~|  %no-private-key
+      !!
+    =/  sig  (sign-raw:ed:crypto jmd sgn.pub.cic sgn.sek.cic)
+    :_  this
+    :~  (invent:gossip %chorus-broadcast !>([our.bowl sig jmd]))
     ==
   ==
 ::
@@ -118,27 +110,50 @@
   ::  gossip library delivers unwrapped rumors here
       [%~.~ %gossip %gossip ~]
     ?.  ?=(%fact -.sign)
-      ~|([%chorus %unexpected-gossip-sign -.sign] !!)
+      `this
     =*  mark  p.cage.sign
     =*  vase  q.cage.sign
     ?+  mark
-      ~|([%unexpected-gossip-sign -.sign] !!)
-    ::
-    ::  a peer is broadcasting their presence on the network
-        %chorus-broadcast
-      ::  XX send fact to Earth agent wire
-      ::  XX sign and verify broadcasts
-      `this(broadcasts (~(put in broadcasts) !<(broadcast q.cage.sign)))
-    ::
-    ::  a peer is publishing their tool catalog
-        %chorus-tool
-      ::  XX sign and verify the jammed noun
       `this
-      ::  =+  !<([=ship tools=(set tool-listing)] vase)
-      ::  =.  catalog  (~(put by catalog) ship tools)
-      ::  :_  this
-      ::  :~  [%give %fact [/catalog]~ %noun !>(catalog)]
-      ::  ==
+    ::
+        %chorus-broadcast
+      =/  bod  !<(broadcast q.cage.sign)
+      =/  lyf  .^((unit @ud) %j /sour/life/snow/(scot %p ship.bod))
+      ?~  lyf
+        `this
+      =/  ded
+        .^([* =pass *] %j /sour/deed/snow/(scot %p ship.bod)/(scot %ud u.lyf))
+      =/  cic  (com:nu:cric:crypto pass.ded)
+      ?.  (veri:ed:crypto sig.bod data.bod sgn.pub.cic)
+        `this
+      =/  act  ;;(chorus-action (cue data.bod))
+      ?-  -.act
+      ::
+          %set-description
+        ::  XX give fact
+        `this(rolodex (~(put in rolodex) ship.bod text.act))
+      ::
+          %announce
+        ::  XX give fact
+        :-  ~
+        %=  this
+          announcements  %-  ~(put in announcements)
+                         :*  ship.bod
+                             ::  XX could include timestamp in msg
+                             now.bowl
+                             text.act
+                         ==
+        ==
+      ::
+          %publish-tool
+        =/  cur  (~(gut by tool-catalog) ship.bod ~)
+        =/  new-catalog
+          %-  ~(put by tool-catalog)
+          [ship.bod (~(put in cur) tool-listing.act))]
+        :_  this(tool-catalog new-catalog)
+        :~  [%give %fact ~[/catalog] %chorus-catalog !>(new-catalog)]
+        ==
+      ==
     ==
   ==
 --

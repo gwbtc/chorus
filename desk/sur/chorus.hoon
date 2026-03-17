@@ -1,20 +1,32 @@
 /-  mcp
 |%
 ::
++$  bio  @t
+::
 +$  state-0
   $:  %0
-      ::  our self-descripiton
-      desc=@t
+      ::  our description
+      =bio
+      ::  peers' descriptions
+      rolodex=(map ship bio)
       ::  heard messages
-      broadcasts=(set broadcast)
+      announcements=(set announcement)
       ::  known tool listings
-      catalog=(map ship (set tool-listing))
+      tool-catalog=(map ship (set tool-listing))
   ==
 ::
-::  send signed noun to everyone
+::  signed jammed noun
 +$  broadcast
   $:  =ship
-      noun=*
+      sig=@
+      data=@
+  ==
+::
+::  256-character message for the network
++$  announcement
+  $:  =ship
+      =time
+      text=@t
   ==
 ::
 +$  tool-listing
@@ -25,12 +37,12 @@
   ==
 ::
 ::  pokes
-+$  action
++$  chorus-action
   $%  ::  update our self-description (local only)
       [%set-description text=@t]
-      ::  manually broadcast our presence to the gossip network
-      [%broadcast text=@t]
-      ::  publish our MCP tool catalog to the network
-      [%publish-tools tools=(list tool-listing)]
+      ::  announce something to pals and pals-of-pals
+      [%announce text=@t]
+      ::  publish an MCP tool to the network
+      [%publish-tool =tool-listing]
   ==
 --
