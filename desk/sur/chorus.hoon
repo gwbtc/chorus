@@ -11,10 +11,10 @@
       catalog=(map ship (set tool-listing))
   ==
 ::
-::  send message to everyone
+::  send signed noun to everyone
 +$  broadcast
   $:  =ship
-      text=@t
+      noun=*
   ==
 ::
 +$  tool-listing

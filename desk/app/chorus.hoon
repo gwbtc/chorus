@@ -19,8 +19,7 @@
       [2 %anybody %anybody |]
     %-  ~(gas by *(map mark $-(* vase)))
     ^-  (list [mark $-(* vase)])
-    :~  [%chorus-broadcast |=(n=* !>((,[ship @t] n)))]
-        [%chorus-tool |=(n=* !>((,[ship (set tool-listing)] n)))]
+    :~  [%chorus-broadcast |=(n=* !>((,[ship *] n)))]
     ==
 ::
 ^-  agent:gall
@@ -95,7 +94,8 @@
     ::
         %broadcast
       :_  this(desc text.act)
-      :~  (invent:gossip %chorus-broadcast !>([our.bowl text.act]))
+      ::  XX populate with jammed noun
+      :~  (invent:gossip %chorus-broadcast !>([our.bowl *]))
       ==
     ::
     ::  XX should only be one tool at a time
