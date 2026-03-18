@@ -69,6 +69,12 @@
   ::  return our current state as initial facts for them
       [%~.~ %gossip %source ~]
     `this
+  ::
+  ::  bio subscription: send current bio as initial fact
+      [%bio ~]
+    :_  this
+    :~  [%give %fact ~ %chorus-bio !>(bio)]
+    ==
     ::  =/  cards=(list card)
       ::  :~  ::  send our latest announcement to new subscriber
           ::  :*  %give  %fact  ~
@@ -88,11 +94,23 @@
 ++  on-poke
   |=  [=mark =vase]
   ^-  (quip card _this)
+  ?>  =(src our):bowl
   ?+  mark
     (on-poke:def mark vase)
   ::
+      %chorus-action
+    =/  act  !<(chorus-action vase)
+    ?+  -.act
+      (on-poke:def mark vase)
+    ::
+        %set-description
+      :_  this(bio text.act)
+      ::  XX give fact to agent client
+      :~  [%give %fact ~[/bio] %chorus-bio !>(text.act)]
+      ==
+    ==
+  ::
       %broadcast
-    ?>  =(src our):bowl
     =/  lyf  .^(@ud %j (welp s.pyk /[p.pyk]))
     =/  cic  (nol:nu:cric:crypto .^(ring %j (welp s.pyk /(scot %ud lyf))))
     =/  act  !<(chorus-action vase)
@@ -107,10 +125,18 @@
   ==
 ::
 ++  on-agent
+  ::  XX update to use =(pole knot)
   |=  [=wire =sign:agent:gall]
   ^-  (quip card _this)
   ?+  wire
     (on-agent:def wire sign)
+  ::
+  ::  bio update from a subscribed ship
+      [%bio @ ~]
+    =/  =ship  (slav %p i.t.wire)
+    ?.  ?=(%fact -.sign)
+      `this
+    `this(rolodex (~(put by rolodex) ship !<(@t q.cage.sign)))
   ::
   ::  gossip library delivers unwrapped rumors here
       [%~.~ %gossip %gossip ~]
@@ -132,19 +158,17 @@
       ?.  (veri:ed:crypto sig.bod data.bod sgn.pub.cic)
         `this
       =/  act  ;;(chorus-action (cue data.bod))
-      ?-  -.act
-      ::
-          %set-description
-        ::  XX give fact
-        `this(rolodex (~(put in rolodex) ship.bod text.act))
+      ?+  -.act
+        `this
       ::
           %announce
-        ::  XX give fact
-        :-  ~
+        :-  ?:  (~(has by rolodex) ship.bod)
+              ~
+            ::  subscribe to their bio feed
+            ~[[%pass /bio/(scot %p ship.bod) %agent [ship.bod %chorus] %watch /bio]]
         %=  this
           announcements  %-  ~(put in announcements)
                          :*  ship.bod
-                             ::  XX could include timestamp in msg
                              now.bowl
                              text.act
                          ==
