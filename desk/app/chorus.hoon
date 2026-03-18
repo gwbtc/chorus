@@ -91,7 +91,8 @@
   ?+  mark
     (on-poke:def mark vase)
   ::
-      %noun
+      %broadcast
+    ?>  =(src our):bowl
     =/  lyf  .^(@ud %j (welp s.pyk /[p.pyk]))
     =/  cic  (nol:nu:cric:crypto .^(ring %j (welp s.pyk /(scot %ud lyf))))
     =/  act  !<(chorus-action vase)
