@@ -1,4 +1,4 @@
-/-  mcp, spider
+/-  mcp, *chorus, spider
 /+  io=strandio
 ^-  (list tool:mcp)
 :~  :*  'chorus__update-bio'
@@ -26,7 +26,7 @@
           %-  send-raw-card:io
           :*  %pass   /update-bio
               %agent  [our %chorus]
-              %poke   %update-bio  !>(u.bio)
+              %poke   %chorus-action  !>(`chorus-action`[%update-bio p.u.bio])
           ==
         ;<  ~  bind:m  (take-poke-ack:io /update-bio)
         %-  pure:m
@@ -63,7 +63,7 @@
           %-  send-raw-card:io
           :*  %pass   /make-announcement
               %agent  [our %chorus]
-              %poke   %update-bio  !>(u.ano)
+              %poke   %broadcast  !>([%announce p.u.ano])
           ==
         ;<  ~  bind:m  (take-poke-ack:io /make-announcement)
         %-  pure:m
@@ -110,14 +110,14 @@
           %-  send-raw-card:io
           :*  %pass   /publish-app
               %agent  [our %chorus]
-              %poke   %publish-app  !>([`@tas`p.u.dek p.u.dec])
+              %poke   %broadcast  !>([%publish-app `@tas`p.u.dek p.u.dec])
           ==
         ;<  ~  bind:m  (take-poke-ack:io /publish-app)
         %-  pure:m
         !>  ^-  json
         %-  pairs:enjs:format
         :~  ['type' s+'text']
-            ['text' s+(crip "Published app {(trip p.u.dek)}!")]
+            ['text' s+(crip "Published app %{(trip p.u.dek)}!")]
     ==  ==
     ::
     :*  'chorus__publish-tool'
@@ -152,34 +152,37 @@
         ?~  par  ~|(%missing-parameters !!)
         ?>  ?=([%string @t] u.nam)
         ?>  ?=([%string @t] u.dec)
-        ?>  ?=([%array *] u.req)
-        ?>  ?=([%object *] u.par)
+        ?>  ?=([%string @t] u.req)
+        ?>  ?=([%string @t] u.par)
+        =/  req-json  (need (de:json:html p.u.req))
+        =/  par-json  (need (de:json:html p.u.par))
+        ?>  ?=([%a *] req-json)
+        ?>  ?=([%o *] par-json)
         =/  rex=(list @t)
-          %+  turn
-            p.u.req
-          |=  =argument:tool:mcp
-          ?>  ?=([%string @t] argument)
-          p.argument
+          %+  turn  p.req-json
+          |=  =json
+          ?>  ?=([%s @t] json)
+          p.json
         =/  pars=(map name:parameter:tool:mcp def:parameter:tool:mcp)
           %-  ~(gas by *(map name:parameter:tool:mcp def:parameter:tool:mcp))
           %+  turn
-            ~(tap by p.u.par)
-          |=  [name=@t =argument:tool:mcp]
+            ~(tap by p.par-json)
+          |=  [name=@t =json]
           ^-  [name:parameter:tool:mcp def:parameter:tool:mcp]
-          ?>  ?=([%object *] argument)
-          =/  typ  (~(get by p.argument) 'type')
-          =/  dec  (~(get by p.argument) 'description')
+          ?>  ?=([%o *] json)
+          =/  typ  (~(get by p.json) 'type')
+          =/  dec  (~(get by p.json) 'description')
           ?~  typ  ~|(%missing-parameter-type !!)
           ?~  dec  ~|(%missing-parameter-description !!)
-          ?>  ?=([%string @t] u.typ)
-          ?>  ?=([%string @t] u.dec)
+          ?>  ?=([%s @t] u.typ)
+          ?>  ?=([%s @t] u.dec)
           [name [(type:parameter:tool:mcp p.u.typ) p.u.dec]]
         ;<  our=ship  bind:m  get-our:io
         ;<  ~  bind:m
           %-  send-raw-card:io
           :*  %pass   /publish-tool
               %agent  [our %chorus]
-              %poke   [%publish-tool !>([p.u.nam p.u.dec pars rex])]
+              %poke   %broadcast  !>([%publish-tool p.u.nam p.u.dec pars rex])
           ==
         ;<  ~  bind:m  (take-poke-ack:io /publish-tool)
         %-  pure:m

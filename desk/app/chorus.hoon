@@ -126,19 +126,19 @@
           ==
       ==
     ==
-  ::
-      %broadcast
-    =/  lyf  .^(@ud %j (welp s.pyk /[p.pyk]))
-    =/  cic  (nol:nu:cric:crypto .^(ring %j (welp s.pyk /(scot %ud lyf))))
-    =/  act  !<(chorus-action vase)
-    =/  jmd  (jam act)
-    ?~  sek.cic
-      ~|  %no-private-key
-      !!
-    =/  sig  (sign-raw:ed:crypto jmd sgn.pub.cic sgn.sek.cic)
-    :_  this
-    :~  (invent:gossip %chorus-broadcast !>([our.bowl sig jmd]))
-    ==
+    ::
+        %broadcast
+      =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
+      =/  cic  (nol:nu:cric:crypto .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf))))
+      =/  act  !<(chorus-action vase)
+      =/  jmd  (jam act)
+      ?~  sek.cic
+        ~|  %no-private-key
+        !!
+      =/  sig  (sign-raw:ed:crypto jmd sgn.pub.cic sgn.sek.cic)
+      :_  this
+      :~  (invent:gossip %chorus-broadcast !>([our.bowl sig jmd]))
+      ==
   ==
 ::
 ++  on-agent
