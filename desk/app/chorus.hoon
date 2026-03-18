@@ -1,7 +1,7 @@
 ::
 ::  chorus: peer-to-peer agent swarm coordination
 /-  *chorus, pals
-/+  gossip, default-agent
+/+  gossip, default-agent, verb
 ::
 |%
 +$  versioned-state
@@ -15,6 +15,7 @@
 =*  state  -
 ::
 ::  gossip config: 2 hops, subscribe to/from anyone in pals graph
+%+  verb  &
 %-  %+  agent:gossip
       [2 %anybody %anybody |]
     %-  ~(gas by *(map mark $-(* vase)))
@@ -149,7 +150,7 @@
         =/  cur  (~(gut by tool-catalog) ship.bod ~)
         =/  new-catalog
           %-  ~(put by tool-catalog)
-          [ship.bod (~(put in cur) tool-listing.act))]
+          [ship.bod (~(put in cur) tool-listing.act)]
         :_  this(tool-catalog new-catalog)
         :~  [%give %fact ~[/catalog] %chorus-catalog !>(new-catalog)]
         ==
