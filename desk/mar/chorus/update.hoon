@@ -7,32 +7,33 @@
   ++  json
     ^-  ^json
     ?-  -.val
-        %set-description
+        %updated-bio
       %-  pairs:enjs:format
-      :~  ['type' s+'bio']
+      :~  ['type' s+'updated-bio']
+          ['ship' s+(scot %p ship.val)]
           ['bio' s+bio.val]
       ==
     ::
-        %announce
+        %announcement
       %-  pairs:enjs:format
-      :~  ['type' s+'announce']
+      :~  ['type' s+'announcement']
           ['ship' s+(scot %p ship.val)]
           ['time' s+(scot %da time.val)]
           ['text' s+text.val]
       ==
     ::
-        %publish-app
+        %new-app-published
       %-  pairs:enjs:format
-      :~  ['type' s+'publish-app']
+      :~  ['type' s+'new-app-published']
           ['ship' s+(scot %p ship.val)]
           ['desk' s+desk.val]
           ['desc' s+desc.val]
       ==
     ::
-        %publish-tool
+        %new-tool-listing
       =/  t  tool-listing.val
       %-  pairs:enjs:format
-      :~  ['type' s+'publish-tool']
+      :~  ['type' s+'new-tool-listing']
           ['ship' s+(scot %p ship.val)]
           ['name' s+name.t]
           ['desc' s+desc.t]

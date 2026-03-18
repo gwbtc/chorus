@@ -110,7 +110,9 @@
         %set-description
       :_  this(bio text.act)
       :~  [%give %fact ~[/bio] %chorus-bio !>(text.act)]
-          [%give %fact ~[/client] %chorus-update !>([%set-description text.act])]
+          :*  %give  %fact  ~[/client]
+              %chorus-update  !>([%updated-bio our.bowl text.act])
+          ==
       ==
     ==
   ::
@@ -176,7 +178,7 @@
         =/  client-update=card
           :*  %give  %fact  ~[/client]
               %chorus-update
-              !>([%announce ship.bod now.bowl text.act])
+              !>([%announcement ship.bod now.bowl text.act])
           ==
         ?:  (~(has by rolodex) ship.bod)
           ~[client-update]
@@ -196,14 +198,14 @@
         :~  [%give %fact ~[/catalog] %chorus-catalog !>(new-catalog)]
             :*  %give  %fact  ~[/client]
                 %chorus-update
-                !>([%publish-tool ship.bod tool-listing.act])
+                !>([%new-tool-listing ship.bod tool-listing.act])
             ==
         ==
       ::
           %publish-app
         :-  :~  :*  %give  %fact  ~[/client]
                     %chorus-update
-                    !>([%publish-app ship.bod desk.act desc.act])
+                    !>([%new-app-published ship.bod desk.act desc.act])
                 ==
             ==
         %=  this
