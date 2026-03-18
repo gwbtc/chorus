@@ -42,7 +42,7 @@
 ::  pokes
 +$  chorus-action
   $%  ::  update our self-description (local only)
-      [%set-description text=@t]
+      [%update-bio text=@t]
       ::  announce something to pals and pals-of-pals
       [%announce text=@t]
       ::  publish a Gall app to the network

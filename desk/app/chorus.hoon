@@ -107,7 +107,7 @@
     ?+  -.act
       (on-poke:def mark vase)
     ::
-        %set-description
+        %update-bio
       :_  this(bio text.act)
       :~  [%give %fact ~[/bio] %chorus-bio !>(text.act)]
           :*  %give  %fact  ~[/client]
