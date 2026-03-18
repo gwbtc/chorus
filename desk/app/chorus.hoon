@@ -1,7 +1,8 @@
 ::
 ::  chorus: peer-to-peer agent swarm coordination
-/-  *chorus, pals
+/-  *chorus, pals, mcp
 /+  gossip, default-agent, verb
+/=  mcp-tools  /fil/mcp-tools
 ::
 |%
 +$  versioned-state
@@ -37,7 +38,17 @@
 ++  on-fail   on-fail:def
 ++  on-arvo   |=([=wire =sign-arvo] (on-arvo:def wire sign-arvo))
 ++  on-save   !>(state)
-++  on-init   `this
+++  on-init
+  ^-  (quip card _this)
+  :_  this
+  %+  turn
+    mcp-tools
+  |=  =tool:mcp
+  ^-  card
+  :*  %pass   /add-mcp-tool
+      %agent  [our.bowl %mcp-server]
+      %poke   [%add-tool !>(tool)]
+  ==
 ::
 ++  on-load
   |=  old=vase
