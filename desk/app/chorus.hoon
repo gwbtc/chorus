@@ -26,9 +26,12 @@
 ^-  agent:gall
 |_  =bowl:gall
 +*  this  .
-    sour  (scot %p our.bowl)
-    snow  (scot %da now.bowl)
     def   ~(. (default-agent this %|) bowl)
+    pyk   :*  p=(scot %p our.bowl)
+              q=q.byk.bowl
+              r=(scot %da now.bowl)
+              s=/(scot %p our.bowl)/[q.byk.bowl]/(scot %da now.bowl)
+          ==
 ::
 ++  on-leave  on-leave:def
 ++  on-fail   on-fail:def
@@ -89,8 +92,8 @@
     (on-poke:def mark vase)
   ::
       %noun
-    =/  lyf  .^(@ud %j /sour/life/snow/sour)
-    =/  cic  (nol:nu:cric:crypto .^(ring %j /sour/vein/snow/(scot %ud lyf)))
+    =/  lyf  .^(@ud %j (welp s.pyk /[p.pyk]))
+    =/  cic  (nol:nu:cric:crypto .^(ring %j (welp s.pyk /(scot %ud lyf))))
     =/  act  !<(chorus-action vase)
     =/  jmd  (jam act)
     ?~  sek.cic
@@ -119,11 +122,11 @@
     ::
         %chorus-broadcast
       =/  bod  !<(broadcast q.cage.sign)
-      =/  lyf  .^((unit @ud) %j /sour/life/snow/(scot %p ship.bod))
+      =/  lyf  .^((unit @ud) %j (welp s.pyk /(scot %p ship.bod)))
       ?~  lyf
         `this
       =/  ded
-        .^([* =pass *] %j /sour/deed/snow/(scot %p ship.bod)/(scot %ud u.lyf))
+        .^([* =pass *] %j (welp s.pyk /(scot %p ship.bod)/(scot %ud u.lyf)))
       =/  cic  (com:nu:cric:crypto pass.ded)
       ?.  (veri:ed:crypto sig.bod data.bod sgn.pub.cic)
         `this
