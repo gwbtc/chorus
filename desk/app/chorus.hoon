@@ -75,6 +75,10 @@
     :_  this
     :~  [%give %fact ~ %chorus-bio !>(bio)]
     ==
+  ::
+  ::  clients subscribe here for updates
+      [%client ~]
+    `this
     ::  =/  cards=(list card)
       ::  :~  ::  send our latest announcement to new subscriber
           ::  :*  %give  %fact  ~
@@ -105,8 +109,8 @@
     ::
         %set-description
       :_  this(bio text.act)
-      ::  XX give fact to agent client
       :~  [%give %fact ~[/bio] %chorus-bio !>(text.act)]
+          [%give %fact ~[/client] %chorus-update !>([%set-description text.act])]
       ==
     ==
   ::
@@ -162,16 +166,25 @@
         `this
       ::
           %announce
-        :-  ?:  (~(has by rolodex) ship.bod)
-              ~
-            ::  subscribe to their bio feed
-            ~[[%pass /bio/(scot %p ship.bod) %agent [ship.bod %chorus] %watch /bio]]
-        %=  this
-          announcements  %-  ~(put in announcements)
-                         :*  ship.bod
-                             now.bowl
-                             text.act
-                         ==
+        :_  %=  this
+              announcements  %-  ~(put in announcements)
+                             :*  ship.bod
+                                 now.bowl
+                                 text.act
+                             ==
+            ==
+        =/  client-update=card
+          :*  %give  %fact  ~[/client]
+              %chorus-update
+              !>([%announce ship.bod now.bowl text.act])
+          ==
+        ?:  (~(has by rolodex) ship.bod)
+          ~[client-update]
+        :~  client-update
+            :*  %pass   /bio/(scot %p ship.bod)
+                %agent  [ship.bod %chorus]
+                %watch  /bio
+            ==
         ==
       ::
           %publish-tool
@@ -181,17 +194,24 @@
           [ship.bod (~(put in cur) tool-listing.act)]
         :_  this(tool-catalog new-catalog)
         :~  [%give %fact ~[/catalog] %chorus-catalog !>(new-catalog)]
+            :*  %give  %fact  ~[/client]
+                %chorus-update
+                !>([%publish-tool ship.bod tool-listing.act])
+            ==
         ==
       ::
           %publish-app
-        ::  XX give fact
-        :-  ~
+        :-  :~  :*  %give  %fact  ~[/client]
+                    %chorus-update
+                    !>([%publish-app ship.bod desk.act desc.act])
+                ==
+            ==
         %=  this
-          apps  %-  ~(put by apps)
-                :-  ship.bod
-                %-  ~(put in (~(gut by apps) ship.bod ~))
-                [desk.act desc.act]
-        ==
+            apps  %-  ~(put by apps)
+                  :-  ship.bod
+                  %-  ~(put in (~(gut by apps) ship.bod ~))
+                  [desk.act desc.act]
+          ==
       ==
     ==
   ==

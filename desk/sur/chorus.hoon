@@ -50,4 +50,16 @@
       ::  publish an MCP tool to the network
       [%publish-tool =tool-listing]
   ==
+::
+::  facts sent to subscribers
++$  chorus-update
+  $%  ::  our bio changed
+      [%set-description =bio]
+      ::  a peer announced to the network
+      [%announce =ship =time text=@t]
+      ::  a peer published a tool
+      [%publish-tool =ship =tool-listing]
+      ::  a peer published an app
+      [%publish-app =ship =desk =desc]
+  ==
 --
