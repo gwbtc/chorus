@@ -157,6 +157,16 @@
         :_  this(tool-catalog new-catalog)
         :~  [%give %fact ~[/catalog] %chorus-catalog !>(new-catalog)]
         ==
+      ::
+          %publish-app
+        ::  XX give fact
+        :-  ~
+        %=  this
+          apps  %-  ~(put by apps)
+                :-  ship.bod
+                %-  ~(put in (~(gut by apps) ship.bod ~))
+                [desk.act desc.act]
+        ==
       ==
     ==
   ==
