@@ -136,8 +136,30 @@
         ~|  %no-private-key
         !!
       =/  sig  (sign-raw:ed:crypto jmd sgn.pub.cic sgn.sek.cic)
-      :_  this
-      :~  (invent:gossip %chorus-broadcast !>([our.bowl sig jmd]))
+      :-  :~  (invent:gossip %chorus-broadcast !>([our.bowl sig jmd]))
+          ==
+      ?+  -.act  this
+          %announce
+        %=  this
+          announcements  %-  ~(put in announcements)
+                         [our.bowl now.bowl text.act]
+        ==
+      ::
+          %publish-tool
+        %=  this
+          tool-catalog  %-  ~(put by tool-catalog)
+                        :-  our.bowl
+                        %-  ~(put in (~(gut by tool-catalog) our.bowl ~))
+                        tool-listing.act
+        ==
+      ::
+          %publish-app
+        %=  this
+          apps  %-  ~(put by apps)
+                :-  our.bowl
+                %-  ~(put in (~(gut by apps) our.bowl ~))
+                [desk.act desc.act]
+        ==
       ==
   ==
 ::
