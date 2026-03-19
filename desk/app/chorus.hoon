@@ -109,10 +109,10 @@
   ==
 ::
 ++  on-watch
-  |=  =path
+  |=  =(pole knot)
   ^-  (quip card _this)
-  ?+  path
-    (on-watch:def path)
+  ?+  pole
+    (on-watch:def pole)
   ::
   ::  gossip library calls this when a peer subscribes to us;
   ::  return our current state as initial facts for them
@@ -128,20 +128,6 @@
   ::  clients subscribe here for updates
       [%client ~]
     `this
-    ::  =/  cards=(list card)
-      ::  :~  ::  send our latest announcement to new subscriber
-          ::  :*  %give  %fact  ~
-              ::  %chorus-broadcast
-              ::  !>  ^-  broadcast
-              ::  [our.bowl desc]
-          ::  ==
-      ::  ==
-    ::  ::  also share our tool catalog if we have published one
-    ::  =.  cards
-      ::  ?~  cat=(~(get by catalog) our.bowl)
-        ::  cards
-      ::  (snoc cards [%give %fact ~ %chorus-tool !>([our.bowl u.cat])])
-    ::  [cards this]
   ==
 ::
 ++  on-poke
