@@ -59,15 +59,53 @@
   ==
 ::
 ++  on-peek
-  |=  =path
+  |=  =(pole knot)
   ^-  (unit (unit cage))
-  ?+  path
-    (on-peek:def path)
+  ?+  pole
+    (on-peek:def pole)
+  ::
+  ::  .^(@t %gx /=/chorus/=/bio/noun)
+  ::  .^(json %gx /=/chorus/=/bio/json)
+      [%x %bio ~]
+    ``chorus-bio+!>(bio)
+  ::
+  ::  .^(json %gx /=/chorus/=/rolodex/json)
+  ::  .^((map ship @t) %gx /=/chorus/=/rolodex/noun)
+      [%x %rolodex ~]
+    ``chorus-rolodex+!>(rolodex)
+  ::
+  ::  .^(json %gx /=/chorus/=/rolodex/~ship/json)
+  ::  .^((map ship @t) %gx /=/chorus/=/rolodex/~ship/noun)
+      [%x %rolodex who=@ta ~]
+    =/  =ship  (slav %p who.pole)
+    ``chorus-rolodex+!>((malt ~[[ship (~(gut by rolodex) ship '')]]))
+  ::
+  ::  .^(json %gx /=/chorus/=/announcements/json)
+  ::  .^((set announcement) %gx /=/chorus/=/announcements/noun)
+      [%x %announcements ~]
+    ``chorus-announcements+!>(announcements)
+  ::
+  ::  .^(json %gx /=/chorus/=/apps/json)
+  ::  .^((map ship (set [desk @t])) %gx /=/chorus/=/apps/noun)
+      [%x %apps ~]
+    ``chorus-apps+!>(apps)
+  ::
+  ::  .^(json %gx /=/chorus/=/apps/~ship/json)
+  ::  .^((map ship (set [desk @t])) %gx /=/chorus/=/apps/~ship/noun)
+      [%x %apps who=@ta ~]
+    =/  =ship  (slav %p who.pole)
+    ``chorus-apps+!>((malt ~[[ship (~(gut by apps) ship ~)]]))
   ::
   ::  .^(json %gx /=/chorus/=/catalog/json)
   ::  .^((map ship (set tool-listing)) %gx /=/chorus/=/catalog/noun)
       [%x %catalog ~]
     ``chorus-catalog+!>(tool-catalog)
+  ::
+  ::  .^(json %gx /=/chorus/=/catalog/~ship/json)
+  ::  .^((map ship (set tool-listing)) %gx /=/chorus/=/catalog/~ship/noun)
+      [%x %catalog who=@ta ~]
+    =/  =ship  (slav %p who.pole)
+    ``chorus-catalog+!>((malt ~[[ship (~(gut by tool-catalog) ship ~)]]))
   ==
 ::
 ++  on-watch

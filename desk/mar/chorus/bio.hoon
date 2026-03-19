@@ -4,6 +4,7 @@
 ++  grow
   |%
   ++  noun  val
+  ++  json  ^-  ^json  s+val
   --
 ++  grab
   |%
