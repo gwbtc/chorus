@@ -188,15 +188,14 @@
   ==
 ::
 ++  on-agent
-  ::  XX update to use =(pole knot)
-  |=  [=wire =sign:agent:gall]
+  |=  [=(pole knot) =sign:agent:gall]
   ^-  (quip card _this)
-  ?+  wire
-    (on-agent:def wire sign)
+  ?+  pole
+    (on-agent:def pole sign)
   ::
   ::  bio update from a subscribed ship
-      [%bio @ ~]
-    =/  =ship  (slav %p i.t.wire)
+      [%bio who=@ta ~]
+    =/  =ship  (slav %p who.pole)
     ?.  ?=(%fact -.sign)
       `this
     `this(rolodex (~(put by rolodex) ship !<(@t q.cage.sign)))
