@@ -143,6 +143,9 @@
       (on-poke:def mark vase)
     ::
         %update-bio
+      ?:  (gth (lent (trip text.act)) 256)
+        ~|  %bio-too-long
+        !!
       :_  this(bio text.act)
       :~  [%give %fact ~[/bio] %chorus-bio !>(text.act)]
           :*  %give  %fact  ~[/client]
@@ -155,6 +158,18 @@
       =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
       =/  cic  (nol:nu:cric:crypto .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf))))
       =/  act  !<(chorus-action vase)
+      ?:  ?&  ?=([%announce *] act)
+              (gth (lent (trip text.act)) 256)
+          ==
+        ~|  %announcement-too-long
+        !!
+      ?:  ?&  ?=([%publish-app *] act)
+              ?|  (gth (lent (trip desk.act)) 256)
+                  (gth (lent (trip desc.act)) 256)
+              ==
+          ==
+        ~|  %desk-name-or-description-too-long
+        !!
       =/  jmd  (jam act)
       ?~  sek.cic
         ~|  %no-private-key
@@ -224,6 +239,8 @@
         `this
       ::
           %announce
+        ?:  (gth (lent (trip text.act)) 256)
+          `this
         :_  %=  this
               announcements  %-  ~(put in announcements)
                              :*  ship.bod
@@ -259,6 +276,10 @@
         ==
       ::
           %publish-app
+        ?:  ?|  (gth (lent (trip desk.act)) 256)
+                (gth (lent (trip desc.act)) 256)
+            ==
+          `this
         :-  :~  :*  %give  %fact  ~[/client]
                     %chorus-update
                     !>([%new-app-published ship.bod desk.act desc.act])
