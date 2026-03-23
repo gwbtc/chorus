@@ -1,5 +1,6 @@
-/-  mcp, *chorus, spider
+/-  mcp, *chorus, verifier, spider
 /+  io=strandio
+=,  (verifier)
 ^-  (list tool:mcp)
 :~  :*  'chorus__update-bio'
         'Update our bio on the Chorus network.'
@@ -190,5 +191,242 @@
         %-  pairs:enjs:format
         :~  ['type' s+'text']
             ['text' s+(crip "Published tool {(trip p.u.nam)}.")]
+    ==  ==
+    ::
+    ::  Twitter/X identity attestation via %verifier / %lanyard.
+    ::  Call without tweet-id to start (or resume) the process.
+    ::  The tool returns tweet text to post from your Twitter account.
+    ::  Once posted, call again with the numeric tweet ID to complete.
+    ::
+    :*  'chorus__attest-twitter'
+        '''
+        Attest that a Twitter/X account is associated with this Urbit ship.
+
+        Call without tweet-id to start the attestation and get the tweet to post.
+        After posting that tweet, call again with the numeric tweet ID (from the
+        tweet URL) to complete verification.
+        '''
+        %-  my
+        :~  :-  'handle'
+            :-  %string
+            'The Twitter/X handle to attest (lowercase, without @).'
+            :-  'tweet-id'
+            :-  %string
+            'Numeric tweet ID after posting the attestation tweet. Omit on first call.'
+        ==
+        ~['handle']
+        ^-  thread-builder:tool:mcp
+        |=  args=(map name:parameter:tool:mcp argument:tool:mcp)
+        ^-  shed:khan
+        =/  m  (strand:spider ,vase)
+        ^-  form:m
+        =/  handle    (~(get by args) 'handle')
+        =/  tweet-id  (~(get by args) 'tweet-id')
+        ?~  handle
+          ~|(%missing-handle !!)
+        ?>  ?=([%string @t] u.handle)
+        ::  XX probably not needed, just use p.u.handle
+        ::  normalise handle to lowercase
+        =/  handle=@t  (crip (cass (trip p.u.handle)))
+        ::
+        ?@  tweet-id
+          ::
+          ::  Phase 1: no tweet-id, check existing state then start if needed
+          ::
+          ;<  recs=*  bind:m
+            (scry:io * /gx/lanyard/v1/records)
+          =/  rec=(unit [=config why=@t =status])
+            %-  ~(get by ;;((map [h=@p id=identifier] [=config why=@t =status]) recs))
+            [~patpet-dopped [%twitter handle]]
+          ::
+          ::  already verified
+          ::
+          ?:  ?&  ?=(^ rec)
+                  ?=(%done -.status.u.rec)
+              ==
+            %-  pure:m
+            !>  ^-  json
+            %-  pairs:enjs:format
+            :~  ['type' s+'text']
+                ['text' s+(rap 3 '@' handle ' is already verified on this ship.' ~)]
+            ==
+          ::  pending: tweet already requested, just return the text
+          ::
+          ?:  ?&  ?=(^ rec)
+                  ?=([%want %twitter %post *] status.u.rec)
+              ==
+            ;<  tweet-text=tape  bind:m
+              (scry:io tape [%gx %lanyard %v1 %proof %twitter handle %text ~])
+            %-  pure:m
+            !>  ^-  json
+            %-  pairs:enjs:format
+            :~  ['type' s+'text']
+                :-  'text'
+                :-  %s
+                %-  crip
+                """
+                Attestation already in progress. Post this tweet from @{(trip handle)}, then call this tool again with the numeric tweet ID:
+
+                {tweet-text}
+                """
+            ==
+          ::
+          ::  verifier is mid-flight, nothing to do yet
+          ::
+          ?:  ?&  ?=(^ rec)
+                  ?=(%wait -.status.u.rec)
+              ==
+            %-  pure:m
+            !>  ^-  json
+            %-  pairs:enjs:format
+            :~  ['type' s+'text']
+                ['text' s+(rap 3 'Attestation of @' handle ' is in progress (' why.u.rec '). Try again shortly.' ~)]
+            ==
+          ::
+          ::  not started: subscribe, poke %start, wait for %want
+          ::
+          ;<  our=ship  bind:m  get-our:io
+          ;<  ~  bind:m
+            (watch-our:io /attest-wait %lanyard /v1/records)
+          ;<  ~  bind:m
+            %-  send-raw-card:io
+            :*  %pass   /attest-start
+                %agent  [our %lanyard]
+                %poke   %lanyard-command-1
+                !>(`command:l`[~ %start [%twitter handle]])
+            ==
+          ;<  ~  bind:m  (take-poke-ack:io /attest-start)
+          |-  ^-  form:m
+          ;<  =cage  bind:m  (take-fact:io /attest-wait)
+          ?>  ?=(%lanyard-update-1 p.cage)
+          =/  upd=update:l  !<(update:l q.cage)
+          ?.  ?=(%status -.upd)  $
+          ?.  =(~patpet-dopped host.upd)  $
+          ?.  =([%twitter handle] id.upd)  $
+          ?.  ?=([%want %twitter %post *] status.upd)  $
+          ;<  tweet-text=tape  bind:m
+            (scry:io tape [%gx %lanyard %v1 %proof %twitter handle %text ~])
+          %-  pure:m
+          !>  ^-  json
+          %-  pairs:enjs:format
+          :~  ['type' s+'text']
+              :-  'text'
+              :-  %s
+              %-  crip
+              """
+              Post this tweet from @{(trip handle)}, then call this tool again with the numeric tweet ID:
+
+              {tweet-text}
+              """
+          ==
+        ::
+        ::  Phase 2: tweet-id provided, submit and await result
+        ::
+        ?>  ?=([%string @t] u.tweet-id)
+        =/  tweet-id=@t  p.u.tweet-id
+        ;<  our=ship  bind:m  get-our:io
+        ;<  ~  bind:m
+          (watch-our:io /attest-wait %lanyard /v1/records)
+        ;<  ~  bind:m
+          %-  send-raw-card:io
+          :*  %pass   /attest-work
+              %agent  [our %lanyard]
+              %poke   %lanyard-command-1
+              !>(`command:l`[~ %work [%twitter handle] %twitter %post tweet-id])
+          ==
+        ;<  ~  bind:m  (take-poke-ack:io /attest-work)
+        |-  ^-  form:m
+        ;<  =cage  bind:m  (take-fact:io /attest-wait)
+        ?>  ?=(%lanyard-update-1 p.cage)
+        =/  upd=update:l  !<(update:l q.cage)
+        ?.  ?=(%status -.upd)  $
+        ?.  =(~patpet-dopped host.upd)  $
+        ?.  =([%twitter handle] id.upd)  $
+        ?+  -.status.upd  $
+        ::
+            %done
+          %-  pure:m
+          !>  ^-  json
+          %-  pairs:enjs:format
+          :~  ['type' s+'text']
+              ['text' s+(rap 3 'Verified! @' handle ' is now attested to ' (scot %p our) '.' ~)]
+          ==
+        ::
+            %want
+          ?.  ?=([%want %twitter %post *] status.upd)  $
+          ::  nonce rotated — must post a new tweet
+          ;<  tweet-text=tape  bind:m
+            (scry:io tape [%gx %lanyard %v1 %proof %twitter handle %text ~])
+          %-  pure:m
+          !>  ^-  json
+          %-  pairs:enjs:format
+          :~  ['type' s+'text']
+              :-  'text'
+              :-  %s
+              %-  crip
+              """
+              Tweet check failed (nonce rotated — you may need to wait 15 min before retrying).
+              Post this new tweet, then call this tool again with the new tweet ID:
+
+              {tweet-text}
+              """
+          ==
+        ::
+            %gone
+          %-  pure:m
+          !>  ^-  json
+          %-  pairs:enjs:format
+          :~  ['type' s+'text']
+              ['text' s+(rap 3 'Verification failed: ' why.upd ~)]
+          ==
+        ==
+    ==
+    ::
+    ::  Inverse lookup: which ship (if any) has attested a given Twitter handle?
+    ::
+    :*  'chorus__query-whose-twitter'
+        '''
+        Look up which Urbit ship (if any) has a verified attestation for a given
+        Twitter/X handle. Useful for confirming that an AI agent ship is operated
+        by the owner of a specific Twitter account.
+        '''
+        (my ['handle' [%string 'The Twitter/X handle to look up (without @).']]~)
+        ~['handle']
+        ^-  thread-builder:tool:mcp
+        |=  args=(map name:parameter:tool:mcp argument:tool:mcp)
+        ^-  shed:khan
+        =/  m  (strand:spider ,vase)
+        ^-  form:m
+        =/  handle  (~(get by args) 'handle')
+        ?~  handle  ~|(%missing-handle !!)
+        ?>  ?=([%string @t] u.handle)
+        =/  handle=@t  (crip (cass (trip p.u.handle)))
+        =/  nonce=@uv  `@uv`1
+        ;<  our=ship  bind:m  get-our:io
+        ;<  ~  bind:m
+          (watch-our:io /whose-query %lanyard /v1/query/(scot %uv nonce))
+        ;<  ~  bind:m
+          %-  send-raw-card:io
+          :*  %pass   /whose-poke
+              %agent  [our %lanyard]
+              %poke   %lanyard-query-1
+              !>([~ `@`nonce [%whose [%twitter handle]]])
+          ==
+        ;<  ~  bind:m  (take-poke-ack:io /whose-poke)
+        ;<  =cage  bind:m  (take-fact:io /whose-query)
+        ?>  ?=(%lanyard-update-1 p.cage)
+        =/  upd=update:l  !<(update:l q.cage)
+        ?>  ?=(%query -.upd)
+        =/  res=result:l  +>.upd
+        ?>  ?=(%whose -.res)
+        %-  pure:m
+        !>  ^-  json
+        %-  pairs:enjs:format
+        :~  ['type' s+'text']
+            :-  'text'
+            :-  %s
+            ?~  who.res
+              (rap 3 'No verified Urbit ship found for @' handle '.' ~)
+            (rap 3 '@' handle ' is attested to ' (scot %p u.who.res) '.' ~)
     ==  ==
 ==

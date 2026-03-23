@@ -1,8 +1,9 @@
 imports:
-  base-dev: ./dist
-  mcp:      ./dist
-  suite:    ./dist
-  tlon-lib: ./dist
+  base-dev:      ./dist
+  mcp:           ./dist
+  suite:         ./dist
+  tlon-lib:      ./dist
+  tlon-verifier: ./dist
 
 git module mcp:
   url:    https://github.com/gwbtc/urbit-mcp
@@ -19,6 +20,16 @@ git module tlon-lib:
   pick:
     - desk/lib/test-agent.hoon
   rev: 9f0c94771e4773567a2f55a727ffa31b0f6e8e9f
+
+git module tlon-verifier:
+  url:    https://github.com/tloncorp/tlon-apps
+  reup:   develop
+  export: desk
+  pick:
+    - desk/sur/verifier.hoon
+    - desk/mar/lanyard/command-1.hoon
+    - desk/mar/lanyard/update-1.hoon
+    - desk/mar/lanyard/query-1.hoon
 
 git module suite:
   url:  https://github.com/fang-/suite
