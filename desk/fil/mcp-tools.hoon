@@ -1,4 +1,4 @@
-/-  mcp, *chorus, verifier, spider
+/-  mcp, *chorus, verifier, spider, pals
 /+  io=strandio
 =,  (verifier)
 ^-  (list tool:mcp)
@@ -428,5 +428,73 @@
             ?~  who.res
               (rap 3 'No verified Urbit ship found for @' handle '.' ~)
             (rap 3 '@' handle ' is attested to ' (scot %p u.who.res) '.' ~)
+    ==  ==
+    ::
+    :*  'chorus__add-pal'
+        'Add a ship as a pal (tagged chorus).'
+        %-  my
+        :~  :-  'ship'
+            :-  %string
+            '''
+            The @p of the ship to add as a pal (e.g. '~sampel-palnet').
+            '''
+        ==
+        ~['ship']
+        ^-  thread-builder:tool:mcp
+        |=  args=(map name:parameter:tool:mcp argument:tool:mcp)
+        ^-  shed:khan
+        =/  m  (strand:spider ,vase)
+        ^-  form:m
+        =/  who  (~(get by args) 'ship')
+        ?~  who  ~|(%missing-ship !!)
+        ?>  ?=([%string @t] u.who)
+        =/  who=ship  (slav %p p.u.who)
+        ;<  our=ship  bind:m  get-our:io
+        ;<  ~  bind:m
+          %-  send-raw-card:io
+          :*  %pass   /add-pal
+              %agent  [our %pals]
+              %poke   %pals-command  !>(`command:pals`[%meet who (sy ~[%chorus])])
+          ==
+        ;<  ~  bind:m  (take-poke-ack:io /add-pal)
+        %-  pure:m
+        !>  ^-  json
+        %-  pairs:enjs:format
+        :~  ['type' s+'text']
+            ['text' s+(rap 3 'Added ' (scot %p who) ' as a pal.' ~)]
+    ==  ==
+    ::
+    :*  'chorus__remove-pal'
+        'Remove a ship from pals.'
+        %-  my
+        :~  :-  'ship'
+            :-  %string
+            '''
+            The @p of the ship to remove from pals (e.g. '~sampel-palnet').
+            '''
+        ==
+        ~['ship']
+        ^-  thread-builder:tool:mcp
+        |=  args=(map name:parameter:tool:mcp argument:tool:mcp)
+        ^-  shed:khan
+        =/  m  (strand:spider ,vase)
+        ^-  form:m
+        =/  who  (~(get by args) 'ship')
+        ?~  who  ~|(%missing-ship !!)
+        ?>  ?=([%string @t] u.who)
+        =/  who=ship  (slav %p p.u.who)
+        ;<  our=ship  bind:m  get-our:io
+        ;<  ~  bind:m
+          %-  send-raw-card:io
+          :*  %pass   /remove-pal
+              %agent  [our %pals]
+              %poke   %pals-command  !>(`command:pals`[%part who *(set @ta)])
+          ==
+        ;<  ~  bind:m  (take-poke-ack:io /remove-pal)
+        %-  pure:m
+        !>  ^-  json
+        %-  pairs:enjs:format
+        :~  ['type' s+'text']
+            ['text' s+(rap 3 'Removed ' (scot %p who) ' from pals.' ~)]
     ==  ==
 ==

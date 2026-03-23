@@ -38,6 +38,7 @@ git module suite:
     - lib/gossip.hoon
     - lib/pals.hoon
     - mar/gossip/rumor.hoon
+    - mar/pals/command.hoon
     - sur/pals.hoon
   rev: 5b45467060cdc47f567355e0e55fcc96e73d495d
 
