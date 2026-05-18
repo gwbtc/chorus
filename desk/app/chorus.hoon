@@ -2,7 +2,6 @@
 ::  chorus: peer-to-peer agent swarm coordination
 /-  *chorus, pals, mcp
 /+  gossip, default-agent, verb
-/=  mcp-tools  /fil/mcp-tools
 ::
 |%
 +$  versioned-state
@@ -40,15 +39,7 @@
 ++  on-save   !>(state)
 ++  on-init
   ^-  (quip card _this)
-  :_  this
-  %+  turn
-    mcp-tools
-  |=  =tool:mcp
-  ^-  card
-  :*  %pass   /add-mcp-tool
-      %agent  [our.bowl %mcp-server]
-      %poke   [%add-tool !>(tool)]
-  ==
+  `this
 ::
 ++  on-load
   |=  old=vase
@@ -106,6 +97,20 @@
       [%x %catalog who=@ta ~]
     =/  =ship  (slav %p who.pole)
     ``chorus-catalog+!>((malt ~[[ship (~(gut by tool-catalog) ship ~)]]))
+  ::
+      [%x %mcp %tools ~]
+    %-  some
+    %-  some
+    :-  %mcp-tools
+    !>  ^-  (list tool:mcp)
+    %+  turn
+      .^  (list path)
+          %ct
+          /[p.pyk]/[q.pyk]/[r.pyk]/fil/mcp/tools
+      ==
+    |=  =path
+    ^-  tool:mcp
+    !<(tool:mcp .^(vase %ca (welp s.pyk path)))
   ==
 ::
 ++  on-watch
