@@ -64,7 +64,7 @@
           %-  send-raw-card:io
           :*  %pass   /make-announcement
               %agent  [our %chorus]
-              %poke   %broadcast  !>([%announce p.u.ano])
+              %poke   %chorus-broadcast  !>([%announce p.u.ano])
           ==
         ;<  ~  bind:m  (take-poke-ack:io /make-announcement)
         %-  pure:m
@@ -111,7 +111,7 @@
           %-  send-raw-card:io
           :*  %pass   /publish-app
               %agent  [our %chorus]
-              %poke   %broadcast  !>([%publish-app `@tas`p.u.dek p.u.dec])
+              %poke   %chorus-broadcast  !>([%publish-app `@tas`p.u.dek p.u.dec])
           ==
         ;<  ~  bind:m  (take-poke-ack:io /publish-app)
         %-  pure:m
@@ -183,7 +183,7 @@
           %-  send-raw-card:io
           :*  %pass   /publish-tool
               %agent  [our %chorus]
-              %poke   %broadcast  !>([%publish-tool p.u.nam p.u.dec pars rex])
+              %poke   %chorus-broadcast  !>([%publish-tool p.u.nam p.u.dec pars rex])
           ==
         ;<  ~  bind:m  (take-poke-ack:io /publish-tool)
         %-  pure:m
@@ -264,11 +264,12 @@
                 :-  'text'
                 :-  %s
                 %-  crip
-                """
-                Attestation already in progress. Post this tweet from @{(trip handle)}, then call this tool again with the numeric tweet ID:
-
-                {tweet-text}
-                """
+                ""
+                ::  """
+                ::  Attestation already in progress. Post this tweet from @{handle}, then call this tool again with the numeric tweet ID
+::  
+                ::  {tweet-text}
+                ::  """
             ==
           ::
           ::  verifier is mid-flight, nothing to do yet

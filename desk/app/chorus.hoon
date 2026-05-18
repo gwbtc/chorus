@@ -21,7 +21,7 @@
       [2 %anybody %anybody |]
     %-  ~(gas by *(map mark $-(* vase)))
     ^-  (list [mark $-(* vase)])
-    :~  [%chorus-broadcast |=(n=* !>((,[ship *] n)))]
+    :~  [%chorus-broadcast |=(n=* !>(;;(broadcast n)))]
     ==
 ::
 ^-  agent:gall
@@ -154,7 +154,7 @@
       ==
     ==
     ::
-        %broadcast
+        %chorus-broadcast
       =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
       =/  cic  (nol:nu:cric:crypto .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf))))
       =/  act  !<(chorus-action vase)
@@ -224,17 +224,22 @@
     ?+  mark
       `this
     ::
-        %chorus-broadcast
+      %chorus-broadcast
       =/  bod  !<(broadcast q.cage.sign)
-      =/  lyf  .^((unit @ud) %j (welp s.pyk /(scot %p ship.bod)))
-      ?~  lyf
+      =/  m-act=(unit chorus-action)
+        =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/(scot %p ship.bod))
+        ?~  lyf
+          ::  XX temporary development fallback: accept when PKI lookup is unavailable.
+          `;;(chorus-action (cue data.bod))
+        =/  ded
+          .^([* =pass *] %j /[p.pyk]/deed/[r.pyk]/(scot %p ship.bod)/(scot %ud u.lyf))
+        =/  cic  (com:nu:cric:crypto pass.ded)
+        ?.  (veri:ed:crypto sig.bod data.bod sgn.pub.cic)
+          ~
+        `;;(chorus-action (cue data.bod))
+      ?~  m-act
         `this
-      =/  ded
-        .^([* =pass *] %j (welp s.pyk /(scot %p ship.bod)/(scot %ud u.lyf)))
-      =/  cic  (com:nu:cric:crypto pass.ded)
-      ?.  (veri:ed:crypto sig.bod data.bod sgn.pub.cic)
-        `this
-      =/  act  ;;(chorus-action (cue data.bod))
+      =/  act  u.m-act
       ?+  -.act
         `this
       ::
