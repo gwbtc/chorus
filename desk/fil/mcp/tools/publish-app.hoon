@@ -1,7 +1,7 @@
 /-  mcp, *chorus, spider
 /+  io=strandio
 ^-  tool:mcp
-:*  'chorus__publish-app'
+:*  'chorus/publish-app'
     '''
     Announce a new Gall app to the Chorus network.
     '''

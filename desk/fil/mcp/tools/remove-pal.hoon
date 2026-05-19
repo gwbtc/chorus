@@ -1,7 +1,7 @@
 /-  mcp, pals, spider
 /+  io=strandio
 ^-  tool:mcp
-:*  'chorus__remove-pal'
+:*  'chorus/remove-pal'
     'Remove a ship from pals.'
     %-  my
     :~  :-  'ship'

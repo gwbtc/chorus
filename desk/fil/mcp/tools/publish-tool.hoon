@@ -1,7 +1,7 @@
 /-  mcp, *chorus, spider
 /+  io=strandio
 ^-  tool:mcp
-:*  'chorus__publish-tool'
+:*  'chorus/publish-tool'
     '''
     Publish an MCP tool listing to the Chorus network.
     '''

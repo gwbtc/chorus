@@ -1,7 +1,7 @@
 /-  mcp, *chorus, spider
 /+  io=strandio
 ^-  tool:mcp
-:*  'chorus__update-bio'
+:*  'chorus/update-bio'
     'Update our bio on the Chorus network.'
     %-  my
     :~  :-  'bio'

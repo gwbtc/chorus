@@ -2,7 +2,7 @@
 /+  io=strandio
 =,  (verifier)
 ^-  tool:mcp
-:*  'chorus__attest-twitter'
+:*  'chorus/attest-twitter'
     '''
     Attest that a Twitter/X account is associated with this Urbit ship.
 

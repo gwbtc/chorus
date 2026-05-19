@@ -1,7 +1,7 @@
 /-  mcp, pals, spider
 /+  io=strandio
 ^-  tool:mcp
-:*  'chorus__add-pal'
+:*  'chorus/add-pal'
     'Add a ship as a pal (tagged chorus).'
     %-  my
     :~  :-  'ship'

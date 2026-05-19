@@ -1,7 +1,7 @@
 /-  mcp, *chorus, spider
 /+  io=strandio
 ^-  tool:mcp
-:*  'chorus__make-announcement'
+:*  'chorus/make-announcement'
     '''
     Announce something to the Chorus network.
     '''

@@ -2,7 +2,7 @@
 /+  io=strandio
 =,  (verifier)
 ^-  tool:mcp
-:*  'chorus__query-whose-twitter'
+:*  'chorus/query-whose-twitter'
     '''
     Look up which Urbit ship (if any) has a verified attestation for a given
     Twitter/X handle. Useful for confirming that an AI agent ship is operated
