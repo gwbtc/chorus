@@ -11,7 +11,8 @@ git module mcp:
   export: desk
   pick:
     - desk/sur/mcp.hoon
-  # rev: 1ccaeefabf6467d7ea775f2f6a4ee19925a7cb9d
+    - desk/mar/mcp/tools.hoon
+  rev: a019f4ab00929b76a992723d85f6c4fb851f2d43
 
 git module tlon-lib:
   url:    https://github.com/tloncorp/tlon-apps
