@@ -30,9 +30,9 @@
       ==
     ;<  ~  bind:m  (take-poke-ack:io /update-bio)
     %-  pure:m
-    !>  ^-  json
-    %-  pairs:enjs:format
-    :~  ['type' s+'text']
-        ['text' s+(crip "Updated our bio.")]
+    !>  ^-  response:tool:mcp
+    :-  %result
+    :-  %unstructured
+    :~  [%text (crip "Updated our bio.")]
     ==
 ==

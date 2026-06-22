@@ -40,10 +40,10 @@
               ?=(%done -.status.u.rec)
           ==
         %-  pure:m
-        !>  ^-  json
-        %-  pairs:enjs:format
-        :~  ['type' s+'text']
-            ['text' s+(rap 3 '@' handle ' is already verified on this ship.' ~)]
+        !>  ^-  response:tool:mcp
+        :-  %result
+        :-  %unstructured
+        :~  [%text (rap 3 '@' handle ' is already verified on this ship.' ~)]
         ==
       ?:  ?&  ?=(^ rec)
               ?=([%want %twitter %post *] status.u.rec)
@@ -51,22 +51,19 @@
         ;<  tweet-text=tape  bind:m
           (scry:io tape [%gx %lanyard %v1 %proof %twitter handle %text ~])
         %-  pure:m
-        !>  ^-  json
-        %-  pairs:enjs:format
-        :~  ['type' s+'text']
-            :-  'text'
-            :-  %s
-            %-  crip
-            ""
+        !>  ^-  response:tool:mcp
+        :-  %result
+        :-  %unstructured
+        :~  [%text '']
         ==
       ?:  ?&  ?=(^ rec)
               ?=(%wait -.status.u.rec)
           ==
         %-  pure:m
-        !>  ^-  json
-        %-  pairs:enjs:format
-        :~  ['type' s+'text']
-            ['text' s+(rap 3 'Attestation of @' handle ' is in progress (' why.u.rec '). Try again shortly.' ~)]
+        !>  ^-  response:tool:mcp
+        :-  %result
+        :-  %unstructured
+        :~  [%text (rap 3 'Attestation of @' handle ' is in progress (' why.u.rec '). Try again shortly.' ~)]
         ==
       ;<  our=ship  bind:m  get-our:io
       ;<  ~  bind:m
@@ -90,11 +87,10 @@
       ;<  tweet-text=tape  bind:m
         (scry:io tape [%gx %lanyard %v1 %proof %twitter handle %text ~])
       %-  pure:m
-      !>  ^-  json
-      %-  pairs:enjs:format
-      :~  ['type' s+'text']
-          :-  'text'
-          :-  %s
+      !>  ^-  response:tool:mcp
+      :-  %result
+      :-  %unstructured
+      :~  :-  %text
           %-  crip
           """
           Post this tweet from @{(trip handle)}, then call this tool again with the numeric tweet ID:
@@ -125,21 +121,20 @@
     ?+  -.status.upd  $
         %done
       %-  pure:m
-      !>  ^-  json
-      %-  pairs:enjs:format
-      :~  ['type' s+'text']
-          ['text' s+(rap 3 'Verified! @' handle ' is now attested to ' (scot %p our) '.' ~)]
+      !>  ^-  response:tool:mcp
+      :-  %result
+      :-  %unstructured
+      :~  [%text (rap 3 'Verified! @' handle ' is now attested to ' (scot %p our) '.' ~)]
       ==
         %want
       ?.  ?=([%want %twitter %post *] status.upd)  $
       ;<  tweet-text=tape  bind:m
         (scry:io tape [%gx %lanyard %v1 %proof %twitter handle %text ~])
       %-  pure:m
-      !>  ^-  json
-      %-  pairs:enjs:format
-      :~  ['type' s+'text']
-          :-  'text'
-          :-  %s
+      !>  ^-  response:tool:mcp
+      :-  %result
+      :-  %unstructured
+      :~  :-  %text
           %-  crip
           """
           Tweet check failed (nonce rotated — you may need to wait 15 min before retrying).
@@ -150,10 +145,10 @@
       ==
         %gone
       %-  pure:m
-      !>  ^-  json
-      %-  pairs:enjs:format
-      :~  ['type' s+'text']
-          ['text' s+(rap 3 'Verification failed: ' why.upd ~)]
+      !>  ^-  response:tool:mcp
+      :-  %result
+      :-  %unstructured
+      :~  [%text (rap 3 'Verification failed: ' why.upd ~)]
       ==
     ==
 ==

@@ -42,9 +42,9 @@
       ==
     ;<  ~  bind:m  (take-poke-ack:io /publish-app)
     %-  pure:m
-    !>  ^-  json
-    %-  pairs:enjs:format
-    :~  ['type' s+'text']
-        ['text' s+(crip "Published app %{(trip p.u.dek)}!")]
+    !>  ^-  response:tool:mcp
+    :-  %result
+    :-  %unstructured
+    :~  [%text (crip "Published app %{(trip p.u.dek)}!")]
     ==
 ==

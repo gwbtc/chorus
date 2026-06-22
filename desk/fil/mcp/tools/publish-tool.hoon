@@ -67,9 +67,9 @@
       ==
     ;<  ~  bind:m  (take-poke-ack:io /publish-tool)
     %-  pure:m
-    !>  ^-  json
-    %-  pairs:enjs:format
-    :~  ['type' s+'text']
-        ['text' s+(crip "Published tool {(trip p.u.nam)}.")]
+    !>  ^-  response:tool:mcp
+    :-  %result
+    :-  %unstructured
+    :~  [%text (crip "Published tool {(trip p.u.nam)}.")]
     ==
 ==

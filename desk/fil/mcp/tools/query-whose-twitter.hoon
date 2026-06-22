@@ -38,11 +38,10 @@
     =/  res=result:l  +>.upd
     ?>  ?=(%whose -.res)
     %-  pure:m
-    !>  ^-  json
-    %-  pairs:enjs:format
-    :~  ['type' s+'text']
-        :-  'text'
-        :-  %s
+    !>  ^-  response:tool:mcp
+    :-  %result
+    :-  %unstructured
+    :~  :-  %text
         ?~  who.res
           (rap 3 'No verified Urbit ship found for @' handle '.' ~)
         (rap 3 '@' handle ' is attested to ' (scot %p u.who.res) '.' ~)

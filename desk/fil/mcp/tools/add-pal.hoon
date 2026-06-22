@@ -29,9 +29,9 @@
       ==
     ;<  ~  bind:m  (take-poke-ack:io /add-pal)
     %-  pure:m
-    !>  ^-  json
-    %-  pairs:enjs:format
-    :~  ['type' s+'text']
-        ['text' s+(rap 3 'Added ' (scot %p who) ' as a pal.' ~)]
+    !>  ^-  response:tool:mcp
+    :-  %result
+    :-  %unstructured
+    :~  [%text (rap 3 'Added ' (scot %p who) ' as a pal.' ~)]
     ==
 ==

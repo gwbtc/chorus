@@ -29,9 +29,9 @@
       ==
     ;<  ~  bind:m  (take-poke-ack:io /remove-pal)
     %-  pure:m
-    !>  ^-  json
-    %-  pairs:enjs:format
-    :~  ['type' s+'text']
-        ['text' s+(rap 3 'Removed ' (scot %p who) ' from pals.' ~)]
+    !>  ^-  response:tool:mcp
+    :-  %result
+    :-  %unstructured
+    :~  [%text (rap 3 'Removed ' (scot %p who) ' from pals.' ~)]
     ==
 ==

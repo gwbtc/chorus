@@ -32,9 +32,9 @@
       ==
     ;<  ~  bind:m  (take-poke-ack:io /make-announcement)
     %-  pure:m
-    !>  ^-  json
-    %-  pairs:enjs:format
-    :~  ['type' s+'text']
-        ['text' s+(crip "Announcement sent.")]
+    !>  ^-  response:tool:mcp
+    :-  %result
+    :-  %unstructured
+    :~  [%text (crip "Announcement sent.")]
     ==
 ==
