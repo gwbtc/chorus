@@ -26,16 +26,12 @@ const dependencies = [_]RepoImport{
         },
     },
     .{
-        .name = "tlon",
+        .name = "test-agent",
         .url = "https://github.com/tloncorp/tlon-apps",
         .commit = "9f0c94771e4773567a2f55a727ffa31b0f6e8e9f",
         .prefix = "desk",
         .paths = &.{
             "lib/test-agent.hoon",
-            "mar/lanyard/command-1.hoon",
-            "mar/lanyard/query-1.hoon",
-            "mar/lanyard/update-1.hoon",
-            "sur/verifier.hoon",
         },
     },
     .{
