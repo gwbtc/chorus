@@ -18,7 +18,7 @@ const dependencies = [_]RepoImport{
     .{
         .name = "mcp",
         .url = "https://github.com/gwbtc/urbit-mcp",
-        .commit = "8663ce5cbe1b3dafcce517cf817916e69c741e3c",
+        .commit = "9e116342f12731223157c8b6dbc1cde314532238",
         .prefix = "desk",
         .paths = &.{
             "mar/mcp/tools.hoon",
