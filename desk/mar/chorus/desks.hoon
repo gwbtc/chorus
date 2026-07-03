@@ -1,5 +1,5 @@
 /-  *chorus
-|_  val=(map ship (set (pair desk desc)))
+|_  val=(map ship (set [=desk =desc]))
 ++  grad  %noun
 ++  grow
   |%
@@ -9,18 +9,18 @@
     :-  %o
     %-  ~(gas by *(map @t ^json))
     %+  turn  ~(tap by val)
-    |=  [=ship apps=(set (pair desk desc))]
+    |=  [=ship desks=(set [=desk =desc])]
     :-  (scot %p ship)
     :-  %a
-    %+  turn  ~(tap in apps)
-    |=  [p=desk q=desc]
+    %+  turn  ~(tap in desks)
+    |=  [=desk =desc]
     %-  pairs:enjs:format
-    :~  ['desk' s+p]
-        ['desc' s+q]
+    :~  ['desk' s+desk]
+        ['desc' s+desc]
     ==
   --
 ++  grab
   |%
-  ++  noun  ,(map ship (set (pair desk desc)))
+  ++  noun  ,(map ship (set [=desk =desc]))
   --
 --

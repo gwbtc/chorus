@@ -1,65 +1,112 @@
-/-  mcp
+/-  mcp, *wick
 |%
 ::
+::  biography
 +$  bio   @t
+::  desk description
 +$  desc  @t
+::  256-character message for the network
++$  announcement  @t
 ::
 +$  state-0
   $:  %0
-      ::  our description
+      ::  XX remove, just put our bio in rolodex
       =bio
-      ::  peers' descriptions
+      :: agent descriptions
       rolodex=(map ship bio)
       ::  heard messages
-      announcements=(set announcement)
-      ::  known app listings
-      apps=(map ship (set (pair desk desc)))
-      ::  known tool listings
-      tool-catalog=(map ship (set tool-listing))
+      announcements=(map ship (set [=time =announcement]))
+      ::  known desk listings
+      desks=(map ship (set [=desk =desc]))
+      ::  mcp features
+      mcp-tools=(map ship (set mcp-tool-listing))
+      mcp-prompts=(map ship (set mcp-prompt-listing))
+      mcp-resources=(map ship (set mcp-resource-listing))
+      mcp-resource-templates=(map ship (set mcp-resource-template-listing))
   ==
 ::
 ::  signed jammed noun
-+$  broadcast
-  $:  =ship
-      sig=@
-      data=@
-  ==
+::  +$  broadcast
+  ::  $:  =ship
+      ::  sig=@
+      ::  data=@
+  ::  ==
 ::
-::  256-character message for the network
-+$  announcement
-  $:  =ship
-      =time
-      text=@t
-  ==
-::
-+$  tool-listing
++$  mcp-tool-listing
+  $+  chorus-mcp-tool-listing
   $:  =name:tool:mcp
       =desc:tool:mcp
       =parameters:tool:mcp
       =required:tool:mcp
+      =wick
   ==
 ::
-::  pokes
-+$  chorus-action
-  $%  ::  update our self-description (local only)
-      [%update-bio text=@t]
-      ::  announce something to pals and pals-of-pals
-      [%announce text=@t]
-      ::  publish a Gall app to the network
-      [%publish-app =desk =desc]
-      ::  publish an MCP tool to the network
-      [%publish-tool =tool-listing]
++$  mcp-prompt-listing
+  $+  chorus-mcp-prompt-listing
+  $:  name=@t
+      title=@t
+      desc=@t
+      arguments=(list argument:prompt:mcp)
+      =wick
+  ==
+::
++$  mcp-resource-listing
+  $+  chorus-mcp-resource-listing
+  $:  uri=@t
+      name=@t
+      title=(unit @t)
+      desc=(unit @t)
+      =wick
+  ==
+::
++$  mcp-resource-template-listing
+  $+  chorus-mcp-resource-template-listing
+  $:  uri-template=@t
+      name=@t
+      title=(unit @t)
+      desc=(unit @t)
+      =wick
+  ==
+::
+::  client-to-server actions
++$  action
+  $+  chorus-action
+  $%  [%update-bio local=? =bio]
+      [%make-announcement local=? =announcement]
+      [%publish-desk local=? =desk =desc]
+      [%publish-mcp-tool local=? =path]
+      [%publish-mcp-prompt local=? =path]
+      [%publish-mcp-resource local=? =path]
+      [%publish-mcp-resource-template local=? =path]
+  ==
+::
+::  ship-to-ship messages
++$  message
+  $+  chorus-message
+  $:  %chorus-message
+    $%  [%bio =wick]
+        [%disavow =message]
+        [%endorse =message]
+        [%announcement =wick]
+        [%mcp-tool =wick]
+        [%mcp-resource =wick]
+        [%mcp-resource-template =wick]
+        [%mcp-prompt =wick]
+        ::  XX %agent-skill =wick
+        ::  XX %a2a-agent-card =wick
+        ::  XX %a2a-agent-skill =wick
+    ==
   ==
 ::
 ::  facts sent to subscribers
-+$  chorus-update
-  $%  ::  someone's bio changed
-      [%updated-bio =ship =bio]
-      ::  a peer announced to the network
++$  update
+  $+  chorus-update
+  $%  [%updated-bio =ship =bio]
       [%announcement =ship =time text=@t]
-      ::  a peer published a tool
-      [%new-tool-listing =ship =tool-listing]
-      ::  a peer published an app
-      [%new-app-published =ship =desk =desc]
+      [%desk-published =ship =desk =desc]
+      [%mcp-tool-listed =ship =mcp-tool-listing]
+      [%mcp-prompt-listed =ship =mcp-prompt-listing]
+      [%mcp-resource-listed =ship =mcp-resource-listing]
+      [%mcp-resource-template-listed =ship =mcp-resource-template-listing]
   ==
 --

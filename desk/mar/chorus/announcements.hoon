@@ -1,22 +1,23 @@
 /-  *chorus
-|_  val=(set announcement)
+|_  val=(map ship (set announcement))
 ++  grad  %noun
 ++  grow
   |%
   ++  noun  val
   ++  json
     ^-  ^json
+    :-  %o
+    %-  ~(gas by *(map @t ^json))
+    %+  turn  ~(tap by val)
+    |=  [=ship announcements=(set announcement)]
+    :-  (scot %p ship)
     :-  %a
-    %+  turn  ~(tap in val)
+    %+  turn  ~(tap in announcements)
     |=  =announcement
-    %-  pairs:enjs:format
-    :~  ['ship' s+(scot %p ship.announcement)]
-        ['time' s+(scot %da time.announcement)]
-        ['text' s+text.announcement]
-    ==
+    s+announcement
   --
 ++  grab
   |%
-  ++  noun  ,(set announcement)
+  ++  noun  ,(map ship (set announcement))
   --
 --

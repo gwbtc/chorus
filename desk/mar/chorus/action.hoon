@@ -1,5 +1,5 @@
 /-  *chorus
-|_  act=chorus-action
+|_  act=action
 ++  grad  %noun
 ++  grow
   |%
@@ -7,6 +7,6 @@
   --
 ++  grab
   |%
-  ++  noun  ,chorus-action
+  ++  noun  ,action
   --
 --

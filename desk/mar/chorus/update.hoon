@@ -1,5 +1,5 @@
 /-  *chorus
-|_  val=chorus-update
+|_  val=update
 ++  grad  %noun
 ++  grow
   |%
@@ -22,37 +22,87 @@
           ['text' s+text.val]
       ==
     ::
-        %new-app-published
+        %desk-published
       %-  pairs:enjs:format
-      :~  ['type' s+'new-app-published']
+      :~  ['type' s+'desk-published']
           ['ship' s+(scot %p ship.val)]
           ['desk' s+desk.val]
           ['desc' s+desc.val]
       ==
     ::
-        %new-tool-listing
-      =/  t  tool-listing.val
+        %mcp-tool-listed
+      =/  t  mcp-tool-listing.val
       %-  pairs:enjs:format
-      :~  ['type' s+'new-tool-listing']
+      :~  ['type' s+'mcp-tool-listed']
           ['ship' s+(scot %p ship.val)]
           ['name' s+name.t]
-          ['desc' s+desc.t]
-          :-  'parameters'
-          :-  %o
-          %-  ~(gas by *(map @t ^json))
-          %+  turn  ~(tap by parameters.t)
-          |=  [pname=@t =def:parameter:tool:mcp]
-          :-  pname
+          ['description' s+desc.t]
+          :-  'inputSchema'
           %-  pairs:enjs:format
-          :~  ['type' s+(crip (trip type.def))]
-              ['desc' s+desc.def]
+          :~  ['type' s+'object']
+              :-  'properties'
+              :-  %o
+              %-  ~(gas by *(map @t ^json))
+              %+  turn  ~(tap by parameters.t)
+              |=  [pname=@t =def:parameter:tool:mcp]
+              :-  pname
+              %-  pairs:enjs:format
+              :~  ['type' s+type.def]
+                  ['description' s+desc.def]
+              ==
+              ['required' a+(turn required.t |=(r=@t s+r))]
           ==
-          ['required' a+(turn required.t |=(r=@t s+r))]
+      ==
+    ::
+        %mcp-prompt-listed
+      =/  p  mcp-prompt-listing.val
+      %-  pairs:enjs:format
+      :~  ['type' s+'mcp-prompt-listed']
+          ['ship' s+(scot %p ship.val)]
+          ['name' s+name.p]
+          ['title' s+title.p]
+          ['description' s+desc.p]
+          :-  'arguments'
+          :-  %a
+          %+  turn
+            arguments.p
+          |=  arg=argument:prompt:mcp
+          %-  pairs:enjs:format
+          :~  ['name' s+name.arg]
+              ['description' s+desc.arg]
+              ['required' b+required.arg]
+          ==
+      ==
+    ::
+        %mcp-resource-listed
+      =/  r  mcp-resource-listing.val
+      %-  pairs:enjs:format
+      :~  ['type' s+'mcp-resource-listed']
+          ['ship' s+(scot %p ship.val)]
+          ['uri' s+uri.r]
+          ['name' s+name.r]
+          :-  'title'
+          ?~  title.r  ~  s+u.title.r
+          :-  'description'
+          ?~  desc.r  ~  s+u.desc.r
+      ==
+    ::
+        %mcp-resource-template-listed
+      =/  r  mcp-resource-template-listing.val
+      %-  pairs:enjs:format
+      :~  ['type' s+'mcp-resource-template-listed']
+          ['ship' s+(scot %p ship.val)]
+          ['uriTemplate' s+uri-template.r]
+          ['name' s+name.r]
+          :-  'title'
+          ?~  title.r  ~  s+u.title.r
+          :-  'description'
+          ?~  desc.r  ~  s+u.desc.r
       ==
     ==
   --
 ++  grab
   |%
-  ++  noun  ,chorus-update
+  ++  noun  ,update
   --
 --

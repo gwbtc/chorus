@@ -26,29 +26,6 @@ const dependencies = [_]RepoImport{
         },
     },
     .{
-        .name = "test-agent",
-        .url = "https://github.com/tloncorp/tlon-apps",
-        .commit = "9f0c94771e4773567a2f55a727ffa31b0f6e8e9f",
-        .prefix = "desk",
-        .paths = &.{
-            "lib/test-agent.hoon",
-        },
-    },
-    .{
-        .name = "suite",
-        .url = "https://github.com/fang-/suite",
-        .commit = "5b45467060cdc47f567355e0e55fcc96e73d495d",
-        .prefix = "",
-        .paths = &.{
-            "lib/gossip.hoon",
-            "lib/pals.hoon",
-            "mar/gossip/rumor.hoon",
-            "mar/pals/command.hoon",
-            "mar/pals/gesture.hoon",
-            "sur/pals.hoon",
-        },
-    },
-    .{
         .name = "base-dev",
         .url = "https://github.com/urbit/urbit",
         .commit = "0f94550b941dfe046d9dff4a541330bd084e8cd1",
