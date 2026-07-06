@@ -1,13 +1,13 @@
 /-  chorus, mcp, spider
 /+  io=strandio
 ^-  tool:mcp
-:*  'chorus/publish-tool'
+:*  'chorus/publish-resource'
     '''
-    Publish an MCP tool listing from a Clay path to the Chorus network.
+    Publish an MCP resource listing from a Clay path to the Chorus network.
     '''
     %-  my
-    :~  ['desk' [%string 'The desk containing the MCP tool file.']]
-        ['path' [%string 'The Clay path to the MCP tool noun. Must begin with a /.']]
+    :~  ['desk' [%string 'The desk containing the MCP resource file.']]
+        ['path' [%string 'The Clay path to the MCP resource noun. Must begin with a /.']]
     ==
     ~['desk' 'path']
     ^-  thread-builder:tool:mcp
@@ -28,15 +28,15 @@
     ;<  our=ship  bind:m  get-our:io
     ;<  ~  bind:m
       %-  send-raw-card:io
-      :*  %pass   /publish-tool
+      :*  %pass   /publish-resource
           %agent  [our %chorus]
           %poke   %chorus-action
-          !>(`action:chorus`[%publish-mcp-tool | `@tas`p.u.dek path])
+          !>(`action:chorus`[%publish-mcp-resource | `@tas`p.u.dek path])
       ==
-    ;<  ~  bind:m  (take-poke-ack:io /publish-tool)
+    ;<  ~  bind:m  (take-poke-ack:io /publish-resource)
     %-  pure:m
     !>  ^-  response:tool:mcp
     :-  %result
     :-  %structured
-    (frond:enjs:format %published-mcp-tool s+p.u.pax)
+    (frond:enjs:format %published-mcp-resource s+p.u.pax)
 ==

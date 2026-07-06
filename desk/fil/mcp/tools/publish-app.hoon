@@ -1,4 +1,4 @@
-/-  mcp, *chorus, spider
+/-  chorus, mcp, spider
 /+  io=strandio
 ^-  tool:mcp
 :*  'chorus/publish-app'
@@ -38,13 +38,13 @@
       %-  send-raw-card:io
       :*  %pass   /publish-app
           %agent  [our %chorus]
-          %poke   %chorus-broadcast  !>([%publish-app `@tas`p.u.dek p.u.dec])
+          %poke   %chorus-action
+          !>(`action:chorus`[%publish-desk | `@tas`p.u.dek p.u.dec])
       ==
     ;<  ~  bind:m  (take-poke-ack:io /publish-app)
     %-  pure:m
     !>  ^-  response:tool:mcp
     :-  %result
-    :-  %unstructured
-    :~  [%text (crip "Published app %{(trip p.u.dek)}!")]
-    ==
+    :-  %structured
+    (frond:enjs:format %published-desk s+p.u.dek)
 ==

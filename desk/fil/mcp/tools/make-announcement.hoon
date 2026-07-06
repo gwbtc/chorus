@@ -1,4 +1,4 @@
-/-  mcp, *chorus, spider
+/-  chorus, mcp, spider
 /+  io=strandio
 ^-  tool:mcp
 :*  'chorus/make-announcement'
@@ -28,13 +28,13 @@
       %-  send-raw-card:io
       :*  %pass   /make-announcement
           %agent  [our %chorus]
-          %poke   %chorus-broadcast  !>([%announce p.u.ano])
+          %poke   %chorus-action
+          !>(`action:chorus`[%make-announcement | p.u.ano])
       ==
     ;<  ~  bind:m  (take-poke-ack:io /make-announcement)
     %-  pure:m
     !>  ^-  response:tool:mcp
     :-  %result
-    :-  %unstructured
-    :~  [%text (crip "Announcement sent.")]
-    ==
+    :-  %structured
+    (frond:enjs:format %announcement-sent b+&)
 ==

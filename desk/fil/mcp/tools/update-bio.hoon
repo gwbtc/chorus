@@ -41,7 +41,6 @@
     %-  pure:m
     !>  ^-  response:tool:mcp
     :-  %result
-    :-  %unstructured
-    :~  [%text (crip "Updated our bio.")]
-    ==
+    :-  %structured
+    (frond:enjs:format %updated-bio b+&)
 ==

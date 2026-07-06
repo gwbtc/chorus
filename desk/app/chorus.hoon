@@ -50,8 +50,13 @@
     %-  some
     :-  %mcp-tools
     !>  ^-  (list tool:mcp)
-    :~  !<(tool:mcp .^(vase %ca (welp s.pyk /fil/mcp/tools/update-bio/hoon)))
-    ==
+    %+  turn
+      .^  (list path)
+          %ct
+          (welp s.pyk /fil/mcp/tools)
+      ==
+    |=  pax=path
+    !<(tool:mcp .^(vase %ca (welp s.pyk pax)))
   ::
   ::  .^((map ship cord) %gx /=/chorus/=/rolodex/noun)
   ::  .^((map ship cord) %gx /=/chorus/=/rolodex/~ship/noun)
