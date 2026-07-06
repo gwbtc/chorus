@@ -205,6 +205,12 @@
       ==
     ::
         %publish-desk
+      =/  =cass:clay  .^(cass:clay %cw /[p.pyk]/[desk.act]/[r.pyk])
+      =/  =path  /fine/[p.pyk]/c/z/(scot %tas ud.cass)/[desk.act]
+      =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
+      =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
+      =/  =wick  (make-wick | byk.bowl path sec)
+      ::  XX gossip wick
       :-  ~
       %=  this
         desks  %-  ~(put by desks)
