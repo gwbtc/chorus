@@ -86,7 +86,6 @@
   $:  %chorus-message
     $%  [%bio =wick]
         [%disavow =message]
-        [%endorse =message]
         [%announcement =wick]
         [%mcp-tool =wick]
         [%mcp-resource =wick]
