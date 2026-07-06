@@ -74,10 +74,10 @@
   $%  [%update-bio local=? =bio]
       [%make-announcement local=? =announcement]
       [%publish-desk local=? =desk =desc]
-      [%publish-mcp-tool local=? =path]
-      [%publish-mcp-prompt local=? =path]
-      [%publish-mcp-resource local=? =path]
-      [%publish-mcp-resource-template local=? =path]
+      [%publish-mcp-tool local=? =desk =path]
+      [%publish-mcp-prompt local=? =desk =path]
+      [%publish-mcp-resource local=? =desk =path]
+      [%publish-mcp-resource-template local=? =desk =path]
   ==
 ::
 ::  ship-to-ship messages

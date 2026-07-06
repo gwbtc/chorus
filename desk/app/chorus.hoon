@@ -155,7 +155,7 @@
            ==
        ==
      =/  rev=@ud  (tail .^((pair @tas @ud) %gw /[p.pyk]/[q.pyk]/[r.pyk]//1/bio))
-     =/  =path  /fine/[p.pyk]/g/x/(scot %ud rev)//1/bio
+     =/  =path  /fine/[p.pyk]/g/x/(scot %ud rev)/chorus//1/bio
      =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
      ::  XX placeholder: use the Groundwire HD wallet's secp256k1 scalar here
      ::  once that key is exposed, instead of deriving one from Jael's ring.
@@ -172,12 +172,31 @@
       ?.  (lte (lent (trip announcement.act)) 256)
         ~|  "{<dap.bowl>}: announcement must be 256 characters or less"
         !!
-      :-  ~
-      %=  this
-        announcements  %-  ~(put by announcements)
-                       :-  our.bowl
-                       %-  ~(put in (~(gut by announcements) our.bowl ~))
-                       [now.bowl announcement.act]
+      :_   %=  this
+             announcements  %-  ~(put by announcements)
+                            :-  our.bowl
+                            %-  ~(put in (~(gut by announcements) our.bowl ~))
+                            [now.bowl announcement.act]
+           ==
+      ?:  local.act
+        :~  :*  %pass  ~
+                %grow
+                /announcements/[r.pyk]
+                [%txt announcement.act]
+            ==
+        ==
+      =/  rev=@ud  (tail .^((pair @tas @ud) %gw /[p.pyk]/[q.pyk]/[r.pyk]//1/announcements/[r.pyk]))
+      =/  =path
+        /fine/[p.pyk]/g/x/(scot %ud rev)/chorus//1/announcements/[r.pyk]
+      =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
+      =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
+      =/  =wick  (make-wick & byk.bowl path sec)
+      ::  XX gossip wick
+      :~  :*  %pass  ~
+              %grow
+              /announcements/[r.pyk]
+              [%txt announcement.act]
+          ==
       ==
     ::
         %publish-desk
@@ -190,44 +209,90 @@
       ==
     ::
         %publish-mcp-tool
-      =/  =tool:mcp  !<(tool:mcp .^(^vase %ca path.act))
+      =/  =cass:clay  .^(cass:clay %cw /[p.pyk]/[desk.act]/[r.pyk])
+      =/  =tool:mcp  !<(tool:mcp .^(^vase %ca (welp /[p.pyk]/[desk.act]/[r.pyk] path.act)))
+      =/  =path  (welp /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act] path.act)
+      =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
+      =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
+      =/  =wick  (make-wick & byk.bowl path sec)
+      ::  XX gossip wick
       :-  ~
       %=  this
         mcp-tools  %-  ~(put by mcp-tools)
                    :-  our.bowl
                    %-  ~(put in (~(gut by mcp-tools) our.bowl ~))
-                   (list-mcp-tool tool)
+                   :*  name.tool
+                       desc.tool
+                       parameters.tool
+                       required.tool
+                       wick
+                   ==
       ==
     ::
         %publish-mcp-prompt
-      =/  =prompt:mcp  !<(prompt:mcp .^(^vase %ca path.act))
+      =/  =cass:clay  .^(cass:clay %cw /[p.pyk]/[desk.act]/[r.pyk])
+      =/  =prompt:mcp
+        !<(prompt:mcp .^(^vase %ca (welp /[p.pyk]/[desk.act]/[r.pyk] path.act)))
+      =/  =path  (welp /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act] path.act)
+      =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
+      =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
+      =/  =wick  (make-wick & byk.bowl path sec)
+      ::  XX gossip wick
       :-  ~
       %=  this
         mcp-prompts  %-  ~(put by mcp-prompts)
                      :-  our.bowl
                      %-  ~(put in (~(gut by mcp-prompts) our.bowl ~))
-                     (list-mcp-prompt prompt)
+                     :*  name.prompt
+                         title.prompt
+                         desc.prompt
+                         arguments.prompt
+                         wick
+                     ==
       ==
     ::
         %publish-mcp-resource
-      =/  =resource:mcp  !<(resource:mcp .^(^vase %ca path.act))
+      =/  =cass:clay  .^(cass:clay %cw /[p.pyk]/[desk.act]/[r.pyk])
+      =/  =resource:mcp
+        !<(resource:mcp .^(^vase %ca (welp /[p.pyk]/[desk.act]/[r.pyk] path.act)))
+      =/  =path  (welp /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act] path.act)
+      =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
+      =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
+      =/  =wick  (make-wick & byk.bowl path sec)
+      ::  XX gossip wick
       :-  ~
       %=  this
         mcp-resources  %-  ~(put by mcp-resources)
-                     :-  our.bowl
-                     %-  ~(put in (~(gut by mcp-resources) our.bowl ~))
-                     (list-mcp-resource resource)
+                       :-  our.bowl
+                       %-  ~(put in (~(gut by mcp-resources) our.bowl ~))
+                       :*  uri.resource
+                           name.resource
+                           title.resource
+                           desc.resource
+                           wick
+                       ==
       ==
     ::
         %publish-mcp-resource-template
+      =/  =cass:clay  .^(cass:clay %cw /[p.pyk]/[desk.act]/[r.pyk])
       =/  =template:resource:mcp
-        !<(template:resource:mcp .^(^vase %ca path.act))
+        !<(template:resource:mcp .^(^vase %ca (welp /[p.pyk]/[desk.act]/[r.pyk] path.act)))
+      =/  =path  (welp /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act] path.act)
+      =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
+      =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
+      =/  =wick  (make-wick & byk.bowl path sec)
+      ::  XX gossip wick
       :-  ~
       %=  this
         mcp-resource-templates  %-  ~(put by mcp-resource-templates)
                                 :-  our.bowl
                                 %-  ~(put in (~(gut by mcp-resource-templates) our.bowl ~))
-                                (list-mcp-resource-template template)
+                                :*  uri-template.template
+                                    name.template
+                                    title.template
+                                    desc.template
+                                    wick
+                                ==
       ==
     ==
   ==
