@@ -22,6 +22,7 @@ const dependencies = [_]RepoImport{
         .prefix = "desk",
         .paths = &.{
             "mar/mcp/tools.hoon",
+            "mar/mcp/templates.hoon",
             "sur/mcp.hoon",
         },
     },
