@@ -34,6 +34,7 @@ const dependencies = [_]RepoImport{
         .paths = &.{
             "fil/test-vectors.json",
             "fil/wordlists/english.txt",
+            "lib/json-utils.hoon",
             "lib/mnemonyms.hoon",
             "mar/json.hoon",
             "tests/mnemonyms.hoon",
