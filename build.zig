@@ -8,8 +8,9 @@ const Action = enum {
 
 const RepoImport = struct {
     name: []const u8, // any name
-    url: []const u8, // git repo url
-    commit: []const u8, // commit hash
+    url: ?[]const u8 = null, // git repo url
+    local: ?[]const u8 = null, // local git repo path, absolute or relative to cwd
+    commit: ?[]const u8 = null, // commit hash, required for url imports
     prefix: []const u8, // repository prefix, omitted from install prefix
     paths: []const []const u8, // relative or prefix-qualified filepaths
 };
@@ -24,6 +25,18 @@ const dependencies = [_]RepoImport{
             "mar/mcp/tools.hoon",
             "mar/mcp/templates.hoon",
             "sur/mcp.hoon",
+        },
+    },
+    .{
+        .name = "mnemonyms",
+        .local = "../mnemonyms",
+        .prefix = "libraries/hoon",
+        .paths = &.{
+            "fil/test-vectors.json",
+            "fil/wordlists/english.txt",
+            "lib/mnemonyms.hoon",
+            "mar/json.hoon",
+            "tests/mnemonyms.hoon",
         },
     },
     .{
@@ -189,18 +202,24 @@ const MissingImport = struct {
 const RepoFetch = struct {
     repo_path: []const u8,
     name: []const u8,
-    url: []const u8,
-    commit: []const u8,
+    source: RepoSource,
     imports: std.ArrayList(MissingImport),
 };
 
 const ImportFetchTask = struct {
     repo_path: []const u8,
     name: []const u8,
-    url: []const u8,
-    commit: []const u8,
+    source: RepoSource,
     imports: []const MissingImport,
     err: ?anyerror = null,
+};
+
+const RepoSource = union(enum) {
+    url: struct {
+        url: []const u8,
+        commit: []const u8,
+    },
+    local: []const u8,
 };
 
 fn collectDependencyImports(
@@ -211,6 +230,7 @@ fn collectDependencyImports(
     import_copies: *std.ArrayList(ImportCopy),
     fetches: *std.ArrayList(RepoFetch),
 ) !void {
+    const source = try repoSource(step, allocator, dep);
     const repo_path = try repoCachePath(step, dep);
 
     for (dep.paths) |path| {
@@ -223,8 +243,8 @@ fn collectDependencyImports(
             .dest_path = dest_path,
         });
 
-        if (!pathExists(cache_path)) {
-            try addMissingImport(allocator, fetches, dep, repo_path, import_path, cache_path);
+        if (source == .local or !pathExists(cache_path)) {
+            try addMissingImport(allocator, fetches, dep.name, source, repo_path, import_path, cache_path);
         }
     }
 }
@@ -232,7 +252,8 @@ fn collectDependencyImports(
 fn addMissingImport(
     allocator: std.mem.Allocator,
     fetches: *std.ArrayList(RepoFetch),
-    dep: RepoImport,
+    name: []const u8,
+    source: RepoSource,
     repo_path: []const u8,
     import_path: []const u8,
     cache_path: []const u8,
@@ -254,9 +275,8 @@ fn addMissingImport(
     });
     try fetches.append(allocator, .{
         .repo_path = repo_path,
-        .name = dep.name,
-        .url = dep.url,
-        .commit = dep.commit,
+        .name = name,
+        .source = source,
         .imports = imports,
     });
 }
@@ -276,8 +296,7 @@ fn fetchMissingImports(
         tasks[i] = .{
             .repo_path = fetch.repo_path,
             .name = fetch.name,
-            .url = fetch.url,
-            .commit = fetch.commit,
+            .source = fetch.source,
             .imports = fetch.imports.items,
         };
         threads[i] = std.Thread.spawn(.{}, fetchMissingImportsThread, .{&tasks[i]}) catch |err| {
@@ -318,7 +337,7 @@ fn fetchMissingImportsThreadInner(
         try paths.append(allocator, import.import_path);
     }
 
-    try ensureRepoImport(allocator, task.repo_path, task.name, task.url, task.commit, paths.items);
+    try ensureRepoImport(allocator, task.repo_path, task.name, task.source, paths.items);
 
     for (task.imports) |import| {
         const repo_file_path = try std.fs.path.join(allocator, &.{ task.repo_path, import.import_path });
@@ -327,6 +346,22 @@ fn fetchMissingImportsThreadInner(
 }
 
 fn ensureRepoImport(
+    allocator: std.mem.Allocator,
+    repo_path: []const u8,
+    name: []const u8,
+    source: RepoSource,
+    paths: []const []const u8,
+) !void {
+    switch (source) {
+        .local => |local_path| {
+            try ensureLocalRepoImport(allocator, repo_path, name, local_path);
+            return;
+        },
+        .url => |remote| try ensureRemoteRepoImport(allocator, repo_path, name, remote.url, remote.commit, paths),
+    }
+}
+
+fn ensureRemoteRepoImport(
     allocator: std.mem.Allocator,
     repo_path: []const u8,
     name: []const u8,
@@ -355,6 +390,25 @@ fn ensureRepoImport(
     try run(allocator, &.{ "git", "-C", repo_path, "checkout", "--detach", "--force", commit });
 }
 
+fn ensureLocalRepoImport(
+    allocator: std.mem.Allocator,
+    repo_path: []const u8,
+    name: []const u8,
+    local_path: []const u8,
+) !void {
+    const git_dir = try std.fs.path.join(allocator, &.{ local_path, ".git" });
+    if (!pathExists(git_dir)) return error.NotGitRepository;
+
+    if (pathExists(repo_path)) {
+        try std.fs.cwd().deleteTree(repo_path);
+    }
+    if (std.fs.path.dirname(repo_path)) |parent| {
+        try std.fs.cwd().makePath(parent);
+    }
+    std.debug.print("Importing local {s}...\n", .{name});
+    try copyDirContents(allocator, local_path, repo_path);
+}
+
 fn dependencyCacheRootPath(step: *std.Build.Step) ![]const u8 {
     return step.owner.graph.global_cache_root.join(step.owner.allocator, &.{dependency_cache_dir});
 }
@@ -371,17 +425,55 @@ fn fileImportCachePath(step: *std.Build.Step, dep: RepoImport, import_path: []co
 
 fn repoCacheKey(allocator: std.mem.Allocator, dep: RepoImport) ![]const u8 {
     var hasher = std.crypto.hash.sha2.Sha256.init(.{});
-    hashBytes(&hasher, dep.url);
-    hashBytes(&hasher, dep.commit);
+    try hashRepoSource(allocator, &hasher, dep);
     return finishCacheKey(allocator, &hasher);
 }
 
 fn fileImportCacheKey(allocator: std.mem.Allocator, dep: RepoImport, import_path: []const u8) ![]const u8 {
     var hasher = std.crypto.hash.sha2.Sha256.init(.{});
-    hashBytes(&hasher, dep.url);
-    hashBytes(&hasher, dep.commit);
+    try hashRepoSource(allocator, &hasher, dep);
     hashBytes(&hasher, import_path);
     return finishCacheKey(allocator, &hasher);
+}
+
+fn hashRepoSource(allocator: std.mem.Allocator, hasher: *std.crypto.hash.sha2.Sha256, dep: RepoImport) !void {
+    const source = try repoSourceNoStep(allocator, dep);
+    switch (source) {
+        .url => |remote| {
+            hashBytes(hasher, "url");
+            hashBytes(hasher, remote.url);
+            hashBytes(hasher, remote.commit);
+        },
+        .local => |local_path| {
+            hashBytes(hasher, "local");
+            hashBytes(hasher, local_path);
+        },
+    }
+}
+
+fn repoSource(step: *std.Build.Step, allocator: std.mem.Allocator, dep: RepoImport) !RepoSource {
+    return repoSourceNoStep(allocator, dep) catch |err| {
+        return step.fail("invalid dependency '{s}': {s}", .{ dep.name, @errorName(err) });
+    };
+}
+
+fn repoSourceNoStep(allocator: std.mem.Allocator, dep: RepoImport) !RepoSource {
+    if (dep.url != null and dep.local != null) return error.UrlAndLocalAreMutuallyExclusive;
+    if (dep.url == null and dep.local == null) return error.MissingUrlOrLocal;
+
+    if (dep.url) |url| {
+        return .{ .url = .{
+            .url = url,
+            .commit = dep.commit orelse return error.MissingCommit,
+        } };
+    }
+
+    const local = dep.local.?;
+    const local_path = if (std.fs.path.isAbsolute(local))
+        local
+    else
+        try std.fs.path.resolve(allocator, &.{local});
+    return .{ .local = local_path };
 }
 
 fn finishCacheKey(allocator: std.mem.Allocator, hasher: *std.crypto.hash.sha2.Sha256) ![]const u8 {
@@ -606,6 +698,14 @@ fn copyDirContents(allocator: std.mem.Allocator, source_path: []const u8, dest_p
         switch (entry.kind) {
             .directory => try copyDirContents(allocator, src, dst),
             .file => try copyFilePath(src, dst),
+            .sym_link => {
+                const stat = try std.fs.cwd().statFile(src);
+                switch (stat.kind) {
+                    .directory => try copyDirContents(allocator, src, dst),
+                    .file => try copyFilePath(src, dst),
+                    else => {},
+                }
+            },
             else => {},
         }
     }
