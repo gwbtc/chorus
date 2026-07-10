@@ -179,7 +179,7 @@
      ::  XX placeholder: use the Groundwire HD wallet's secp256k1 scalar here
      ::  once that key is exposed, instead of deriving one from Jael's ring.
      =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
-     =/  =wick  (make-wick & byk.bowl path sec)
+     =/  =wick  (make-wick & byk.bowl (need lyf) path sec)
      ::  XX gossip wick
      :~  :*  %pass  ~
              %grow  /bio
@@ -209,7 +209,7 @@
         /fine/[p.pyk]/g/x/(scot %ud rev)/chorus//1/announcements/[r.pyk]
       =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
       =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
-      =/  =wick  (make-wick & byk.bowl path sec)
+      =/  =wick  (make-wick & byk.bowl (need lyf) path sec)
       ::  XX gossip wick
       :~  :*  %pass  ~
               %grow
@@ -223,7 +223,7 @@
       =/  =path  /fine/[p.pyk]/c/z/(scot %tas ud.cass)/[desk.act]
       =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
       =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
-      =/  =wick  (make-wick | byk.bowl path sec)
+      =/  =wick  (make-wick | byk.bowl (need lyf) path sec)
       ::  XX gossip wick
       :-  ~
       %=  this
@@ -239,7 +239,7 @@
       =/  =path  (welp /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act] path.act)
       =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
       =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
-      =/  =wick  (make-wick & byk.bowl path sec)
+      =/  =wick  (make-wick & byk.bowl (need lyf) path sec)
       ::  XX gossip wick
       :-  ~
       %=  this
@@ -261,7 +261,7 @@
       =/  =path  (welp /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act] path.act)
       =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
       =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
-      =/  =wick  (make-wick & byk.bowl path sec)
+      =/  =wick  (make-wick & byk.bowl (need lyf) path sec)
       ::  XX gossip wick
       :-  ~
       %=  this
@@ -283,7 +283,7 @@
       =/  =path  (welp /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act] path.act)
       =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
       =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
-      =/  =wick  (make-wick & byk.bowl path sec)
+      =/  =wick  (make-wick & byk.bowl (need lyf) path sec)
       ::  XX gossip wick
       :-  ~
       %=  this
@@ -305,7 +305,7 @@
       =/  =path  (welp /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act] path.act)
       =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
       =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
-      =/  =wick  (make-wick & byk.bowl path sec)
+      =/  =wick  (make-wick & byk.bowl (need lyf) path sec)
       ::  XX gossip wick
       :-  ~
       %=  this
