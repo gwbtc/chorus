@@ -3,18 +3,6 @@
 /*  english  %txt  /fil/wordlists/english/txt
 ::
 |%
-::  XX replace $point
-+$  point  [x=@ y=@]
-::
-::  XX remove once key rotation width is set in spec
-++  key-rotation-width
-  |=  rot=@ud
-  ^-  @ud
-  ?>  (gth rot 0)
-  =/  len=@ud  (met 3 rot)
-  ?>  (lte len 15)
-  len
-::
 ++  validate-tag-path
   |=  pax=path
   ^-  path
@@ -54,22 +42,22 @@
   ^-  @uvI
   ?~  pax
     ~|(%sign-digest-no-path !!)
-  =/  rot-width=@ud  (key-rotation-width rot)
+  ?>  &((gth rot 0) (lte rot 65.535))
   =/  pat=@t         (spat pax)
   =/  len=@ud        (met 3 pat)
   ?>  (lte len 256)
   =/  msg
     %+  can
       3
-    :~  [rot-width rot]
+    :~  [2 rot]
         [len pat]
     ==
-  (sha-256l:sha (add rot-width len) msg)
+  (sha-256l:sha (add 2 len) msg)
 ::
 ++  sign-payload
-  |=  [=flag rot=@ud pax=path sig=@uxI]
+  |=  [=flag rot=@ud pax=path sig=@uxJ]
   ^-  @
-  =/  rot-width=@ud  (key-rotation-width rot)
+  ?>  &((gth rot 0) (lte rot 65.535))
   =/  pat=@t         (spat pax)
   =/  len=@ud        (met 3 pat)
   ?>  (gth len 0)
@@ -78,11 +66,11 @@
   :~  :-  1
       %+  add
         ?:(flag 0x80 0)
-      (add 0x70 (key-rotation-width rot))
+      0x70
       [1 (dec len)]
-      [rot-width rot]
+      [2 rot]
       [len pat]
-      [65 sig]
+      [64 sig]
   ==
 ::
 ++  wick-to-wire
@@ -102,12 +90,12 @@
   =/  pay=@
     (sign-payload flag.wick rot.wick path.wick sig.wick)
   =/  len=@ud
-    (add 67 (add (key-rotation-width rot.wick) (met 3 (spat path.wick))))
+    (add 66 (add 2 (met 3 (spat path.wick))))
   =/  enc=@t
     (~(en base64:mimes:html | &) [len pay])
   (crip (weld "wire://" (weld (slag 1 (trip who)) ['/' (trip enc)])))
 ::
-::  XX should not take sec, should scry for secp256k1 privkey
+::  XX should not take sec, should scry for Ed25519 seed
 ::     or maybe should take path / rof to privkey
 ::     maybe +make-wick should wrap a +make-wick-with-key
 ++  make-wick
@@ -118,36 +106,23 @@
   =/  who=@pH  p.beak
   =/  pat=@t   (spat pax)
   ?>  (lte (lent pax) 256)
-  ?>  (gth rot 0)
+  ?>  (lte rot 65.535)
   =/  dig=@uvI  (sign-digest rot pax)
-  ::  XX placeholder: use the Groundwire HD wallet's secp256k1 scalar here
+  ::  XX placeholder: use the Groundwire HD wallet's Ed25519 seed here
   ::  once that key is exposed, instead of deriving one from Jael's ring.
-  =/  prv=@uvI  (shax sec)
-  =+  (ecdsa-raw-sign:secp256k1:secp:crypto dig prv)
-  =/  sig=@uxI
-    %+  can  3
-    :~  [32 r]
-        [32 s]
-        [1 v]
-    ==
+  =/  sed=@uvI  (shax sec)
+  =/  sig=@uxJ  (sign-octs:ed:crypto [32 dig] sed)
   [%7 who rot flag pax sig]
 ::
 ::  XX maybe +verify-wick should wrap a +verify-wick-with-key
 ::  XX add support for verifying signed content
 ++  verify-wick
-  ::  XX replace $point
-  |=  [=wick pubkey=point]
+  |=  [=wick pubkey=@]
   ^-  ?
   ?:  =(0x0 sig.wick)
     .n
-  =/  rec=point
-    %-  ecdsa-raw-recover:secp256k1:secp:crypto
-    :-  (sign-digest rot.wick path.wick)
-    :*  v=(cut 3 [64 1] sig.wick)
-        r=(cut 3 [0 32] sig.wick)
-        s=(cut 3 [32 32] sig.wick)
-    ==
-  &(=(x.pubkey x.rec) =(y.pubkey y.rec))
+  =/  dig=@uvI  (sign-digest rot.wick path.wick)
+  (veri-octs:ed:crypto sig.wick [32 dig] pubkey)
 ::
 ++  wire-to-wick
   |=  wir=cord
@@ -171,19 +146,17 @@
   ?~  oct
     ~|(%bad-base64url !!)
   =/  dat=octs  u.oct
-  ?>  (gte p.dat 69)
+  ?>  (gte p.dat 68)
   =/  first=@  (cut 3 [0 1] q.dat)
   =/  =flag  =(1 (cut 0 [7 1] first))
   ?>  =(7 (cut 0 [4 3] first))
-  =/  rot-width=@ud  (cut 0 [0 4] first)
-  ?>  (gth rot-width 0)
+  ?>  =(0 (cut 0 [0 4] first))
   =/  path-width=@ud  (add 1 (cut 3 [1 1] q.dat))
-  ?>  =(p.dat (add 67 (add rot-width path-width)))
-  =/  rot=@ud  (cut 3 [2 rot-width] q.dat)
+  ?>  =(p.dat (add 68 path-width))
+  =/  rot=@ud  (cut 3 [2 2] q.dat)
   ?>  (gth rot 0)
-  ?>  =(rot-width (key-rotation-width rot))
-  =/  pat=@t  (cut 3 [(add 2 rot-width) path-width] q.dat)
-  =/  sig=@uxI  (cut 3 [(add 2 (add rot-width path-width)) 65] q.dat)
+  =/  pat=@t  (cut 3 [4 path-width] q.dat)
+  =/  sig=@uxJ  (cut 3 [(add 4 path-width) 64] q.dat)
   ::  return wick from signed wire
   [%7 who rot flag (stab pat) sig]
 --

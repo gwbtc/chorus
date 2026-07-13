@@ -24,12 +24,12 @@
   `ring`1
 ::
 ++  mock-sig
+  ^-  @uxJ
+  0x77e.96c4.a01a.bc9b.2eba.01a3.6524.b619.53ac.e01b.567f.c03e.c8fc.375b.dbe7.142e.79cf.ecf2.71b3.0ee1.fe57.c0b3.a09b.a093.a6a1.5361.0cd9.2668.01ef.6054.2edb.a616
+::
+++  mock-pubkey
   ^-  @uxI
-  %+  can  3
-  :~  [32 0x1111]
-      [32 0x2222]
-      [1 1]
-  ==
+  0xdea5.dc8b.fb0e.8eeb.5439.fd58.b607.aa8a.0dc2.dc15.daea.9449.e9b3.9240.fe6b.0443
 ::
 ++  mock-unsigned-wick
   ^-  wick
@@ -54,7 +54,7 @@
   ;:  welp
     (trip 'wire://')
     (slag 1 (trip mock-nym))
-    (trip '/8REBL2h0dHBzL2V4YW1wbGUuY29tEREAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAiIgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE')
+    (trip '/8BEBAC9odHRwcy9leGFtcGxlLmNvbRam2y5UYO8BaCbZDGFToaaToJugs8BX_uEOs3Hy7M95LhTn21s3_Mg-wH9WG-CsUxm2JGWjAboum7waoMSWfgc')
   ==
 --
 ::
@@ -89,4 +89,9 @@
   %+  expect-eq
     !>  mock-unsigned-wick
   !>  (wire-to-wick (wick-to-wire mock-unsigned-wick))
+::
+++  test-verify-wick-signed
+  %+  expect-eq
+    !>  .y
+  !>  (verify-wick mock-signed-wick mock-pubkey)
 --
