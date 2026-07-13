@@ -175,11 +175,9 @@
        ==
      =/  rev=@ud  (tail .^((pair @tas @ud) %gw /[p.pyk]/[q.pyk]/[r.pyk]//1/bio))
      =/  =path  /fine/[p.pyk]/g/x/(scot %ud rev)/chorus//1/bio
-     =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
-     ::  XX placeholder: use the Groundwire HD wallet's secp256k1 scalar here
-     ::  once that key is exposed, instead of deriving one from Jael's ring.
-     =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
-     =/  =wick  (make-wick & byk.bowl (need lyf) path sec)
+     =/  =seed:jael
+       ;;(seed:jael (cue .^(@ %j /[p.pyk]/vile/[r.pyk])))
+     =/  =wick  (make-wick & seed path)
      ::  XX gossip wick
      :~  :*  %pass  ~
              %grow  /bio
@@ -207,9 +205,9 @@
       =/  rev=@ud  (tail .^((pair @tas @ud) %gw /[p.pyk]/[q.pyk]/[r.pyk]//1/announcements/[r.pyk]))
       =/  =path
         /fine/[p.pyk]/g/x/(scot %ud rev)/chorus//1/announcements/[r.pyk]
-      =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
-      =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
-      =/  =wick  (make-wick & byk.bowl (need lyf) path sec)
+      =/  =seed:jael
+        ;;(seed:jael (cue .^(@ %j /[p.pyk]/vile/[r.pyk])))
+      =/  =wick  (make-wick & seed path)
       ::  XX gossip wick
       :~  :*  %pass  ~
               %grow
@@ -221,9 +219,9 @@
         %publish-desk
       =/  =cass:clay  .^(cass:clay %cw /[p.pyk]/[desk.act]/[r.pyk])
       =/  =path  /fine/[p.pyk]/c/z/(scot %tas ud.cass)/[desk.act]
-      =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
-      =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
-      =/  =wick  (make-wick | byk.bowl (need lyf) path sec)
+      =/  =seed:jael
+        ;;(seed:jael (cue .^(@ %j /[p.pyk]/vile/[r.pyk])))
+      =/  =wick  (make-wick | seed path)
       ::  XX gossip wick
       :-  ~
       %=  this
@@ -237,9 +235,9 @@
       =/  =cass:clay  .^(cass:clay %cw /[p.pyk]/[desk.act]/[r.pyk])
       =/  =tool:mcp  !<(tool:mcp .^(^vase %ca (welp /[p.pyk]/[desk.act]/[r.pyk] path.act)))
       =/  =path  (welp /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act] path.act)
-      =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
-      =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
-      =/  =wick  (make-wick & byk.bowl (need lyf) path sec)
+      =/  =seed:jael
+        ;;(seed:jael (cue .^(@ %j /[p.pyk]/vile/[r.pyk])))
+      =/  =wick  (make-wick & seed path)
       ::  XX gossip wick
       :-  ~
       %=  this
@@ -259,9 +257,9 @@
       =/  =prompt:mcp
         !<(prompt:mcp .^(^vase %ca (welp /[p.pyk]/[desk.act]/[r.pyk] path.act)))
       =/  =path  (welp /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act] path.act)
-      =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
-      =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
-      =/  =wick  (make-wick & byk.bowl (need lyf) path sec)
+      =/  =seed:jael
+        ;;(seed:jael (cue .^(@ %j /[p.pyk]/vile/[r.pyk])))
+      =/  =wick  (make-wick & seed path)
       ::  XX gossip wick
       :-  ~
       %=  this
@@ -281,9 +279,9 @@
       =/  =resource:mcp
         !<(resource:mcp .^(^vase %ca (welp /[p.pyk]/[desk.act]/[r.pyk] path.act)))
       =/  =path  (welp /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act] path.act)
-      =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
-      =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
-      =/  =wick  (make-wick & byk.bowl (need lyf) path sec)
+      =/  =seed:jael
+        ;;(seed:jael (cue .^(@ %j /[p.pyk]/vile/[r.pyk])))
+      =/  =wick  (make-wick & seed path)
       ::  XX gossip wick
       :-  ~
       %=  this
@@ -303,9 +301,9 @@
       =/  =template:resource:mcp
         !<(template:resource:mcp .^(^vase %ca (welp /[p.pyk]/[desk.act]/[r.pyk] path.act)))
       =/  =path  (welp /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act] path.act)
-      =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
-      =/  sec=ring  .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf)))
-      =/  =wick  (make-wick & byk.bowl (need lyf) path sec)
+      =/  =seed:jael
+        ;;(seed:jael (cue .^(@ %j /[p.pyk]/vile/[r.pyk])))
+      =/  =wick  (make-wick & seed path)
       ::  XX gossip wick
       :-  ~
       %=  this

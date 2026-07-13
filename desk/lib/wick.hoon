@@ -95,34 +95,34 @@
     (~(en base64:mimes:html | &) [len pay])
   (crip (weld "wire://" (weld (slag 1 (trip who)) ['/' (trip enc)])))
 ::
-::  XX should not take sec, should scry for Ed25519 seed
-::     or maybe should take path / rof to privkey
-::     maybe +make-wick should wrap a +make-wick-with-key
 ++  make-wick
-  |=  [=flag =beak rot=@ud pax=path sec=ring]
+  |=  [path-only=? =seed:jael pax=path]
   ^-  wick
   ?~  pax
     ~|(%empty-path !!)
-  =/  who=@pH  p.beak
+  =/  who=@pH  who.seed
+  =/  rot=@ud  lyf.seed
   =/  pat=@t   (spat pax)
   ?>  (lte (lent pax) 256)
   ?>  (lte rot 65.535)
   =/  dig=@uvI  (sign-digest rot pax)
-  ::  XX placeholder: use the Groundwire HD wallet's Ed25519 seed here
-  ::  once that key is exposed, instead of deriving one from Jael's ring.
-  =/  sed=@uvI  (shax sec)
-  =/  sig=@uxJ  (sign-octs:ed:crypto [32 dig] sed)
-  [%7 who rot flag pax sig]
+  =/  keys  (nol:nu:cric:crypto key.seed)
+  ?>  ?=(^ sek.+<.keys)
+  =/  sig=@uxJ
+    (sign-octs-raw:ed:crypto [32 dig] [sgn.pub sgn.sek]:+<:keys)
+  [%7 who rot path-only pax sig]
 ::
-::  XX maybe +verify-wick should wrap a +verify-wick-with-key
 ::  XX add support for verifying signed content
 ++  verify-wick
-  |=  [=wick pubkey=@]
+  |=  [=wick pubkey=(unit pass)]
   ^-  ?
   ?:  =(0x0 sig.wick)
     .n
+  ?~  pubkey
+    ~|(%wick-public-key-not-found !!)
   =/  dig=@uvI  (sign-digest rot.wick path.wick)
-  (veri-octs:ed:crypto sig.wick [32 dig] pubkey)
+  =/  keys  (com:nu:cric:crypto u.pubkey)
+  (veri-octs:ed:crypto sig.wick [32 dig] sgn:ded:ex:keys)
 ::
 ++  wire-to-wick
   |=  wir=cord
