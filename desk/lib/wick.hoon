@@ -112,15 +112,31 @@
     (sign-octs-raw:ed:crypto [32 dig] [sgn.pub sgn.sek]:+<:keys)
   [%7 who rot path-only pax sig]
 ::
-::  XX add support for verifying signed content
 ++  verify-wick
-  |=  [=wick pubkey=(unit pass)]
+  |=  [=wick pubkey=(unit pass) content=(unit octs)]
   ^-  ?
   ?:  =(0x0 sig.wick)
-    .n
+    ~|(%wick-is-unverifiable !!)
   ?~  pubkey
     ~|(%wick-public-key-not-found !!)
-  =/  dig=@uvI  (sign-digest rot.wick path.wick)
+  =/  dig=@uvI
+    ?:  flag.wick
+      (sign-digest rot.wick path.wick)
+    ?~  content
+      ~|(%wick-content-digest-not-found !!)
+    ?>  =(34 p.u.content)
+    =/  oct=@  q.u.content
+    ?>  =(rot.wick (cut 3 [0 2] oct))
+    =/  pat=@t   (spat path.wick)
+    =/  len=@ud  (met 3 pat)
+    =/  msg=@
+      %+  can
+        3
+      :~  [2 rot.wick]
+          [len pat]
+          [32 (cut 3 [2 32] oct)]
+      ==
+    (sha-256l:sha (add 34 len) msg)
   =/  keys  (com:nu:cric:crypto u.pubkey)
   (veri-octs:ed:crypto sig.wick [32 dig] sgn:ded:ex:keys)
 ::

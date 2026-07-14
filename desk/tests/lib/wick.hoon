@@ -47,6 +47,18 @@
   ^-  wick
   [%7 mock-ship mock-rot .y mock-path mock-sig]
 ::
+++  mock-content-sig
+  ^-  @uxJ
+  0xb30.972e.148d.bef4.ef7f.b4f9.77a5.119b.b6b5.f46a.d75f.2834.c393.a716.b104.1ad1.b3cc.3301.1079.987b.085f.8d0d.fde5.ed06.3817.0261.9b9d.ce0c.8ea3.36cc.287b.9f01
+::
+++  mock-content-octs
+  ^-  octs
+  [34 0xb689.af96.9583.4143.349b.422f.ccb3.5af4.ea17.bc6e.3dce.766f.4a1e.79a8.2777.a86b.0001]
+::
+++  mock-content-wick
+  ^-  wick
+  [%7 mock-ship mock-rot .n mock-path mock-content-sig]
+::
 ++  mock-unsigned-wire
   ^-  cord
   %-  crip
@@ -64,6 +76,15 @@
     (slag 1 (trip mock-nym))
     (trip '/8BEBAC9odHRwcy9leGFtcGxlLmNvbRam2y5UYO8BaCbZDGFToaaToJugs8BX_uEOs3Hy7M95LhTn21s3_Mg-wH9WG-CsUxm2JGWjAboum7waoMSWfgc')
   ==
+::
+++  mock-content-wire
+  ^-  cord
+  %-  crip
+  ;:  welp
+    (trip 'wire://')
+    (slag 1 (trip mock-nym))
+    (trip '/cBEBAC9odHRwcy9leGFtcGxlLmNvbQGfeyjMNqOODM6dm2ECFzgG7eX9DY1fCHuYeRABM8yz0RoEsRank8M0KF_XavS1tpsRpXf5tH_v9L6NFC6XMAs')
+  ==
 --
 ::
 |%
@@ -77,6 +98,11 @@
   %+  expect-eq
     !>  mock-unsigned-wick
   !>  (wire-to-wick mock-unsigned-wire)
+::
+++  test-wire-to-wick-content
+  %+  expect-eq
+    !>  mock-content-wick
+  !>  (wire-to-wick mock-content-wire)
 ::
 ++  test-wick-to-wire-signed
   %+  expect-eq
@@ -101,11 +127,22 @@
 ++  test-verify-wick-signed
   %+  expect-eq
     !>  .y
-  !>  (verify-wick mock-signed-wick `mock-pubkey)
+  !>  (verify-wick mock-signed-wick `mock-pubkey ~)
+::
+++  test-verify-wick-content
+  %+  expect-eq
+    !>  .y
+  !>  (verify-wick mock-content-wick `mock-pubkey `mock-content-octs)
+::
+++  test-reject-wick-with-wrong-content
+  =/  wrong=octs  [34 (add 0x1.0000 q:mock-content-octs)]
+  %+  expect-eq
+    !>  .n
+  !>  (verify-wick mock-content-wick `mock-pubkey `wrong)
 ::
 ++  test-make-and-verify-wick
   =/  made=wick  (make-wick .y mock-seed mock-path)
   %+  expect-eq
     !>  .y
-  !>  (verify-wick made `pub:ex:mock-keys)
+  !>  (verify-wick made `pub:ex:mock-keys ~)
 --
