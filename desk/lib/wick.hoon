@@ -37,6 +37,14 @@
     ~|(%tag-path-with-invalid-tag !!)
   pax
 ::
+::  canonical content octets for a /fine wire: the jam of the
+::  response sage the requester receives
+++  fine-octs
+  |=  content=*
+  ^-  octs
+  =/  jammed=@  (jam content)
+  [(met 3 jammed) jammed]
+::
 ++  sign-digest
   |=  [rot=@ud pax=path]
   ^-  @uvI
@@ -53,6 +61,28 @@
         [len pat]
     ==
   (sha-256l:sha (add 2 len) msg)
+::
+::  digest over rotation, path, and the sha-256 of the
+::  content's octet stream; each tag protocol defines its
+::  canonical octets (e.g. /fine jams the response sage)
+++  content-digest
+  |=  [rot=@ud pax=path content=octs]
+  ^-  @uvI
+  ?~  pax
+    ~|(%content-digest-no-path !!)
+  ?>  &((gth rot 0) (lte rot 65.535))
+  =/  pat=@t     (spat pax)
+  =/  len=@ud    (met 3 pat)
+  ?>  (lte len 256)
+  =/  cig=@uvI   (sha-256l:sha content)
+  =/  msg=@
+    %+  can
+      3
+    :~  [2 rot]
+        [len pat]
+        [32 cig]
+    ==
+  (sha-256l:sha (add 34 len) msg)
 ::
 ++  sign-payload
   |=  [=flag rot=@ud pax=path sig=@uxJ]
@@ -96,16 +126,23 @@
   (crip (weld "wire://" (weld (slag 1 (trip who)) ['/' (trip enc)])))
 ::
 ++  make-wick
-  |=  [path-only=? =seed:jael pax=path]
+  |=  [path-only=? =seed:jael pax=path content=(unit octs)]
   ^-  wick
   ?~  pax
     ~|(%empty-path !!)
+  ?:  &(path-only ?=(^ content))
+    ~|(%unexpected-content !!)
+  ?:  &(!path-only ?=(~ content))
+    ~|(%missing-content !!)
   =/  who=@pH  who.seed
   =/  rot=@ud  lyf.seed
   =/  pat=@t   (spat pax)
   ?>  (lte (lent pax) 256)
   ?>  (lte rot 65.535)
-  =/  dig=@uvI  (sign-digest rot pax)
+  =/  dig=@uvI
+    ?~  content
+      (sign-digest rot pax)
+    (content-digest rot pax u.content)
   =/  keys  (nol:nu:cric:crypto key.seed)
   ?>  ?=(^ sek.+<.keys)
   =/  sig=@uxJ
@@ -123,20 +160,8 @@
     ?:  flag.wick
       (sign-digest rot.wick path.wick)
     ?~  content
-      ~|(%wick-content-digest-not-found !!)
-    ?>  =(34 p.u.content)
-    =/  oct=@  q.u.content
-    ?>  =(rot.wick (cut 3 [0 2] oct))
-    =/  pat=@t   (spat path.wick)
-    =/  len=@ud  (met 3 pat)
-    =/  msg=@
-      %+  can
-        3
-      :~  [2 rot.wick]
-          [len pat]
-          [32 (cut 3 [2 32] oct)]
-      ==
-    (sha-256l:sha (add 34 len) msg)
+      ~|(%wick-content-not-found !!)
+    (content-digest rot.wick path.wick u.content)
   =/  keys  (com:nu:cric:crypto u.pubkey)
   (veri-octs:ed:crypto sig.wick [32 dig] sgn:ded:ex:keys)
 ::

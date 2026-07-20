@@ -5,7 +5,7 @@
 |%
 ++  mock-nym
   ^-  @t
-  '.collate.therein.rebut.betrayed.equips.behest.coerce.befall.create.befoul.forestall.informs'
+  '.mundane.adage.ferment.unheard.depose.denies.behest.explode.relax.desired.reduced.comport'
 ::
 ++  mock-ship
   ^-  ship
@@ -50,10 +50,6 @@
 ++  mock-content-sig
   ^-  @uxJ
   0xb30.972e.148d.bef4.ef7f.b4f9.77a5.119b.b6b5.f46a.d75f.2834.c393.a716.b104.1ad1.b3cc.3301.1079.987b.085f.8d0d.fde5.ed06.3817.0261.9b9d.ce0c.8ea3.36cc.287b.9f01
-::
-++  mock-content-octs
-  ^-  octs
-  [34 0xb689.af96.9583.4143.349b.422f.ccb3.5af4.ea17.bc6e.3dce.766f.4a1e.79a8.2777.a86b.0001]
 ::
 ++  mock-content-wick
   ^-  wick
@@ -129,20 +125,30 @@
     !>  .y
   !>  (verify-wick mock-signed-wick `mock-pubkey ~)
 ::
-++  test-verify-wick-content
-  %+  expect-eq
-    !>  .y
-  !>  (verify-wick mock-content-wick `mock-pubkey `mock-content-octs)
-::
-++  test-reject-wick-with-wrong-content
-  =/  wrong=octs  [34 (add 0x1.0000 q:mock-content-octs)]
-  %+  expect-eq
-    !>  .n
-  !>  (verify-wick mock-content-wick `mock-pubkey `wrong)
-::
 ++  test-make-and-verify-wick
-  =/  made=wick  (make-wick .y mock-seed mock-path)
+  =/  made=wick  (make-wick .y mock-seed mock-path ~)
   %+  expect-eq
     !>  .y
   !>  (verify-wick made `pub:ex:mock-keys ~)
+::
+++  test-make-and-verify-wick-content
+  =/  content=octs  [11 'hello world']
+  =/  made=wick  (make-wick .n mock-seed mock-path `content)
+  %+  expect-eq
+    !>  .y
+  !>  (verify-wick made `pub:ex:mock-keys `content)
+::
+++  test-make-and-verify-wick-fine-content
+  =/  content=octs  (fine-octs [%txt 'hello world'])
+  =/  made=wick  (make-wick .n mock-seed mock-path `content)
+  %+  expect-eq
+    !>  .y
+  !>  (verify-wick made `pub:ex:mock-keys `(fine-octs [%txt 'hello world']))
+::
+++  test-reject-wick-with-wrong-content
+  =/  content=octs  [11 'hello world']
+  =/  made=wick  (make-wick .n mock-seed mock-path `content)
+  %+  expect-eq
+    !>  .n
+  !>  (verify-wick made `pub:ex:mock-keys `(fine-octs [%txt 'hello world']))
 --

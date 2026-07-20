@@ -1,7 +1,7 @@
 ::
 ::  chorus: peer-to-peer multiplayer agent harness
 /-  mcp, *wick, chorus
-/+  dbug, verb, *chorus, default-agent, *wick
+/+  dbug, verb, *chorus, default-agent, gossip, *wick
 ::
 |%
 +$  versioned-state
@@ -9,11 +9,41 @@
   ==
 ::
 +$  card  card:agent:gall
+::
+++  feed-to-seed
+  |=  =bowl:gall
+  ^-  seed:jael
+  =/  =feed:jael
+    ;;  feed:jael
+    (cue .^(@ %j /(scot %p our.bowl)/vile/(scot %da now.bowl)))
+  ?>  ?=([%2 ~] -.feed)
+  ?~  kyz.feed
+    ~|(%chorus-vile-without-keys !!)
+  [who.feed lyf.i.kyz.feed key.i.kyz.feed ~]
+::
+::  sign a contented wick over the bio path and the full
+::  sage:mess:ames the requester will receive in +on-arvo
+++  make-bio-wick
+  |=  [=bowl:gall bio=@t]
+  ^-  wick
+  =/  pax=path
+    /fine/(scot %p our.bowl)/g/x/1/chorus//1/bio/(scot %da now.bowl)
+  =/  =sage:mess:ames  [[our.bowl (slag 2 pax)] %txt bio]
+  (make-wick | (feed-to-seed bowl) pax `(fine-octs sage))
 --
 ::
 =|  state-0:chorus
 =*  state  -
 ::
+%-  %+  agent:gossip
+      :*  2              ::  hops
+          [%whos %sein]  ::  hear
+          [%whos %city]  ::  tell
+          .n             ::  pass
+          %urb-watcher   ::  pki domain
+      ==
+    %+  ~(put by *(map mark $-(* vase)))  %chorus-message
+    |=(n=* !>(;;(message:chorus n)))
 %-  agent:dbug
 ^-  agent:gall
 |_  =bowl:gall
@@ -132,25 +162,27 @@
 ++  on-watch
   |=  =(pole knot)
   ^-  (quip card _this)
-  `this
-  ::  ?+  pole
-    ::  (on-watch:def pole)
-  ::  ::
-  ::  ::  gossip library calls this when a peer subscribes to us;
-  ::  ::  return our current state as initial facts for them
-      ::  ::  [%~.~ %gossip %source ~]
-    ::  ::  `this
-  ::  ::
-  ::  ::  bio subscription: send current bio as initial fact
-      ::  [%bio ~]
-    ::  :_  this
-    ::  :~  [%give %fact ~ %chorus-bio !>(bio)]
-    ::  ==
-  ::  ::
-  ::  ::  clients subscribe here for updates
-      ::  [%client ~]
-    ::  `this
-  ::  ==
+  ?+  pole
+    (on-watch:def pole)
+  ::
+  ::  new subscribers listen on this wire
+  ::  XX look through all app state and relay
+  ::     each wick as a message:chrous without re-growing or re-signing
+      [%~.~ %gossip %source ~]
+    ::  ~&  >>  [%chorus %publish-watch-bio our=our.bowl path=path]
+    :_  this
+    :~  :*  %give
+            %fact
+            ~
+            %chorus-message
+            !>  ^-  message:chorus
+            :*  %chorus-message
+                %bio
+                (make-bio-wick bowl (~(gut by rolodex) our.bowl ''))
+            ==
+        ==
+    ==
+  ==
 ::
 ++  on-poke
   |=  [=mark =vase]
@@ -161,29 +193,26 @@
     =/  act  !<(action:chorus vase)
     ?-    -.act
         %update-bio
-     ?.  (lte (lent (trip bio.act)) 256)
-       ~|  "{<dap.bowl>}: bio must be 256 characters or less"
-       !!
-     :_   %=  this
+      ?.  (lte (lent (trip bio.act)) 256)
+        ~|  "{<dap.bowl>}: bio must be 256 characters or less"
+        !!
+      :_  %=  this
             rolodex  (~(put by rolodex) [our.bowl bio.act])
           ==
-     ?:  local.act
-       :~  :*  %pass  ~
-               %grow  /bio
-               [%txt bio.act]
-           ==
-       ==
-     =/  rev=@ud  (tail .^((pair @tas @ud) %gw /[p.pyk]/[q.pyk]/[r.pyk]//1/bio))
-     =/  =path  /fine/[p.pyk]/g/x/(scot %ud rev)/chorus//1/bio
-     =/  =seed:jael
-       ;;(seed:jael (cue .^(@ %j /[p.pyk]/vile/[r.pyk])))
-     =/  =wick  (make-wick & seed path)
-     ::  XX gossip wick
-     :~  :*  %pass  ~
-             %grow  /bio
-             [%txt bio.act]
-         ==
-     ==
+      ?:  local.act
+        :~  :*  %pass  ~
+                %grow  /bio/[r.pyk]
+                [%txt bio.act]
+            ==
+        ==
+      =/  =wick  (make-bio-wick bowl bio.act)
+      ::  ~&  >>  [%chorus %publish-updated-bio our=our.bowl path=path.wick]
+      :~  (invent:gossip %chorus-message !>([%chorus-message %bio wick]))
+          :*  %pass  ~
+              %grow  /bio/[r.pyk]
+              [%txt bio.act]
+          ==
+      ==
     ::
         %make-announcement
       ?.  (lte (lent (trip announcement.act)) 256)
@@ -203,11 +232,13 @@
             ==
         ==
       =/  rev=@ud  (tail .^((pair @tas @ud) %gw /[p.pyk]/[q.pyk]/[r.pyk]//1/announcements/[r.pyk]))
-      =/  =path
-        /fine/[p.pyk]/g/x/(scot %ud rev)/chorus//1/announcements/[r.pyk]
-      =/  =seed:jael
-        ;;(seed:jael (cue .^(@ %j /[p.pyk]/vile/[r.pyk])))
-      =/  =wick  (make-wick & seed path)
+      ::  =/  =wick
+        ::  %:  make-wick
+            ::  &
+            ::  (feed-to-seed bowl)
+            ::  /fine/[p.pyk]/g/x/(scot %ud rev)/chorus//1/announcements/[r.pyk]
+            ::  ~
+        ::  ==
       ::  XX gossip wick
       :~  :*  %pass  ~
               %grow
@@ -218,10 +249,13 @@
     ::
         %publish-desk
       =/  =cass:clay  .^(cass:clay %cw /[p.pyk]/[desk.act]/[r.pyk])
-      =/  =path  /fine/[p.pyk]/c/z/(scot %tas ud.cass)/[desk.act]
-      =/  =seed:jael
-        ;;(seed:jael (cue .^(@ %j /[p.pyk]/vile/[r.pyk])))
-      =/  =wick  (make-wick | seed path)
+      ::  =/  =wick
+        ::  %:  make-wick
+            ::  &
+            ::  (feed-to-seed bowl)
+            ::  /fine/[p.pyk]/c/z/(scot %tas ud.cass)/[desk.act]
+            ::  ~
+        ::  ==
       ::  XX gossip wick
       :-  ~
       %=  this
@@ -233,11 +267,17 @@
     ::
         %publish-mcp-tool
       =/  =cass:clay  .^(cass:clay %cw /[p.pyk]/[desk.act]/[r.pyk])
-      =/  =tool:mcp  !<(tool:mcp .^(^vase %ca (welp /[p.pyk]/[desk.act]/[r.pyk] path.act)))
-      =/  =path  (welp /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act] path.act)
-      =/  =seed:jael
-        ;;(seed:jael (cue .^(@ %j /[p.pyk]/vile/[r.pyk])))
-      =/  =wick  (make-wick & seed path)
+      =/  =tool:mcp   !<(tool:mcp .^(^vase %ca (welp /[p.pyk]/[desk.act]/[r.pyk] path.act)))
+      ::  XX content wick
+      =/  =wick
+        %:  make-wick
+            &
+            (feed-to-seed bowl)
+            %+  welp
+              /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act]
+            path.act
+            ~
+        ==
       ::  XX gossip wick
       :-  ~
       %=  this
@@ -256,10 +296,15 @@
       =/  =cass:clay  .^(cass:clay %cw /[p.pyk]/[desk.act]/[r.pyk])
       =/  =prompt:mcp
         !<(prompt:mcp .^(^vase %ca (welp /[p.pyk]/[desk.act]/[r.pyk] path.act)))
-      =/  =path  (welp /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act] path.act)
-      =/  =seed:jael
-        ;;(seed:jael (cue .^(@ %j /[p.pyk]/vile/[r.pyk])))
-      =/  =wick  (make-wick & seed path)
+      =/  =wick
+        %:  make-wick
+            &
+            (feed-to-seed bowl)
+            %+  welp
+              /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act]
+            path.act
+            ~
+        ==
       ::  XX gossip wick
       :-  ~
       %=  this
@@ -278,10 +323,15 @@
       =/  =cass:clay  .^(cass:clay %cw /[p.pyk]/[desk.act]/[r.pyk])
       =/  =resource:mcp
         !<(resource:mcp .^(^vase %ca (welp /[p.pyk]/[desk.act]/[r.pyk] path.act)))
-      =/  =path  (welp /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act] path.act)
-      =/  =seed:jael
-        ;;(seed:jael (cue .^(@ %j /[p.pyk]/vile/[r.pyk])))
-      =/  =wick  (make-wick & seed path)
+      =/  =wick
+        %:  make-wick
+            &
+            (feed-to-seed bowl)
+            %+  welp
+              /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act]
+            path.act
+            ~
+        ==
       ::  XX gossip wick
       :-  ~
       %=  this
@@ -300,10 +350,15 @@
       =/  =cass:clay  .^(cass:clay %cw /[p.pyk]/[desk.act]/[r.pyk])
       =/  =template:resource:mcp
         !<(template:resource:mcp .^(^vase %ca (welp /[p.pyk]/[desk.act]/[r.pyk] path.act)))
-      =/  =path  (welp /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act] path.act)
-      =/  =seed:jael
-        ;;(seed:jael (cue .^(@ %j /[p.pyk]/vile/[r.pyk])))
-      =/  =wick  (make-wick & seed path)
+      =/  =wick
+        %:  make-wick
+            &
+            (feed-to-seed bowl)
+            %+  welp
+              /fine/[p.pyk]/c/x/(scot %ud ud.cass)/[desk.act]
+            path.act
+            ~
+        ==
       ::  XX gossip wick
       :-  ~
       %=  this
@@ -319,175 +374,98 @@
       ==
     ==
   ==
-  ::  ?+  mark
-    ::  (on-poke:def mark vase)
-  ::  ::
-      ::  %chorus-action
-    ::  =/  act  !<(chorus-action vase)
-    ::  ?+  -.act
-      ::  (on-poke:def mark vase)
-    ::  ::
-        ::  %update-bio
-      ::  ?:  (gth (lent (trip text.act)) 256)
-        ::  ~|  %bio-too-long
-        ::  !!
-      ::  :_  this(bio text.act)
-      ::  :~  [%give %fact ~[/bio] %chorus-bio !>(text.act)]
-          ::  :*  %give  %fact  ~[/client]
-              ::  %chorus-update  !>([%updated-bio our.bowl text.act])
-          ::  ==
-      ::  ==
-    ::  ==
-    ::  ::
-        ::  %chorus-broadcast
-      ::  =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/[p.pyk])
-      ::  =/  cic  (nol:nu:cric:crypto .^(ring %j /[p.pyk]/vein/[r.pyk]/(scot %ud (need lyf))))
-      ::  =/  act  !<(chorus-action vase)
-      ::  ?:  ?&  ?=([%announce *] act)
-              ::  (gth (lent (trip text.act)) 256)
-          ::  ==
-        ::  ~|  %announcement-too-long
-        ::  !!
-      ::  ?:  ?&  ?=([%publish-app *] act)
-              ::  ?|  (gth (lent (trip desk.act)) 256)
-                  ::  (gth (lent (trip desc.act)) 256)
-              ::  ==
-          ::  ==
-        ::  ~|  %desk-name-or-description-too-long
-        ::  !!
-      ::  =/  jmd  (jam act)
-      ::  ?~  sek.cic
-        ::  ~|  %no-private-key
-        ::  !!
-      ::  =/  sig  (sign-raw:ed:crypto jmd sgn.pub.cic sgn.sek.cic)
-      ::  ::  :-  :~  (invent:gossip %chorus-broadcast !>([our.bowl sig jmd]))
-          ::  ::  ==
-      ::  :-  ~
-      ::  ?+  -.act  this
-          ::  %announce
-        ::  %=  this
-          ::  announcements  %-  ~(put in announcements)
-                         ::  [our.bowl now.bowl text.act]
-        ::  ==
-      ::  ::
-          ::  %publish-tool
-        ::  %=  this
-          ::  tool-catalog  %-  ~(put by tool-catalog)
-                        ::  :-  our.bowl
-                        ::  %-  ~(put in (~(gut by tool-catalog) our.bowl ~))
-                        ::  tool-listing.act
-        ::  ==
-      ::  ::
-          ::  %publish-app
-        ::  %=  this
-          ::  apps  %-  ~(put by apps)
-                ::  :-  our.bowl
-                ::  %-  ~(put in (~(gut by apps) our.bowl ~))
-                ::  [desk.act desc.act]
-        ::  ==
-      ::  ==
-  ::  ==
-::
-++  on-arvo
-  |=  [=(pole knot) =sign-arvo]
-  (on-arvo:def pole sign-arvo)
 ::
 ++  on-agent
   |=  [=(pole knot) =sign:agent:gall]
   ^-  (quip card _this)
-  `this
-  ::  ?+  pole
-    ::  (on-agent:def pole sign)
-  ::  ::
-  ::  ::  bio update from a subscribed ship
-      ::  [%bio who=@ta ~]
-    ::  =/  =ship  (slav %p who.pole)
-    ::  ?.  ?=(%fact -.sign)
-      ::  `this
-    ::  `this(rolodex (~(put by rolodex) ship !<(@t q.cage.sign)))
+  ?+  pole
+    (on-agent:def pole sign)
   ::
-  ::  gossip library delivers unwrapped rumors here
-      ::  [%~.~ %gossip %gossip ~]
-    ::  ?.  ?=(%fact -.sign)
-      ::  `this
-    ::  =*  mark  p.cage.sign
-    ::  =*  vase  q.cage.sign
-    ::  ?+  mark
-      ::  `this
-    ::  ::
-      ::  %chorus-broadcast
-      ::  =/  bod  !<(broadcast q.cage.sign)
-      ::  =/  m-act=(unit chorus-action)
-        ::  =/  lyf  .^((unit @ud) %j /[p.pyk]/lyfe/[r.pyk]/(scot %p ship.bod))
-        ::  ?~  lyf
-          ::  ::  XX temporary development fallback: accept when PKI lookup is unavailable.
-          ::  `;;(chorus-action (cue data.bod))
-        ::  =/  ded
-          ::  .^([* =pass *] %j /[p.pyk]/deed/[r.pyk]/(scot %p ship.bod)/(scot %ud u.lyf))
-        ::  =/  cic  (com:nu:cric:crypto pass.ded)
-        ::  ?.  (veri:ed:crypto sig.bod data.bod sgn.pub.cic)
-          ::  ~
-        ::  `;;(chorus-action (cue data.bod))
-      ::  ?~  m-act
-        ::  `this
-      ::  =/  act  u.m-act
-      ::  ?+  -.act
-        ::  `this
-      ::  ::
-          ::  %announce
-        ::  ?:  (gth (lent (trip text.act)) 256)
-          ::  `this
-        ::  :_  %=  this
-              ::  announcements  %-  ~(put in announcements)
-                             ::  :*  ship.bod
-                                 ::  now.bowl
-                                 ::  text.act
-                             ::  ==
-            ::  ==
-        ::  =/  client-update=card
-          ::  :*  %give  %fact  ~[/client]
-              ::  %chorus-update
-              ::  !>([%announcement ship.bod now.bowl text.act])
-          ::  ==
-        ::  ?:  (~(has by rolodex) ship.bod)
-          ::  ~[client-update]
-        ::  :~  client-update
-            ::  :*  %pass   /bio/(scot %p ship.bod)
-                ::  %agent  [ship.bod %chorus]
-                ::  %watch  /bio
-            ::  ==
-        ::  ==
-      ::  ::
-          ::  %publish-tool
-        ::  =/  cur  (~(gut by tool-catalog) ship.bod ~)
-        ::  =/  new-catalog
-          ::  %-  ~(put by tool-catalog)
-          ::  [ship.bod (~(put in cur) tool-listing.act)]
-        ::  :_  this(tool-catalog new-catalog)
-        ::  :~  [%give %fact ~[/catalog] %chorus-catalog !>(new-catalog)]
-            ::  :*  %give  %fact  ~[/client]
-                ::  %chorus-update
-                ::  !>([%new-tool-listing ship.bod tool-listing.act])
-            ::  ==
-        ::  ==
-      ::  ::
-          ::  %publish-app
-        ::  ?:  ?|  (gth (lent (trip desk.act)) 256)
-                ::  (gth (lent (trip desc.act)) 256)
-            ::  ==
-          ::  `this
-        ::  :-  :~  :*  %give  %fact  ~[/client]
-                    ::  %chorus-update
-                    ::  !>([%new-app-published ship.bod desk.act desc.act])
-                ::  ==
-            ::  ==
-        ::  %=  this
-            ::  apps  %-  ~(put by apps)
-                  ::  :-  ship.bod
-                  ::  %-  ~(put in (~(gut by apps) ship.bod ~))
-                  ::  [desk.act desc.act]
-          ::  ==
-      ::  ==
-    ::  ==
-  ::  ==
+      [%~.~ %gossip %gossip ~]
+    ?.  ?=([%fact %chorus-message *] sign)
+      `this
+    =/  =message:chorus  !<(message:chorus q.cage.sign)
+    ?+    message
+        `this
+    ::
+        [%chorus-message %bio *]
+      =/  =wick  wick.message
+      ::  ~&  >>  :*  %chorus  %received-bio-wick
+                  ::  our=our.bowl
+                  ::  source=src.bowl
+                  ::  signer=ship.wick
+                  ::  path=path.wick
+              ::  ==
+      ::  bio wicks sign the path and the response; we can only
+      ::  verify after fetching the content, in +on-arvo
+      ?:  flag.wick
+        %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping %bio message without signed content"]))
+        `this
+      =/  =spar:ames  [ship.wick (slag 2 path.wick)]
+      ?.  ?=([%fine @t %g %x @t %chorus %$ @t %bio @t ~] path.wick)
+        %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping %bio message with wrong path"]))
+        `this
+      ?.  =((scot %p ship.wick) i.t.path.wick)
+        %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping %bio message with wrong source"]))
+        `this
+      :_  this
+      :~  :*  %pass
+              /fine/bio/(scot %p ship.wick)/(scot %uv (jam wick))
+              %arvo  %a  %keen  ~
+              spar
+          ==
+      ==
+    ==
+  ==
+::
+++  on-arvo
+  |=  [=(pole knot) =sign-arvo]
+  ^-  (quip card _this)
+  ?+    pole
+      (on-arvo:def pole sign-arvo)
+  ::
+      [%fine msg=@ta who=@ta hax=@ta ~]
+    ?+    sign-arvo
+        (on-arvo:def pole sign-arvo)
+    ::
+        [%ames %sage *]
+      =/  =sage:mess:ames  sage.sign-arvo
+      ?+    msg.pole
+          (on-arvo:def pole sign-arvo)
+      ::
+          %bio
+        ?~  q.sage
+          %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping %keen result with empty sage"]))
+          `this
+        =/  =ship  (slav %p who.pole)
+        ?.  =(ship ship.p.sage)
+          %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping %keen result with ship mismatch; expected {<ship>}, got {<ship.p.sage>}"]))
+          `this
+        =/  =wick  ;;(wick (cue (slav %uv hax.pole)))
+        ?.  =(ship ship.wick)
+          %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping wick with ship mismatch; expected {<ship>}, got {<ship.wick>}"]))
+          `this
+        ?.  =((slag 2 path.wick) path.p.sage)
+          %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping wick with path mismatch; expected {<ship>}, got {<ship.wick>}"]))
+          `this
+        =/  =page  q.sage
+        ?.  =(%txt p.page)
+          %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping message with wrong mark; expected %txt, got {<p.page>}"]))
+          `this
+        =/  bio=@t  ;;(@t q.page)
+        ?.  (lte (lent (trip bio)) 256)
+          `this
+        ::  verify the signature over the path and the sage we received
+        =/  key=(unit [crypto-suite=@ud =pass])
+          .^  (unit [crypto-suite=@ud =pass])
+              %j
+              /(scot %p our.bowl)/puby/(scot %da now.bowl)/(scot %p ship.wick)/(scot %ud rot.wick)
+          ==
+        ?.  (verify-wick wick ?~(key ~ `pass.u.key) `(fine-octs sage))
+          %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping message with bad signature from {<ship.wick>}"]))
+          `this
+        `this(rolodex (~(put by rolodex) ship bio))
+      ==
+    ==
+  ==
 --
