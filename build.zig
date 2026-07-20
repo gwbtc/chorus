@@ -42,8 +42,7 @@ const dependencies = [_]RepoImport{
     },
     .{
         .name = "base-dev",
-        .url = "https://github.com/urbit/urbit",
-        .commit = "0f94550b941dfe046d9dff4a541330bd084e8cd1",
+        .local = "../urbit",
         .prefix = "pkg/base-dev",
         .paths = &.{
             "lib/dbug.hoon",
@@ -63,6 +62,32 @@ const dependencies = [_]RepoImport{
             "sur/verb.hoon",
         },
     },
+    // .{
+    //     .name = "aqua-deps",
+    //     .local = "../urbit",
+    //     .prefix = "pkg/arvo",
+    //     .paths = &.{
+    //         "lib/aqua-azimuth.hoon",
+    //         "lib/aqua-vane-thread.hoon",
+    //         "lib/azimuth.hoon",
+    //         "lib/ethereum.hoon",
+    //         "lib/naive.hoon",
+    //         "lib/ph/gw/io.hoon",
+    //         "lib/ph/gw/util.hoon",
+    //         "lib/ph/io.hoon",
+    //         "lib/ph/util.hoon",
+    //         "lib/tiny.hoon",
+    //         "lib/vere.hoon",
+    //         "mar/aqua/effect.hoon",
+    //         "sur/aquarium.hoon",
+    //         "sur/dice.hoon",
+    //         "sys/vane/ames.hoon",
+    //         "ted/aqua/ames.hoon",
+    //         "ted/aqua/behn.hoon",
+    //         "ted/aqua/dill.hoon",
+    //         "ted/aqua/eyre.hoon",
+    //     },
+    // },
 };
 
 const dependency_cache_dir = "desk-deps";
