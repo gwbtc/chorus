@@ -21,14 +21,14 @@
     ~|(%chorus-vile-without-keys !!)
   [who.feed lyf.i.kyz.feed key.i.kyz.feed ~]
 ::
-::  sign a contented wick over the bio path and the full
+::  sign a contentful wick over a grown %txt path and the full
 ::  sage:mess:ames the requester will receive in +on-arvo
-++  make-bio-wick
-  |=  [=bowl:gall bio=@t]
+++  make-grow-wick
+  |=  [=bowl:gall seg=@tas txt=@t]
   ^-  wick
   =/  pax=path
-    /fine/(scot %p our.bowl)/g/x/1/chorus//1/bio/(scot %da now.bowl)
-  =/  =sage:mess:ames  [[our.bowl (slag 2 pax)] %txt bio]
+    /fine/(scot %p our.bowl)/g/x/1/chorus//1/[seg]/(scot %da now.bowl)
+  =/  =sage:mess:ames  [[our.bowl (slag 2 pax)] %txt txt]
   (make-wick | (feed-to-seed bowl) pax `(fine-octs sage))
 --
 ::
@@ -178,7 +178,7 @@
             !>  ^-  message:chorus
             :*  %chorus-message
                 %bio
-                (make-bio-wick bowl (~(gut by rolodex) our.bowl ''))
+                (make-grow-wick bowl %bio (~(gut by rolodex) our.bowl ''))
             ==
         ==
     ==
@@ -205,7 +205,7 @@
                 [%txt bio.act]
             ==
         ==
-      =/  =wick  (make-bio-wick bowl bio.act)
+      =/  =wick  (make-grow-wick bowl %bio bio.act)
       ::  ~&  >>  [%chorus %publish-updated-bio our=our.bowl path=path.wick]
       :~  (invent:gossip %chorus-message !>([%chorus-message %bio wick]))
           :*  %pass  ~
@@ -231,16 +231,9 @@
                 [%txt announcement.act]
             ==
         ==
-      =/  rev=@ud  (tail .^((pair @tas @ud) %gw /[p.pyk]/[q.pyk]/[r.pyk]//1/announcements/[r.pyk]))
-      ::  =/  =wick
-        ::  %:  make-wick
-            ::  &
-            ::  (feed-to-seed bowl)
-            ::  /fine/[p.pyk]/g/x/(scot %ud rev)/chorus//1/announcements/[r.pyk]
-            ::  ~
-        ::  ==
-      ::  XX gossip wick
-      :~  :*  %pass  ~
+      =/  =wick  (make-grow-wick bowl %announcements announcement.act)
+      :~  (invent:gossip %chorus-message !>([%chorus-message %announcement wick]))
+          :*  %pass  ~
               %grow
               /announcements/[r.pyk]
               [%txt announcement.act]
@@ -415,6 +408,28 @@
               spar
           ==
       ==
+    ::
+        [%chorus-message %announcement *]
+      =/  =wick  wick.message
+      ::  announcement wicks sign the path and the response; we can
+      ::  only verify after fetching the content, in +on-arvo
+      ?:  flag.wick
+        %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping %announcement message without signed content"]))
+        `this
+      =/  =spar:ames  [ship.wick (slag 2 path.wick)]
+      ?.  ?=([%fine @t %g %x @t %chorus %$ @t %announcements @t ~] path.wick)
+        %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping %announcement message with wrong path"]))
+        `this
+      ?.  =((scot %p ship.wick) i.t.path.wick)
+        %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping %announcement message with wrong source"]))
+        `this
+      :_  this
+      :~  :*  %pass
+              /fine/announcement/(scot %p ship.wick)/(scot %uv (jam wick))
+              %arvo  %a  %keen  ~
+              spar
+          ==
+      ==
     ==
   ==
 ::
@@ -465,6 +480,46 @@
           %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping message with bad signature from {<ship.wick>}"]))
           `this
         `this(rolodex (~(put by rolodex) ship bio))
+      ::
+          %announcement
+        ?~  q.sage
+          %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping %keen result with empty sage"]))
+          `this
+        =/  =ship  (slav %p who.pole)
+        ?.  =(ship ship.p.sage)
+          %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping %keen result with ship mismatch; expected {<ship>}, got {<ship.p.sage>}"]))
+          `this
+        =/  =wick  ;;(wick (cue (slav %uv hax.pole)))
+        ?.  =(ship ship.wick)
+          %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping wick with ship mismatch; expected {<ship>}, got {<ship.wick>}"]))
+          `this
+        ?.  =((slag 2 path.wick) path.p.sage)
+          %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping wick with path mismatch; expected {<ship>}, got {<ship.wick>}"]))
+          `this
+        =/  =page  q.sage
+        ?.  =(%txt p.page)
+          %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping message with wrong mark; expected %txt, got {<p.page>}"]))
+          `this
+        =/  =announcement:chorus  ;;(@t q.page)
+        ?.  (lte (lent (trip announcement)) 256)
+          `this
+        ::  verify the signature over the path and the sage we received
+        =/  key=(unit [crypto-suite=@ud =pass])
+          .^  (unit [crypto-suite=@ud =pass])
+              %j
+              /(scot %p our.bowl)/puby/(scot %da now.bowl)/(scot %p ship.wick)/(scot %ud rot.wick)
+          ==
+        ?.  (verify-wick wick ?~(key ~ `pass.u.key) `(fine-octs sage))
+          %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping message with bad signature from {<ship.wick>}"]))
+          `this
+        =/  =time  (slav %da (rear path.wick))
+        :-  ~
+        %=  this
+          announcements  %-  ~(put by announcements)
+                         :-  ship
+                         %-  ~(put in (~(gut by announcements) ship ~))
+                         [time announcement]
+        ==
       ==
     ==
   ==

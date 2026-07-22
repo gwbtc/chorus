@@ -52,6 +52,12 @@
   ^-  form:m
   (poke-chorus who chorus-action+!>([%update-bio | bio]))
 ::
+++  make-announcement
+  |=  [who=ship =announcement]
+  =/  m  (strand ,~)
+  ^-  form:m
+  (poke-chorus who chorus-action+!>([%make-announcement | announcement]))
+::
 ++  set-domain
   |=  [who=ship domain=term]
   =/  m  (strand ,~)
@@ -78,6 +84,28 @@
   ::  ~&  >>  [%aqua-scrying /i/(scot %p who)/gx/(scot %p who)/chorus/(scot %da now.bowl)/rolodex/noun/noun]
   ::  ~&  >>  [%aqua-scried out]
   (pure:m (need out))
+::
++$  anns  (map ship (set (pair time announcement)))
+::
+++  read-announcements
+  |=  who=ship
+  =/  m  (strand anns)
+  ^-  form:m
+  ;<  =bowl:strand  bind:m  get-bowl
+  =/  out=(unit anns)
+    %+  scry-aqua:util  (unit anns)
+    :*  our.bowl
+        now.bowl
+        /i/(scot %p who)/gx/(scot %p who)/chorus/(scot %da now.bowl)/announcements/noun/noun
+    ==
+  (pure:m (need out))
+::
+++  heard-announcement
+  |=  [heard=anns from=ship text=cord]
+  ^-  ?
+  %-  ~(any in (~(gut by heard) from ~))
+  |=  (pair time announcement)
+  =(text q)
 --
 |=  arg=vase
 =/  m  (strand:rand ,vase)
@@ -113,8 +141,8 @@
   [our.bowl now.bowl aqua-pax]
 ::  ~&  >>  (need etn)
 ~&  >  %set-subscriptions
-;<  ~  bind:m  (update-bio ship-a 'hello from ship a')
-;<  ~  bind:m  (update-bio ship-b 'hello from ship b')
+;<  ~  bind:m  (update-bio ship-a 'new bio from ship a')
+;<  ~  bind:m  (update-bio ship-b 'new bio from ship b')
 ;<  ~  bind:m  (sleep ~s2)
 ~&  >  %updated-bios
 ;<  rolodex-a=(map ship cord)  bind:m  (read-rolodex ship-a)
@@ -122,16 +150,38 @@
 ~&  >  :*  ship-a-heard-b=(~(get by rolodex-a) ship-b)
            ship-b-heard-a=(~(get by rolodex-b) ship-a)
       ==
-?.  =((some 'hello from ship b') (~(get by rolodex-a) ship-b))
+?.  =((some 'new bio from ship b') (~(get by rolodex-a) ship-b))
   ~&  >>>  %ship-a-did-not-hear-ship-b
   ;<  ~  bind:m  (leave-our /effect/unto %aqua)
   ;<  ~  bind:m  end:io
   (pure:m arg)
-?.  =((some 'hello from ship a') (~(get by rolodex-b) ship-a))
+?.  =((some 'new bio from ship a') (~(get by rolodex-b) ship-a))
   ~&  >>>  %ship-b-did-not-hear-ship-a
   ;<  ~  bind:m  (leave-our /effect/unto %aqua)
   ;<  ~  bind:m  end:io
   (pure:m arg)
+;<  ~  bind:m  (make-announcement ship-a 'announcement from ship a')
+;<  ~  bind:m  (make-announcement ship-b 'announcement from ship b')
+~&  >  %made-announcements
+=/  tries=@ud  10
+|-  ^-  form:m
+;<  ~  bind:m  (sleep ~s3)
+;<  anns-a=anns  bind:m  (read-announcements ship-a)
+;<  anns-b=anns  bind:m  (read-announcements ship-b)
+=/  a-heard-b  (heard-announcement anns-a ship-b 'announcement from ship b')
+=/  b-heard-a  (heard-announcement anns-b ship-a 'announcement from ship a')
+?:  &(a-heard-b b-heard-a)
+  ~&  >  :*  ship-a-heard-b=(~(get by anns-a) ship-b)
+             ship-b-heard-a=(~(get by anns-b) ship-a)
+         ==
+  ~&  >  %both-ships-heard-announcements
+  ;<  ~  bind:m  (leave-our /effect/unto %aqua)
+  ;<  ~  bind:m  end:io
+  (pure:m arg)
+?.  =(0 tries)
+  ~&  >  [%announcements-pending tries=tries a=a-heard-b b=b-heard-a]
+  $(tries (dec tries))
+~&  >>>  [%announcements-not-heard a-heard-b=a-heard-b b-heard-a=b-heard-a]
 ;<  ~  bind:m  (leave-our /effect/unto %aqua)
 ;<  ~  bind:m  end:io
 (pure:m arg)
