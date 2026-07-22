@@ -1,5 +1,5 @@
 ::
-::  End-to-end gossip test over two Aqua virtual ships.
+::  End-to-end %announcement gossip test over two Aqua virtual ships.
 ::
 /-  spider, *chorus
 /+  *ph-io, gw-io=ph-gw-io
@@ -46,12 +46,6 @@
   ^-  form:m
   (poke-chorus who gossip-action+!>([%subscribe peer]))
 ::
-++  update-bio
-  |=  [who=ship bio=cord]
-  =/  m  (strand ,~)
-  ^-  form:m
-  (poke-chorus who chorus-action+!>([%update-bio | bio]))
-::
 ++  make-announcement
   |=  [who=ship =announcement]
   =/  m  (strand ,~)
@@ -69,21 +63,6 @@
   =/  m  (strand ,~)
   ^-  form:m
   (poke-chorus who gossip-action+!>([%config-tell %whos %wild]))
-::
-++  read-rolodex
-  |=  who=ship
-  =/  m  (strand (map ship cord))
-  ^-  form:m
-  ;<  =bowl:strand  bind:m  get-bowl
-  =/  out=(unit (map ship cord))
-    %+  scry-aqua:util  (unit (map ship cord))
-    :*  our.bowl
-        now.bowl
-        /i/(scot %p who)/gx/(scot %p who)/chorus/(scot %da now.bowl)/rolodex/noun/noun
-    ==
-  ::  ~&  >>  [%aqua-scrying /i/(scot %p who)/gx/(scot %p who)/chorus/(scot %da now.bowl)/rolodex/noun/noun]
-  ::  ~&  >>  [%aqua-scried out]
-  (pure:m (need out))
 ::
 +$  anns  (map ship (set (pair time announcement)))
 ::
@@ -109,7 +88,7 @@
 --
 |=  arg=vase
 =/  m  (strand:rand ,vase)
-=/  io  ~(. gw-io %.y %chorus-gossip)
+=/  io  ~(. gw-io %.y %chorus-announcement)
 =/  =onchain:io
   :~  [ship-a 1 0 ~ %if]
       [ship-b 1 0 ~ %if]
@@ -132,34 +111,7 @@
 ;<  ~  bind:m  (subscribe ship-a ship-b)
 ;<  ~  bind:m  (subscribe ship-b ship-a)
 ;<  ~  bind:m  (sleep ~s2)
-;<  =bowl:strand  bind:m  get-bowl
-=/  aqua-pax
-  :-  %i
-  /(scot %p ship-a)/j/(scot %p ship-a)/sources/(scot %da now.bowl)/noun
-=/  etn=(unit state-eth-node:jael)
-  %+  scry-aqua:util  (unit state-eth-node:jael)
-  [our.bowl now.bowl aqua-pax]
-::  ~&  >>  (need etn)
 ~&  >  %set-subscriptions
-;<  ~  bind:m  (update-bio ship-a 'new bio from ship a')
-;<  ~  bind:m  (update-bio ship-b 'new bio from ship b')
-;<  ~  bind:m  (sleep ~s2)
-~&  >  %updated-bios
-;<  rolodex-a=(map ship cord)  bind:m  (read-rolodex ship-a)
-;<  rolodex-b=(map ship cord)  bind:m  (read-rolodex ship-b)
-~&  >  :*  ship-a-heard-b=(~(get by rolodex-a) ship-b)
-           ship-b-heard-a=(~(get by rolodex-b) ship-a)
-      ==
-?.  =((some 'new bio from ship b') (~(get by rolodex-a) ship-b))
-  ~&  >>>  %ship-a-did-not-hear-ship-b
-  ;<  ~  bind:m  (leave-our /effect/unto %aqua)
-  ;<  ~  bind:m  end:io
-  (pure:m arg)
-?.  =((some 'new bio from ship a') (~(get by rolodex-b) ship-a))
-  ~&  >>>  %ship-b-did-not-hear-ship-a
-  ;<  ~  bind:m  (leave-our /effect/unto %aqua)
-  ;<  ~  bind:m  end:io
-  (pure:m arg)
 ;<  ~  bind:m  (make-announcement ship-a 'announcement from ship a')
 ;<  ~  bind:m  (make-announcement ship-b 'announcement from ship b')
 ~&  >  %made-announcements
