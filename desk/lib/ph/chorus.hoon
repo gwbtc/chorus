@@ -3,7 +3,7 @@
 ::  virtual ships.
 ::
 /-  spider, *chorus
-/+  *ph-io, gw-io=ph-gw-io
+/+  *ph-io, gw-io=ph-gw-io, gossip
 =,  strand=strand:spider
 |%
 ++  ship-a  ~fasteg-dinhet-malrum-ransub--hocduc-digtev-radsut-marbud
@@ -31,14 +31,41 @@
     (strand-fail %poke-ack u.p.sign)
   (pure:m ~)
 ::
-++  poke-chorus
+::  wait for a poke-ack; & on ack, | on nack
+++  take-poke-result
+  |=  who=ship
+  =/  m  (strand ,?)
+  ^-  form:m
+  |-
+  ;<  =aqua-effect  bind:m  (take-effect /effect/unto)
+  ?.  =(who who.aqua-effect)  $(who who)
+  ?.  ?=([%unto %poke-ack *] q.ufs.aqua-effect)  $(who who)
+  =/  sign=sign:agent:gall  +.q.ufs.aqua-effect
+  ?>  ?=(%poke-ack -.sign)
+  (pure:m =(~ p.sign))
+::
+++  send-poke
   |=  [who=ship =cage]
   =/  m  (strand ,~)
   ^-  form:m
   =/  =task:gall
     [%deal [who who /aqua] %chorus %poke cage]
-  ;<  ~  bind:m  (send-events [%event who /g/aqua/deal task]~)
+  (send-events [%event who /g/aqua/deal task]~)
+::
+++  poke-chorus
+  |=  [who=ship =cage]
+  =/  m  (strand ,~)
+  ^-  form:m
+  ;<  ~  bind:m  (send-poke who cage)
   (take-poke-ack who)
+::
+::  poke that may nack without failing the thread; & on ack
+++  poke-chorus-soft
+  |=  [who=ship =cage]
+  =/  m  (strand ,?)
+  ^-  form:m
+  ;<  ~  bind:m  (send-poke who cage)
+  (take-poke-result who)
 ::
 ++  subscribe
   |=  [who=ship peer=ship]
@@ -51,6 +78,12 @@
   =/  m  (strand ,~)
   ^-  form:m
   (poke-chorus who gossip-action+!>([%config-domain domain]))
+::
+++  set-hops
+  |=  [who=ship =hops:gossip]
+  =/  m  (strand ,?)
+  ^-  form:m
+  (poke-chorus-soft who gossip-action+!>([%config-hops hops]))
 ::
 ++  set-tell-wild
   |=  who=ship
@@ -156,6 +189,15 @@
     pax
     /noun/noun
   ==
+::
+++  read-gossip-config
+  |=  who=ship
+  =/  m  (strand (unit config:gossip))
+  ^-  form:m
+  ;<  =bowl:strand  bind:m  get-bowl
+  %-  pure:m
+  %+  scry-aqua:util  (unit config:gossip)
+  [our.bowl now.bowl (scry-path who now.bowl /~/gossip/config)]
 ::
 ++  read-rolodex
   |=  who=ship

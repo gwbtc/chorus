@@ -63,7 +63,7 @@
 =*  state  -
 ::
 %-  %+  agent:gossip
-      :*  2              ::  hops
+      :*  %2             ::  hops
           [%whos %sein]  ::  hear
           [%whos %city]  ::  tell
           .n             ::  pass

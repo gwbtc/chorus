@@ -9,6 +9,11 @@
 ::
 +$  hash    @uv
 ::
+::  gossip is for you (%0), friends (%1), and friends-of-friends
+::  (%2). rumor metadata stays @ud since relays decrement it.
+::
++$  hops    $~(%1 ?(%0 %1 %2))
+::
 +$  whos
   $?(%saxo %sein %fief %city %wild)
 ::
@@ -18,7 +23,7 @@
   ==
 ::
 +$  config
-  $:  hops=_1      ::  how many peers across whom gossip may travel
+  $:  =hops        ::  how many peers across whom gossip may travel
       hear=crowd   ::  who to subscribe to
       tell=crowd   ::  who to allow subscriptions from
       pass=?       ::  whether to (50/50) emit data through proxy
@@ -26,7 +31,7 @@
   ==
 ::
 +$  action
-  $%  [%config-hops hops=@ud]
+  $%  [%config-hops =hops]
       [%config-hear =crowd]
       [%config-tell =crowd]
       [%config-pass pass=?]
