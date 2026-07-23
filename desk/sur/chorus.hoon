@@ -32,41 +32,55 @@
       ::  data=@
   ::  ==
 ::
-+$  mcp-tool-listing
-  $+  chorus-mcp-tool-listing
+::  the data half of each mcp listing: what a publisher grows
+::  and signs, and what a listener stores next to the wick
++$  mcp-tool-metadata
+  $+  chorus-mcp-tool-metadata
   $:  =name:tool:mcp
       =desc:tool:mcp
       =parameters:tool:mcp
       =required:tool:mcp
-      =wick
   ==
 ::
-+$  mcp-prompt-listing
-  $+  chorus-mcp-prompt-listing
++$  mcp-prompt-metadata
+  $+  chorus-mcp-prompt-metadata
   $:  name=@t
       title=@t
       desc=@t
       arguments=(list argument:prompt:mcp)
-      =wick
   ==
 ::
-+$  mcp-resource-listing
-  $+  chorus-mcp-resource-listing
++$  mcp-resource-metadata
+  $+  chorus-mcp-resource-metadata
   $:  uri=@t
       name=@t
       title=(unit @t)
       desc=(unit @t)
-      =wick
   ==
 ::
-+$  mcp-resource-template-listing
-  $+  chorus-mcp-resource-template-listing
++$  mcp-resource-template-metadata
+  $+  chorus-mcp-resource-template-metadata
   $:  uri-template=@t
       name=@t
       title=(unit @t)
       desc=(unit @t)
-      =wick
   ==
+::
++$  mcp-tool-listing
+  $+  chorus-mcp-tool-listing
+  [=mcp-tool-metadata =wick]
+::
++$  mcp-prompt-listing
+  $+  chorus-mcp-prompt-listing
+  [=mcp-prompt-metadata =wick]
+::
++$  mcp-resource-listing
+  $+  chorus-mcp-resource-listing
+  [=mcp-resource-metadata =wick]
+::
++$  mcp-resource-template-listing
+  $+  chorus-mcp-resource-template-listing
+  [=mcp-resource-template-metadata =wick]
 ::
 ::  client-to-server actions
 +$  action
@@ -81,16 +95,20 @@
   ==
 ::
 ::  ship-to-ship messages
+::
+::  mcp wicks sign the fine response for the source file in
+::  the publisher's clay; the metadata rides along unsigned,
+::  as a plaintext syndication of what the signed source says
 +$  message
   $+  chorus-message
   $:  %chorus-message
     $%  [%bio =wick]
         [%disavow =message]
         [%announcement =wick]
-        [%mcp-tool =wick]
-        [%mcp-resource =wick]
-        [%mcp-resource-template =wick]
-        [%mcp-prompt =wick]
+        [%mcp-tool meta=mcp-tool-metadata =wick]
+        [%mcp-resource meta=mcp-resource-metadata =wick]
+        [%mcp-resource-template meta=mcp-resource-template-metadata =wick]
+        [%mcp-prompt meta=mcp-prompt-metadata =wick]
         ::  XX %agent-skill =wick
         ::  XX %a2a-agent-card =wick
         ::  XX %a2a-agent-skill =wick

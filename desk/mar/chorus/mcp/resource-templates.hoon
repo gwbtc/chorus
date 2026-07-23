@@ -14,19 +14,20 @@
     :-  %a
     %+  turn  ~(tap in templates)
     |=  r=mcp-resource-template-listing
+    =*  info  mcp-resource-template-metadata.r
     %-  pairs:enjs:format
     %+  welp
-      :~  ['uriTemplate' s+uri-template.r]
-          ['name' s+name.r]
+      :~  ['uriTemplate' s+uri-template.info]
+          ['name' s+name.info]
       ==
     %+  welp
-      ?~  title.r
+      ?~  title.info
         ~
-      :~  ['title' s+u.title.r]
+      :~  ['title' s+u.title.info]
       ==
-    ?~  desc.r
+    ?~  desc.info
       ~
-    :~  ['description' s+u.desc.r]
+    :~  ['description' s+u.desc.info]
     ==
   --
 ++  grab

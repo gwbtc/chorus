@@ -14,14 +14,15 @@
     :-  %a
     %+  turn  ~(tap in prompts)
     |=  p=mcp-prompt-listing
+    =*  info  mcp-prompt-metadata.p
     %-  pairs:enjs:format
-    :~  ['name' s+name.p]
-        ['title' s+title.p]
-        ['description' s+desc.p]
+    :~  ['name' s+name.info]
+        ['title' s+title.info]
+        ['description' s+desc.info]
         :-  'arguments'
         :-  %a
         %+  turn
-          arguments.p
+          arguments.info
         |=  arg=argument:prompt:mcp
         %-  pairs:enjs:format
         :~  ['name' s+name.arg]

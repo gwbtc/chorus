@@ -31,7 +31,7 @@
       ==
     ::
         %mcp-tool-listed
-      =/  t  mcp-tool-listing.val
+      =/  t  mcp-tool-metadata.mcp-tool-listing.val
       %-  pairs:enjs:format
       :~  ['type' s+'mcp-tool-listed']
           ['ship' s+(scot %p ship.val)]
@@ -55,7 +55,7 @@
       ==
     ::
         %mcp-prompt-listed
-      =/  p  mcp-prompt-listing.val
+      =/  p  mcp-prompt-metadata.mcp-prompt-listing.val
       %-  pairs:enjs:format
       :~  ['type' s+'mcp-prompt-listed']
           ['ship' s+(scot %p ship.val)]
@@ -75,7 +75,7 @@
       ==
     ::
         %mcp-resource-listed
-      =/  r  mcp-resource-listing.val
+      =/  r  mcp-resource-metadata.mcp-resource-listing.val
       %-  pairs:enjs:format
       :~  ['type' s+'mcp-resource-listed']
           ['ship' s+(scot %p ship.val)]
@@ -88,7 +88,7 @@
       ==
     ::
         %mcp-resource-template-listed
-      =/  r  mcp-resource-template-listing.val
+      =/  r  mcp-resource-template-metadata.mcp-resource-template-listing.val
       %-  pairs:enjs:format
       :~  ['type' s+'mcp-resource-template-listed']
           ['ship' s+(scot %p ship.val)]

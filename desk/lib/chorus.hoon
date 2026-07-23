@@ -1,42 +1,38 @@
 /-  mcp, *chorus, *wick
 |%
-++  list-mcp-tool
+++  tool-meta
   |=  =tool:mcp
-  ^-  mcp-tool-listing
+  ^-  mcp-tool-metadata
   :*  name.tool
       desc.tool
       parameters.tool
       required.tool
-      *wick
   ==
 ::
-++  list-mcp-prompt
+++  prompt-meta
   |=  =prompt:mcp
-  ^-  mcp-prompt-listing
+  ^-  mcp-prompt-metadata
   :*  name.prompt
       title.prompt
       desc.prompt
       arguments.prompt
-      *wick
   ==
 ::
-++  list-mcp-resource
+++  resource-meta
   |=  =resource:mcp
-  ^-  mcp-resource-listing
+  ^-  mcp-resource-metadata
   :*  uri.resource
       name.resource
       title.resource
       desc.resource
-      *wick
   ==
 ::
-++  list-mcp-resource-template
+++  resource-template-meta
   |=  =template:resource:mcp
-  ^-  mcp-resource-template-listing
+  ^-  mcp-resource-template-metadata
   :*  uri-template.template
       name.template
       title.template
       desc.template
-      *wick
   ==
 --

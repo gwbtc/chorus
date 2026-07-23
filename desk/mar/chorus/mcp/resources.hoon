@@ -14,19 +14,20 @@
     :-  %a
     %+  turn  ~(tap in resources)
     |=  r=mcp-resource-listing
+    =*  info  mcp-resource-metadata.r
     %-  pairs:enjs:format
     %+  welp
-      :~  ['uri' s+uri.r]
-          ['name' s+name.r]
+      :~  ['uri' s+uri.info]
+          ['name' s+name.info]
       ==
     %+  welp
-      ?~  title.r
+      ?~  title.info
         ~
-      :~  ['title' s+u.title.r]
+      :~  ['title' s+u.title.info]
       ==
-    ?~  desc.r
+    ?~  desc.info
       ~
-    :~  ['description' s+u.desc.r]
+    :~  ['description' s+u.desc.info]
     ==
   --
 ++  grab
