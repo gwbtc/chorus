@@ -10,6 +10,13 @@
 ::
 +$  card  card:agent:gall
 ::
+::  per-fact gossip config from an action's local flag:
+::  local means zero hops, otherwise the standing config
+++  fact-once
+  |=  local=?
+  ^-  once:gossip
+  [?:(local `%0 ~) ~ ~]
+::
 ++  feed-to-seed
   |=  =bowl:gall
   ^-  seed:jael
@@ -224,10 +231,10 @@
         !!
       :_  this(rolodex (~(put by rolodex) [our.bowl bio.act]))
       :-  [%pass ~ %grow (snoc /bio (scot %da now.bowl)) txt+bio.act]
-      ?:  local.act
-        ~
       :_  ~
-      %+  invent:gossip  %chorus-message
+      %^    confect:gossip
+          (fact-once local.act)
+        %chorus-message
       !>  ^-  message:chorus
       [%chorus-message %bio (make-grow-wick bowl /bio txt+bio.act)]
     ::
@@ -245,10 +252,10 @@
               (snoc /announcements (scot %da now.bowl))
               txt+announcement.act
           ==
-      ?:  local.act
-        ~
       :_  ~
-      %+  invent:gossip  %chorus-message
+      %^    confect:gossip
+          (fact-once local.act)
+        %chorus-message
       !>  ^-  message:chorus
       :*  %chorus-message
           %announcement
@@ -277,10 +284,10 @@
                        %-  ~(put in (~(gut by mcp-tools) our.bowl ~))
                        [meta wick]
           ==
-      ?:  local.act
-        ~
       :_  ~
-      %+  invent:gossip  %chorus-message
+      %^    confect:gossip
+          (fact-once local.act)
+        %chorus-message
       !>  ^-  message:chorus
       [%chorus-message %mcp-tool meta wick]
     ::
@@ -295,10 +302,10 @@
                          %-  ~(put in (~(gut by mcp-prompts) our.bowl ~))
                          [meta wick]
           ==
-      ?:  local.act
-        ~
       :_  ~
-      %+  invent:gossip  %chorus-message
+      %^    confect:gossip
+          (fact-once local.act)
+        %chorus-message
       !>  ^-  message:chorus
       [%chorus-message %mcp-prompt meta wick]
     ::
@@ -313,10 +320,10 @@
                            %-  ~(put in (~(gut by mcp-resources) our.bowl ~))
                            [meta wick]
           ==
-      ?:  local.act
-        ~
       :_  ~
-      %+  invent:gossip  %chorus-message
+      %^    confect:gossip
+          (fact-once local.act)
+        %chorus-message
       !>  ^-  message:chorus
       [%chorus-message %mcp-resource meta wick]
     ::
@@ -333,10 +340,10 @@
             %-  ~(put in (~(gut by mcp-resource-templates) our.bowl ~))
             [meta wick]
           ==
-      ?:  local.act
-        ~
       :_  ~
-      %+  invent:gossip  %chorus-message
+      %^    confect:gossip
+          (fact-once local.act)
+        %chorus-message
       !>  ^-  message:chorus
       [%chorus-message %mcp-resource-template meta wick]
     ==

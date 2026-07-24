@@ -30,6 +30,16 @@
       domain=term  ::  Jael source used for city/fief/kids discovery
   ==
 ::
+::  one-time config for a single datum; ~ fields fall back to
+::  the standing config. no per-fact hear (hear is standing
+::  access control) and no per-fact domain (app-level only).
+::
++$  once
+  $:  hops=(unit hops)   ::  relay allowance for this datum
+      tell=(unit crowd)  ::  audience for this datum
+      pass=(unit ?)      ::  proxy preference for this datum
+  ==
+::
 +$  action
   $%  [%config-hops =hops]
       [%config-hear =crowd]
@@ -46,6 +56,12 @@
   |=  =cage
   ^-  card:agent:gall
   [%give %fact [/~/gossip/source]~ cage]
+::
+++  confect
+  |=  [=once =cage]
+  ^-  card:agent:gall
+  :^  %give  %fact  [/~/gossip/confect]~
+  [%gossip-confect !>([once `(cask *)`[p.cage q.q.cage]])]
 ::
 ++  configure
   |=  =config
@@ -225,6 +241,12 @@
           (tell-changed tell.old)
           caz
         ==
+      ?:  =(/~/gossip/confect path)
+        ~|  [%weird-fact-on-confect p.cage.p.card]
+        ?>  =(%gossip-confect p.cage.p.card)
+        =+  !<([=once data=(cask *)] q.cage.p.card)
+        =^  cas  state  (confect-rumor once data)
+        [(weld cas caz) state]
       ~|  [%strange-internal-target path]
       ?>  =(/~/gossip/source path)
       ::  if hops is configured at 0, we don't broadcast at all.
@@ -287,6 +309,36 @@
       :~  [%pass wire %agent [proxy dap.bowl] %poke cage]
           [%pass wire %arvo %b %wait time]
       ==
+    ::
+    ++  confect-rumor  ::  gossip a datum under one-time config
+      |=  [=once data=(cask *)]
+      ^-  (quip card _state)
+      =/  count=@ud  (fall hops.once hops.manner)
+      =/  =rumor
+        :_  data
+        [%0 `meta-0`?:(=(0 count) 0 (dec count))]
+      =.  memory  (~(put in memory) (en-hash rumor))
+      ::  at zero hops the datum stays local
+      ::
+      ?:  =(0 count)
+        [~ state]
+      ?~  tell.once
+        =/  real  pass.manner
+        =.  pass.manner  (fall pass.once pass.manner)
+        =^  caz  state  (emit-rumor rumor)
+        =.  pass.manner  real
+        [caz state]
+      ::  an audience override skips our subscribers: poke the
+      ::  rumor straight to the resolved crowd, as with proxies
+      ::
+      =/  =hash  (en-hash rumor)
+      =.  shared  (~(put in shared) hash)
+      :_  state
+      %+  turn  ~(tap in (~(del in (resolve-crowd u.tell.once)) our.bowl))
+      |=  who=ship
+      ^-  card
+      :+  %pass  /~/gossip/confected/(scot %p who)/(scot %uv hash)
+      [%agent [who dap.bowl] %poke %gossip-rumor !>(rumor)]
     ::
     ++  play-cards
       |=  cards=(list card)
@@ -592,6 +644,19 @@
         ?~  p.sign      [[rest]~ this(passed (~(del by passed) hash))]
         =^  caz  state  (emit-rumor:up -.u.rum)
         [[rest caz] this]
+      ::
+          [%confected @ @ ~]
+        ?.  ?=(%poke-ack -.sign)
+          ~&  [gossip+dap.bowl %unexpected-sign wire -.sign]
+          [~ this]
+        ::  as with relays: an ack means they take rumor pokes,
+        ::  a nack means they don't
+        ::
+        =.  misses
+          ?~  p.sign
+            (~(del in misses) src.bowl)
+          (~(put in misses) src.bowl)
+        [~ this]
       ==
     ::
     ++  on-peek

@@ -57,6 +57,8 @@ const dependencies = [_]RepoImport{
             "mar/kelvin.hoon",
             "mar/mime.hoon",
             "mar/noun.hoon",
+            "mar/thread-done.hoon",
+            "mar/thread-fail.hoon",
             "mar/txt.hoon",
             "sur/spider.hoon",
             "sur/verb.hoon",

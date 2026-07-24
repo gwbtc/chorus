@@ -111,6 +111,13 @@
   ^-  form:m
   (poke-chorus who chorus-action+!>([%make-announcement | announcement]))
 ::
+::  a local (zero-hop) announcement: stored, never gossipped
+++  make-local-announcement
+  |=  [who=ship =announcement]
+  =/  m  (strand ,~)
+  ^-  form:m
+  (poke-chorus who chorus-action+!>([%make-announcement & announcement]))
+::
 ++  publish-mcp
   |=  $:  who=ship
           kind=?(%tool %prompt %resource %resource-template)
