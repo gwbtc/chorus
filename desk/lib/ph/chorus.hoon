@@ -8,6 +8,8 @@
 |%
 ++  ship-a  ~fasteg-dinhet-malrum-ransub--hocduc-digtev-radsut-marbud
 ++  ship-b  ~molpyx-novtyc-wortyc-noswyd--taltyv-loplev-dabwen-mardev
+++  ship-k  ~daldyl-nildem-dispec-tilryx--dondus-dirmet-tintyl-marbud
+++  ship-c  ~fosnys-noctyd-talfyl-borryl--davhus-disbyn-fotnec-mardev
 ::
 ++  take-effect
   |=  =wire
@@ -85,11 +87,17 @@
   ^-  form:m
   (poke-chorus-soft who gossip-action+!>([%config-hops hops]))
 ::
+++  set-tell
+  |=  [who=ship =crowd:gossip]
+  =/  m  (strand ,~)
+  ^-  form:m
+  (poke-chorus who gossip-action+!>([%config-tell crowd]))
+::
 ++  set-tell-wild
   |=  who=ship
   =/  m  (strand ,~)
   ^-  form:m
-  (poke-chorus who gossip-action+!>([%config-tell %whos %wild]))
+  (set-tell who [%whos %wild])
 ::
 ++  update-bio
   |=  [who=ship bio=cord]
@@ -128,6 +136,125 @@
   ;<  ~  bind:m  (mount who %chorus)
   ;<  ~  bind:m  (send-events (insert-files:util who %chorus [pax txt] ~))
   (sleep ~s2)
+::
+::  boot a fleet of comets over one onchain history; the caller
+::  handles vane threads and aqua watches
+++  boot-comets
+  |=  [lab=@tas fleet=(list ship) chain=onchain:gw-io]
+  =/  m  (strand ,~)
+  =/  io  ~(. gw-io %.y lab)
+  |-  ^-  form:m
+  ?~  fleet
+    ;<  ~  bind:m  (sleep ~s5)
+    ~&  >  %started-comets
+    (pure:m ~)
+  ;<  ~  bind:m  (start-gw-comet:io i.fleet %mesa chain)
+  $(fleet t.fleet)
+::
+::  start the aqua vanes and boot a fleet of comets
+++  boot-fleet
+  |=  [lab=@tas fleet=(list ship) chain=onchain:gw-io]
+  =/  m  (strand ,~)
+  =/  io  ~(. gw-io %.y lab)
+  ^-  form:m
+  ;<  ~  bind:m  start-simple:io
+  ;<  ~  bind:m  (watch-our /effect/unto %aqua /effect/unto)
+  (boot-comets lab fleet chain)
+::
+::  sync an aqua ship desk to the host desk
+++  sync-desk
+  |=  [her=ship =desk]
+  =/  m  (strand ,~)
+  ^-  form:m
+  ;<  =bowl:strand  bind:m  get-bowl
+  =/  sab=path
+    /(scot %p our.bowl)/[desk]/(scot %da now.bowl)
+  =|  =path
+  =|  raw-files=(list [^path page:clay])
+  =.  raw-files
+    |-
+    =*  loop  $
+    =+  .^(=arch %cy (weld sab path))
+    =.  raw-files
+      %+  roll  ~(tap in ~(key by dir.arch))
+      |=  [dir=@ta =_raw-files]
+      (welp loop(path (snoc path dir)) raw-files)
+    ?~  fil.arch  raw-files
+    =+  .^(=page:clay %cs (weld sab /blob/(scot %uv u.fil.arch)))
+    :_  raw-files
+    [path page]
+  =/  files
+    %+  turn  raw-files
+    |=  [=^path =page:clay]
+    =+  .^(=dais:clay %cb (snoc sab p.page))
+    =+  .^(=tube:clay %cc (weld sab /[p.page]/mime))
+    =+  !<(=mime (tube (vale:dais q.page)))
+    [path ~ mime]
+  =/  =beam  [[her desk ud+1] /]
+  ;<  ~  bind:m  (send-events [%event her /c/mount/0v1abc [%mont desk beam]]~)
+  =/  =task:clay
+    [%into desk & files]
+  ;<  ~  bind:m  (send-events [%event her /c/sync/0v1abc task]~)
+  (sleep ~s2)
+::
+::  the standard chorus test fleet:
+::  ship-a: fief, fact source     ship-b: second fief
+::  ship-k: sponsee of ship-a     ship-c: sponsee of ship-b
+::
+++  chorus-fleet
+  ^-  (list ship)
+  ~[ship-a ship-b ship-k ship-c]
+::
+++  chorus-chain
+  ^-  onchain:gw-io
+  :~  [ship-a 1 0 ~ %if]
+      [ship-b 1 0 ~ %if]
+      [ship-k 1 0 `ship-a ~]
+      [ship-c 1 0 `ship-b ~]
+  ==
+::
+::  boot the chorus fleet, introduce the ships (fief-less
+::  sponsees route through their sponsor, and only become
+::  reachable once they have sent a first packet, so each
+::  sponsee his its sponsor before anyone his the sponsee),
+::  set gossip domains, and sync the %chorus desk in.
+::  the caller handles vane threads and aqua watches.
+::
+++  setup-fleet
+  |=  lab=@tas
+  =/  m  (strand ,~)
+  ^-  form:m
+  ;<  ~  bind:m  (boot-comets lab chorus-fleet chorus-chain)
+  ;<  ~  bind:m
+    %+  cross-hi  lab
+    :~  [ship-k ship-a]
+        [ship-c ship-b]
+        [ship-c ship-a]
+        [ship-a ship-b]
+        [ship-k ship-b]
+    ==
+  ;<  ~  bind:m  (set-domain ship-a %gw)
+  ;<  ~  bind:m  (set-domain ship-b %gw)
+  ;<  ~  bind:m  (set-domain ship-k %gw)
+  ;<  ~  bind:m  (set-domain ship-c %gw)
+  ~&  >  %syncing-chorus-desk
+  =/  todo  chorus-fleet
+  |-  ^-  form:m
+  ?~  todo  (pure:m ~)
+  ;<  ~  bind:m  (sync-desk i.todo %chorus)
+  $(todo t.todo)
+::
+::  introduce ships to each other, both directions per pair
+++  cross-hi
+  |=  [lab=@tas pairs=(list [a=ship b=ship])]
+  =/  m  (strand ,~)
+  =/  io  ~(. gw-io %.y lab)
+  |-  ^-  form:m
+  ?~  pairs
+    (pure:m ~)
+  ;<  ~  bind:m  (send-hi:io a.i.pairs b.i.pairs)
+  ;<  ~  bind:m  (send-hi:io b.i.pairs a.i.pairs)
+  $(pairs t.pairs)
 ::
 ::  boot both comets, introduce them, and cross-subscribe
 ++  setup
@@ -208,6 +335,35 @@
   %-  need
   %+  scry-aqua:util  (unit (map ship cord))
   [our.bowl now.bowl (scry-path who now.bowl /rolodex)]
+::
+::  datums a ship's gossip wrapper has seen (fact leg proof)
+++  read-gossip-memory
+  |=  who=ship
+  =/  m  (strand (unit (set @uv)))
+  ^-  form:m
+  ;<  =bowl:strand  bind:m  get-bowl
+  %-  pure:m
+  %+  scry-aqua:util  (unit (set @uv))
+  [our.bowl now.bowl (scry-path who now.bowl /~/gossip/memory)]
+::
+::  datums a ship's gossip wrapper has emitted as facts
+++  read-gossip-shared
+  |=  who=ship
+  =/  m  (strand (unit (set @uv)))
+  ^-  form:m
+  ;<  =bowl:strand  bind:m  get-bowl
+  %-  pure:m
+  %+  scry-aqua:util  (unit (set @uv))
+  [our.bowl now.bowl (scry-path who now.bowl /~/gossip/shared)]
+::
+++  read-whos
+  |=  [who=ship =whos:gossip]
+  =/  m  (strand (unit (set ship)))
+  ^-  form:m
+  ;<  =bowl:strand  bind:m  get-bowl
+  %-  pure:m
+  %+  scry-aqua:util  (unit (set ship))
+  [our.bowl now.bowl (scry-path who now.bowl /~/gossip/whos/[whos])]
 ::
 +$  anns  (map ship (set (pair time announcement)))
 ::

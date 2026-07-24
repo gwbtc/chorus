@@ -15,7 +15,7 @@
 +$  hops    $~(%1 ?(%0 %1 %2))
 ::
 +$  whos
-  $?(%saxo %sein %fief %city %wild)
+  $?(%saxo %sein %kids %fief %city %wild)
 ::
 +$  crowd
   $%  [%whos who=whos]
@@ -27,7 +27,7 @@
       hear=crowd   ::  who to subscribe to
       tell=crowd   ::  who to allow subscriptions from
       pass=?       ::  whether to (50/50) emit data through proxy
-      domain=term  ::  Jael source used for city/fief discovery
+      domain=term  ::  Jael source used for city/fief/kids discovery
   ==
 ::
 +$  action
@@ -109,6 +109,22 @@
         |
       ?=(^ fief.u.point)
     ::
+    ++  kids
+      ^-  (set ship)
+      %-  ~(gas in *(set ship))
+      %+  skim  ~(tap in city)
+      |=  who=ship
+      ?:  =(our.bowl who)
+        |
+      =/  point=(unit point:jael)
+        .^  (unit point:jael)
+            %j
+            /(scot %p our.bowl)/pynt/(scot %da now.bowl)/(scot %p who)
+        ==
+      ?~  point
+        |
+      =(`our.bowl sponsor.u.point)
+    ::
     ++  sponsor
       ^-  ship
       ?:  =(%pawn (clan:title our.bowl))
@@ -133,6 +149,7 @@
         %sein
           ?:  =(sponsor our.bowl)  ~
           (~(put in *(set ship)) sponsor)
+        %kids  kids
         %fief  fiefs
         %city  city
         %wild  ~
@@ -595,6 +612,9 @@
       ?.  ?=(%x i.path)  [~ ~]
       ?+  t.t.t.path  [~ ~]
         [%config ~]  ``noun+!>(manner)
+        [%memory ~]  ``noun+!>(memory)
+        [%shared ~]  ``noun+!>(shared)
+        [%whos @ ~]  ``noun+!>((resolve-whos:up ;;(whos i.t.t.t.t.path)))
       ==
     ::
     ++  on-leave
