@@ -1,37 +1,39 @@
-/-  *chorus
+/-  mcp, *chorus
 |_  val=update
 ++  grad  %noun
 ++  grow
   |%
   ++  noun  val
+  ::  every listing carries the wick that signed it; json gives
+  ::  clients the plaintext half alone
   ++  json
     ^-  ^json
     ?-  -.val
-        %updated-bio
+        %chorus-bio-updated
       %-  pairs:enjs:format
-      :~  ['type' s+'updated-bio']
+      :~  ['type' s+'chorus-bio-updated']
           ['ship' s+(scot %p ship.val)]
-          ['bio' s+bio.val]
+          ['bio' s+txt.listing.val]
       ==
     ::
-        %announcement
+        %chorus-announcement
       %-  pairs:enjs:format
-      :~  ['type' s+'announcement']
+      :~  ['type' s+'chorus-announcement']
           ['ship' s+(scot %p ship.val)]
-          ['time' s+(scot %da time.val)]
-          ['text' s+text.val]
+          ['time' s+(scot %da time.listing.val)]
+          ['text' s+txt.listing.val]
       ==
     ::
-        %desk-published
+        %chorus-desk-published
       %-  pairs:enjs:format
-      :~  ['type' s+'desk-published']
+      :~  ['type' s+'chorus-desk-published']
           ['ship' s+(scot %p ship.val)]
-          ['desk' s+desk.val]
-          ['desc' s+desc.val]
+          ['desk' s+desk.listing.val]
+          ['desc' s+desc.listing.val]
       ==
     ::
         %mcp-tool-listed
-      =/  t  mcp-tool-metadata.mcp-tool-listing.val
+      =/  t  meta.listing.val
       %-  pairs:enjs:format
       :~  ['type' s+'mcp-tool-listed']
           ['ship' s+(scot %p ship.val)]
@@ -44,7 +46,7 @@
               :-  %o
               %-  ~(gas by *(map @t ^json))
               %+  turn  ~(tap by parameters.t)
-              |=  [pname=@t =def:parameter:tool:mcp]
+              |=  [pname=@t =def:parameter:tool:^mcp]
               :-  pname
               %-  pairs:enjs:format
               :~  ['type' s+type.def]
@@ -55,7 +57,7 @@
       ==
     ::
         %mcp-prompt-listed
-      =/  p  mcp-prompt-metadata.mcp-prompt-listing.val
+      =/  p  meta.listing.val
       %-  pairs:enjs:format
       :~  ['type' s+'mcp-prompt-listed']
           ['ship' s+(scot %p ship.val)]
@@ -66,7 +68,7 @@
           :-  %a
           %+  turn
             arguments.p
-          |=  arg=argument:prompt:mcp
+          |=  arg=argument:prompt:^mcp
           %-  pairs:enjs:format
           :~  ['name' s+name.arg]
               ['description' s+desc.arg]
@@ -75,7 +77,7 @@
       ==
     ::
         %mcp-resource-listed
-      =/  r  mcp-resource-metadata.mcp-resource-listing.val
+      =/  r  meta.listing.val
       %-  pairs:enjs:format
       :~  ['type' s+'mcp-resource-listed']
           ['ship' s+(scot %p ship.val)]
@@ -88,7 +90,7 @@
       ==
     ::
         %mcp-resource-template-listed
-      =/  r  mcp-resource-template-metadata.mcp-resource-template-listing.val
+      =/  r  meta.listing.val
       %-  pairs:enjs:format
       :~  ['type' s+'mcp-resource-template-listed']
           ['ship' s+(scot %p ship.val)]

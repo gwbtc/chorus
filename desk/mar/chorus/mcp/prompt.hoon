@@ -1,12 +1,12 @@
 /-  *chorus
-|_  =mcp-prompt-metadata
+|_  met=meta:prompt:mcp
 ++  grad  %noun
 ++  grow
   |%
-  ++  noun  mcp-prompt-metadata
+  ++  noun  met
   --
 ++  grab
   |%
-  ++  noun  ^mcp-prompt-metadata
+  ++  noun  ,meta:prompt:mcp
   --
 --

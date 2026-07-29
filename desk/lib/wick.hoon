@@ -39,6 +39,7 @@
 ::
 ::  canonical content octets for a /fine wire: the jam of the
 ::  response sage the requester receives
+::  XX rename to jam-sage, sage-octs, etc.
 ++  fine-octs
   |=  content=*
   ^-  octs
@@ -153,17 +154,31 @@
   |=  [=wick pubkey=(unit pass) content=(unit octs)]
   ^-  ?
   ?:  =(0x0 sig.wick)
-    ~|(%wick-is-unverifiable !!)
+    %-  (slog [leaf+"wick: no signature on wick from {<ship.wick>}"]~)
+    |
   ?~  pubkey
-    ~|(%wick-public-key-not-found !!)
-  =/  dig=@uvI
-    ?:  flag.wick
-      (sign-digest rot.wick path.wick)
-    ?~  content
-      ~|(%wick-content-not-found !!)
-    (content-digest rot.wick path.wick u.content)
+    %-  (slog [leaf+"wick: no key for {<ship.wick>} at rotation {<rot.wick>}"]~)
+    |
+  ?~  path.wick
+    %-  (slog [leaf+"wick: empty path on wick from {<ship.wick>}"]~)
+    |
+  ::  urbit ships cannot have a key rotation number of 0
+  ?.  &((gth rot.wick 0) (lte rot.wick 65.535))
+    %-  (slog [leaf+"wick: bad rotation {<rot.wick>} on wick from {<ship.wick>}"]~)
+    |
+  ?.  (lte (met 3 (spat path.wick)) 256)
+    %-  (slog [leaf+"wick: path over 256 bytes on wick from {<ship.wick>}"]~)
+    |
   =/  keys  (com:nu:cric:crypto u.pubkey)
-  (veri-octs:ed:crypto sig.wick [32 dig] sgn:ded:ex:keys)
+  ?:  flag.wick
+    ?^  content
+      %-  (slog [leaf+"wick: path-only wick from {<ship.wick>} signed no content"]~)
+      |
+    (veri-octs:ed:crypto sig.wick [32 (sign-digest rot.wick path.wick)] sgn:ded:ex:keys)
+  ?~  content
+    %-  (slog [leaf+"wick: no content to check wick from {<ship.wick>} against"]~)
+    |
+  (veri-octs:ed:crypto sig.wick [32 (content-digest rot.wick path.wick u.content)] sgn:ded:ex:keys)
 ::
 ++  wire-to-wick
   |=  wir=cord

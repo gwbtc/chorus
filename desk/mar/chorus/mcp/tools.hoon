@@ -1,5 +1,5 @@
-/-  *chorus
-|_  val=(map ship (set mcp-tool-listing))
+/-  mcp, *chorus
+|_  val=(map ship (set listing:tool:mcp))
 ++  grad  %noun
 ++  grow
   |%
@@ -9,12 +9,12 @@
     :-  %o
     %-  ~(gas by *(map @t ^json))
     %+  turn  ~(tap by val)
-    |=  [=ship tools=(set mcp-tool-listing)]
+    |=  [=ship tools=(set listing:tool:mcp)]
     :-  (scot %p ship)
     :-  %a
     %+  turn  ~(tap in tools)
-    |=  t=mcp-tool-listing
-    =*  info  mcp-tool-metadata.t
+    |=  t=listing:tool:mcp
+    =*  info  meta.t
     %-  pairs:enjs:format
     :~  ['name' s+name.info]
         ['description' s+desc.info]
@@ -25,7 +25,7 @@
             :-  %o
             %-  ~(gas by *(map @t ^json))
             %+  turn  ~(tap by parameters.info)
-            |=  [pname=@t =def:parameter:tool:mcp]
+            |=  [pname=@t =def:parameter:tool:^mcp]
             :-  pname
             %-  pairs:enjs:format
             :~  ['type' s+type.def]
@@ -37,6 +37,6 @@
   --
 ++  grab
   |%
-  ++  noun  ,(map ship (set mcp-tool-listing))
+  ++  noun  ,(map ship (set listing:tool:mcp))
   --
 --

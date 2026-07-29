@@ -1,12 +1,12 @@
 /-  *chorus
-|_  =mcp-resource-template-metadata
+|_  met=meta:template:resource:mcp
 ++  grad  %noun
 ++  grow
   |%
-  ++  noun  mcp-resource-template-metadata
+  ++  noun  met
   --
 ++  grab
   |%
-  ++  noun  ^mcp-resource-template-metadata
+  ++  noun  ,meta:template:resource:mcp
   --
 --

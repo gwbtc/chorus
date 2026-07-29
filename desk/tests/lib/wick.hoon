@@ -5,7 +5,7 @@
 |%
 ++  mock-nym
   ^-  @t
-  '.mundane.adage.ferment.unheard.depose.denies.behest.explode.relax.desired.reduced.comport'
+  '.obtains.adapts.gazelles.unite.dessert.descend.behold.foreseen.remarks.devolve.regains.comprise'
 ::
 ++  mock-ship
   ^-  ship
@@ -151,4 +151,45 @@
   %+  expect-eq
     !>  .n
   !>  (verify-wick made `pub:ex:mock-keys `(fine-octs [%txt 'hello world']))
+::
+++  test-reject-unsigned-wick
+  %+  expect-eq
+    !>  .n
+  !>  (verify-wick mock-unsigned-wick `mock-pubkey ~)
+::
+++  test-reject-wick-without-key
+  %+  expect-eq
+    !>  .n
+  !>  (verify-wick mock-signed-wick ~ ~)
+::
+++  test-reject-wick-with-empty-path
+  %+  expect-eq
+    !>  .n
+  !>  (verify-wick `wick`[%7 mock-ship mock-rot .y ~ mock-sig] `mock-pubkey ~)
+::
+++  test-reject-wick-with-zero-rotation
+  %+  expect-eq
+    !>  .n
+  !>  (verify-wick `wick`[%7 mock-ship 0 .y mock-path mock-sig] `mock-pubkey ~)
+::
+++  test-reject-wick-with-oversized-rotation
+  %+  expect-eq
+    !>  .n
+  !>  (verify-wick `wick`[%7 mock-ship 65.536 .y mock-path mock-sig] `mock-pubkey ~)
+::
+++  test-reject-wick-with-oversized-path
+  =/  long=path  /https/[(reap 40 `@ta`'0123456789')]
+  %+  expect-eq
+    !>  .n
+  !>  (verify-wick `wick`[%7 mock-ship mock-rot .y long mock-sig] `mock-pubkey ~)
+::
+++  test-reject-contentful-wick-without-content
+  %+  expect-eq
+    !>  .n
+  !>  (verify-wick mock-content-wick `mock-pubkey ~)
+::
+++  test-reject-path-only-wick-with-content
+  %+  expect-eq
+    !>  .n
+  !>  (verify-wick mock-signed-wick `mock-pubkey `(fine-octs [%txt 'hello world']))
 --

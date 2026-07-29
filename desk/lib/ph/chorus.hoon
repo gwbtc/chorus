@@ -103,20 +103,32 @@
   |=  [who=ship bio=cord]
   =/  m  (strand ,~)
   ^-  form:m
-  (poke-chorus who chorus-action+!>([%update-bio | bio]))
+  =/  act=action  [%update-bio ~ bio]
+  (poke-chorus who chorus-action+!>(act))
 ::
 ++  make-announcement
   |=  [who=ship =announcement]
   =/  m  (strand ,~)
   ^-  form:m
-  (poke-chorus who chorus-action+!>([%make-announcement | announcement]))
+  =/  act=action  [%make-announcement ~ announcement]
+  (poke-chorus who chorus-action+!>(act))
 ::
-::  a local (zero-hop) announcement: stored, never gossipped
+::  a local announcement: stored on .who, never gossipped
 ++  make-local-announcement
   |=  [who=ship =announcement]
   =/  m  (strand ,~)
   ^-  form:m
-  (poke-chorus who chorus-action+!>([%make-announcement & announcement]))
+  =/  act=action  [%make-announcement `~ announcement]
+  (poke-chorus who chorus-action+!>(act))
+::
+::  an announcement for a chosen audience, poked straight to
+::  the resolved crowd over two hops
+++  make-crowd-announcement
+  |=  [who=ship =crowd:gossip =announcement]
+  =/  m  (strand ,~)
+  ^-  form:m
+  =/  act=action  [%make-announcement `crowd announcement]
+  (poke-chorus who chorus-action+!>(act))
 ::
 ++  publish-mcp
   |=  $:  who=ship
@@ -128,10 +140,10 @@
   ^-  form:m
   =/  act=action
     ?-  kind
-      %tool               [%publish-mcp-tool | desk pax]
-      %prompt             [%publish-mcp-prompt | desk pax]
-      %resource           [%publish-mcp-resource | desk pax]
-      %resource-template  [%publish-mcp-resource-template | desk pax]
+      %tool               [%publish-mcp-tool ~ desk pax]
+      %prompt             [%publish-mcp-prompt ~ desk pax]
+      %resource           [%publish-mcp-resource ~ desk pax]
+      %resource-template  [%publish-mcp-resource-template ~ desk pax]
     ==
   (poke-chorus who chorus-action+!>(act))
 ::
@@ -313,6 +325,10 @@
     (pure:m |)
   ~&  >  [%check-pending tries=tries]
   ;<  ~  bind:m  (sleep ~s3)
+  ::  if %check-pending prints without a matching %check-woke,
+  ::  the wake was consumed by an event that later bailed
+  ::
+  ~&  >  [%check-woke tries=tries]
   $(tries (dec tries))
 ::
 ++  scry-path
@@ -333,15 +349,20 @@
   %+  scry-aqua:util  (unit config:gossip)
   [our.bowl now.bowl (scry-path who now.bowl /~/gossip/config)]
 ::
+::  bios only: the wick beside each one is the app's business
 ++  read-rolodex
   |=  who=ship
-  =/  m  (strand (map ship cord))
+  =/  m  (strand (map ship bio))
   ^-  form:m
   ;<  =bowl:strand  bind:m  get-bowl
+  =/  listings=(map ship bio-listing)
+    %-  need
+    %+  scry-aqua:util  (unit (map ship bio-listing))
+    [our.bowl now.bowl (scry-path who now.bowl /rolodex)]
   %-  pure:m
-  %-  need
-  %+  scry-aqua:util  (unit (map ship cord))
-  [our.bowl now.bowl (scry-path who now.bowl /rolodex)]
+  %-  ~(run by listings)
+  |=  l=bio-listing
+  bio.l
 ::
 ::  datums a ship's gossip wrapper has seen (fact leg proof)
 ++  read-gossip-memory
@@ -372,7 +393,7 @@
   %+  scry-aqua:util  (unit (set ship))
   [our.bowl now.bowl (scry-path who now.bowl /~/gossip/whos/[whos])]
 ::
-+$  anns  (map ship (set (pair time announcement)))
++$  anns  (map ship (set announcement-listing))
 ::
 ++  read-announcements
   |=  who=ship
@@ -388,8 +409,8 @@
   |=  [heard=anns from=ship text=cord]
   ^-  ?
   %-  ~(any in (~(gut by heard) from ~))
-  |=  (pair time announcement)
-  =(text q)
+  |=  announcement-listing
+  =(text announcement)
 ::
 ++  read-mcp-tools
   |=  who=ship

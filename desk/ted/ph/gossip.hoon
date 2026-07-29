@@ -68,9 +68,10 @@
   (strand-fail %announcement-wrongly-heard ~[>[who=who from=from text=text]<])
 ::
 ::  gossip facts are fire-once: an announcement made before a
-::  subscriber's watch lands is never replayed. wait until each
-::  ship's gossip wrapper has heard at least one rumor -- the
-::  initial bio fact -- proving its subscription is live.
+::  subscriber's watch lands is never gossipped again. wait until
+::  each ship's gossip wrapper has heard at least one rumor --
+::  the %chorus-state fact the teller gives every new subscriber
+::  -- proving its subscription is live.
 ++  await-live-subs
   |=  whos=(list ship)
   =/  m  (strand ,~)
@@ -172,4 +173,18 @@
   ;<  ~  bind:m  (make-announcement ship-a 'two hop relay')
   ;<  ~  bind:m  (expect-heard ship-b ship-a 'two hop relay')
   (expect-heard ship-k ship-a 'two hop relay')
+::  the opening %chorus-state fact carries what the teller said
+::  before we arrived: ship-b subscribes after the announcement,
+::  which fire-once gossip alone would never replay, and folds
+::  it into its own state
+::
+++  ph-test-state-on-subscribe
+  =/  m  (strand ,~)
+  ^-  form:m
+  ;<  ~  bind:m  setup
+  ;<  ~  bind:m  (make-announcement ship-a 'said before you arrived')
+  ;<  ~  bind:m  (expect-not-heard ship-b ship-a 'said before you arrived')
+  ;<  ~  bind:m  (subscribe ship-b ship-a)
+  ;<  ~  bind:m  (await-live-subs ~[ship-b])
+  (expect-heard ship-b ship-a 'said before you arrived')
 --

@@ -1,5 +1,5 @@
 /-  *chorus
-|_  val=(map ship (set mcp-resource-template-listing))
+|_  val=(map ship (set listing:template:resource:mcp))
 ++  grad  %noun
 ++  grow
   |%
@@ -9,12 +9,12 @@
     :-  %o
     %-  ~(gas by *(map @t ^json))
     %+  turn  ~(tap by val)
-    |=  [=ship templates=(set mcp-resource-template-listing)]
+    |=  [=ship templates=(set listing:template:resource:mcp)]
     :-  (scot %p ship)
     :-  %a
     %+  turn  ~(tap in templates)
-    |=  r=mcp-resource-template-listing
-    =*  info  mcp-resource-template-metadata.r
+    |=  r=listing:template:resource:mcp
+    =*  info  meta.r
     %-  pairs:enjs:format
     %+  welp
       :~  ['uriTemplate' s+uri-template.info]
@@ -32,6 +32,6 @@
   --
 ++  grab
   |%
-  ++  noun  ,(map ship (set mcp-resource-template-listing))
+  ++  noun  ,(map ship (set listing:template:resource:mcp))
   --
 --

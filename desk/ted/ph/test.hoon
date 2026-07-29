@@ -7,7 +7,7 @@
 ::  the fleet when done.
 ::
 ::  args: (unit [pax=(unit path) snap=(unit term)])
-::  defaults: pax=/tests/ph, snap=%chorus-gossip
+::  defaults: pax=/ted/ph, snap=%chorus-gossip
 ::
 ::  returns & if all tests passed, | otherwise.
 ::
@@ -129,8 +129,8 @@
 ^-  form:m
 =/  [pax=path snap=term]
   =+  !<(args=(unit [pax=(unit path) snap=(unit term)]) args)
-  ?~  args  [/tests/ph %chorus-gossip]
-  [(fall pax.u.args /tests/ph) (fall snap.u.args %chorus-gossip)]
+  ?~  args  [/ted/ph %chorus-gossip]
+  [(fall pax.u.args /ted/ph) (fall snap.u.args %chorus-gossip)]
 ;<  =bowl:spider  bind:m  get-bowl
 =/  byk=beak  byk.bowl
 ::  if the path does not point into a directory, assume last

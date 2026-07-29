@@ -9,7 +9,17 @@
 |%
 ::  +ph-test-init: setup test strand environment
 ::
+::    the runner restores the snapshot immediately before this
+::    runs, and the restored piers need a moment to re-emit
+::    %born and let the freshly started vane threads register
+::    their ducts. traffic driven into that window goes nowhere:
+::    a hi never gets its ack back, so the arm sits on
+::    +wait-for-output until its timeout. settle first.
+::
 ++  ph-test-init
+  =/  m  (strand ,~)
+  ^-  form:m
+  ;<  ~  bind:m  (sleep ~s10)
   (watch-our /effect/unto %aqua /effect/unto)
 :: +ph-test-shut: teardown test strand environment
 ::
