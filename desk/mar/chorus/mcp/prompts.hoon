@@ -1,18 +1,14 @@
 /-  mcp, *chorus
-|_  val=(map ship (set listing:prompt:mcp))
+/+  *wick
+|_  val=(set listing:prompt:mcp)
 ++  grad  %noun
 ++  grow
   |%
   ++  noun  val
   ++  json
     ^-  ^json
-    :-  %o
-    %-  ~(gas by *(map @t ^json))
-    %+  turn  ~(tap by val)
-    |=  [=ship prompts=(set listing:prompt:mcp)]
-    :-  (scot %p ship)
     :-  %a
-    %+  turn  ~(tap in prompts)
+    %+  turn  ~(tap in val)
     |=  p=listing:prompt:mcp
     =*  info  meta.p
     %-  pairs:enjs:format
@@ -29,10 +25,11 @@
             ['description' s+desc.arg]
             ['required' b+required.arg]
         ==
+        ['wire' s+(wick-to-wire wick.p)]
     ==
   --
 ++  grab
   |%
-  ++  noun  ,(map ship (set listing:prompt:mcp))
+  ++  noun  ,(set listing:prompt:mcp)
   --
 --

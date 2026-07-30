@@ -82,67 +82,107 @@
     |=  pax=path
     !<(template:resource:mcp .^(vase %ca (welp s.pyk pax)))
   ::
-  ::  .^((map ship listing:bio) %gx /=/chorus/=/rolodex/noun)
-  ::  .^((map ship listing:bio) %gx /=/chorus/=/rolodex/~ship/noun)
+  ::  .^((set listing:bio) %gx /=/chorus/=/rolodex/noun)
+  ::  .^((set listing:bio) %gx /=/chorus/=/rolodex/(scot %t nym)/noun)
       [%x %rolodex who=*]
-    ?~  who.pole
-      ``chorus-rolodex+!>(rolodex)
-    ::  .whom, not =ship: a =ship face here shadows the mold the
-    ::  cast below needs
-    =/  whom=ship  (slav %p i:((lest knot) who.pole))
-    =/  had=(unit listing:bio:chorus)  (~(get by rolodex) whom)
+    =/  lis=(list listing:bio:chorus)  ~(val by rolodex)
     :^  ~  ~  %chorus-rolodex
-    !>  ^-  (map ship listing:bio:chorus)
-    ?~  had  ~
-    (~(put by *(map ship listing:bio:chorus)) whom u.had)
+    !>  ^-  (set listing:bio:chorus)
+    %-  silt
+    ?~  who.pole
+      lis
+    =/  =nym  (slav %t i:((lest knot) who.pole))
+    (skim lis |=(lit=listing:bio:chorus =(nym nym.id.wick.lit)))
   ::
-  ::  .^((map ship (set listing:announcement)) %gx /=/chorus/=/announcements/noun)
-  ::  .^((map ship (set listing:announcement)) %gx /=/chorus/=/announcements/~ship/noun)
+  ::  .^((set listing:announcement) %gx /=/chorus/=/announcements/noun)
+  ::  .^((set listing:announcement) %gx /=/chorus/=/announcements/(scot %t nym)/noun)
       [%x %announcements who=*]
+    =/  lis=(list listing:announcement:chorus)
+      %-  zing
+      %+  turn  ~(val by announcements)
+      |=(liz=(set listing:announcement:chorus) ~(tap in liz))
+    :^  ~  ~  %chorus-announcements
+    !>  ^-  (set listing:announcement:chorus)
+    %-  silt
     ?~  who.pole
-      ``chorus-announcements+!>(announcements)
-    =/  =ship  (slav %p i:((lest knot) who.pole))
-    ``chorus-announcements+!>((malt ~[[ship (~(gut by announcements) ship ~)]]))
+      lis
+    =/  =nym  (slav %t i:((lest knot) who.pole))
+    (skim lis |=(lit=listing:announcement:chorus =(nym nym.id.wick.lit)))
   ::
-  ::  .^((map ship (set listing:desk)) %gx /=/chorus/=/desks/noun)
-  ::  .^((map ship (set listing:desk)) %gx /=/chorus/=/desks/~ship/noun)
-      [%x %desks who=*]
-    ?~  who.pole
-      ``chorus-desks+!>(desks)
-    =/  =ship  (slav %p i:((lest knot) who.pole))
-    ``chorus-desks+!>((malt ~[[ship (~(gut by desks) ship ~)]]))
+  ::  .^((set listing:desk) %gx /=/chorus/=/desks/noun)
+  ::  .^((set listing:desk) %gx /=/chorus/=/desks/(scot %t nym)/noun)
+      ::  [%x %desks who=*]
+    ::  =/  lis=(list listing:desk:chorus)
+      ::  %-  zing
+      ::  %+  turn  ~(val by desks)
+      ::  |=(liz=(set listing:desk:chorus) ~(tap in liz))
+    ::  :^  ~  ~  %chorus-desks
+    ::  !>  ^-  (set listing:desk:chorus)
+    ::  %-  silt
+    ::  ?~  who.pole
+      ::  lis
+    ::  =/  =nym  (slav %t i:((lest knot) who.pole))
+    ::  (skim lis |=(lit=listing:desk:chorus =(nym nym.id.wick.lit)))
   ::
-  ::  .^((map ship (set listing:tool:mcp)) %gx /=/chorus/=/mcp-tools/noun)
-  ::  .^((map ship (set listing:tool:mcp)) %gx /=/chorus/=/mcp-tools/~ship/noun)
+  ::  .^((set listing:tool:mcp) %gx /=/chorus/=/mcp-tools/noun)
+  ::  .^((set listing:tool:mcp) %gx /=/chorus/=/mcp-tools/(scot %t nym)/noun)
       [%x %mcp-tools who=*]
+    =/  lis=(list listing:tool:mcp:chorus)
+      %-  zing
+      %+  turn  ~(val by mcp-tools)
+      |=(liz=(set listing:tool:mcp:chorus) ~(tap in liz))
+    :^  ~  ~  %chorus-mcp-tools
+    !>  ^-  (set listing:tool:mcp:chorus)
+    %-  silt
     ?~  who.pole
-      ``chorus-mcp-tools+!>(mcp-tools)
-    =/  =ship  (slav %p i:((lest knot) who.pole))
-    ``chorus-mcp-tools+!>((malt ~[[ship (~(gut by mcp-tools) ship ~)]]))
+      lis
+    =/  =nym  (slav %t i:((lest knot) who.pole))
+    (skim lis |=(lit=listing:tool:mcp:chorus =(nym nym.id.wick.lit)))
   ::
-  ::  .^((map ship (set listing:prompt:mcp)) %gx /=/chorus/=/mcp-prompts/noun)
-  ::  .^((map ship (set listing:prompt:mcp)) %gx /=/chorus/=/mcp-prompts/~ship/noun)
+  ::  .^((set listing:prompt:mcp) %gx /=/chorus/=/mcp-prompts/noun)
+  ::  .^((set listing:prompt:mcp) %gx /=/chorus/=/mcp-prompts/(scot %t nym)/noun)
       [%x %mcp-prompts who=*]
+    =/  lis=(list listing:prompt:mcp:chorus)
+      %-  zing
+      %+  turn  ~(val by mcp-prompts)
+      |=(liz=(set listing:prompt:mcp:chorus) ~(tap in liz))
+    :^  ~  ~  %chorus-mcp-prompts
+    !>  ^-  (set listing:prompt:mcp:chorus)
+    %-  silt
     ?~  who.pole
-      ``chorus-mcp-prompts+!>(mcp-prompts)
-    =/  =ship  (slav %p i:((lest knot) who.pole))
-    ``chorus-mcp-prompts+!>((malt ~[[ship (~(gut by mcp-prompts) ship ~)]]))
+      lis
+    =/  =nym  (slav %t i:((lest knot) who.pole))
+    (skim lis |=(lit=listing:prompt:mcp:chorus =(nym nym.id.wick.lit)))
   ::
-  ::  .^((map ship (set listing:resource:mcp)) %gx /=/chorus/=/mcp-resources/noun)
-  ::  .^((map ship (set listing:resource:mcp)) %gx /=/chorus/=/mcp-resources/~ship/noun)
+  ::  .^((set listing:resource:mcp) %gx /=/chorus/=/mcp-resources/noun)
+  ::  .^((set listing:resource:mcp) %gx /=/chorus/=/mcp-resources/(scot %t nym)/noun)
       [%x %mcp-resources who=*]
+    =/  lis=(list listing:resource:mcp:chorus)
+      %-  zing
+      %+  turn  ~(val by mcp-resources)
+      |=(liz=(set listing:resource:mcp:chorus) ~(tap in liz))
+    :^  ~  ~  %chorus-mcp-resources
+    !>  ^-  (set listing:resource:mcp:chorus)
+    %-  silt
     ?~  who.pole
-      ``chorus-mcp-resources+!>(mcp-resources)
-    =/  =ship  (slav %p i:((lest knot) who.pole))
-    ``chorus-mcp-resources+!>((malt ~[[ship (~(gut by mcp-resources) ship ~)]]))
+      lis
+    =/  =nym  (slav %t i:((lest knot) who.pole))
+    (skim lis |=(lit=listing:resource:mcp:chorus =(nym nym.id.wick.lit)))
   ::
-  ::  .^((map ship (set listing:template:resource:mcp)) %gx /=/chorus/=/mcp-resource-templates/noun)
-  ::  .^((map ship (set listing:template:resource:mcp)) %gx /=/chorus/=/mcp-resource-templates/~ship/noun)
+  ::  .^((set listing:template:resource:mcp) %gx /=/chorus/=/mcp-resource-templates/noun)
+  ::  .^((set listing:template:resource:mcp) %gx /=/chorus/=/mcp-resource-templates/(scot %t nym)/noun)
       [%x %mcp-resource-templates who=*]
+    =/  lis=(list listing:template:resource:mcp:chorus)
+      %-  zing
+      %+  turn  ~(val by mcp-resource-templates)
+      |=(liz=(set listing:template:resource:mcp:chorus) ~(tap in liz))
+    :^  ~  ~  %chorus-mcp-resource-templates
+    !>  ^-  (set listing:template:resource:mcp:chorus)
+    %-  silt
     ?~  who.pole
-      ``chorus-mcp-resource-templates+!>(mcp-resource-templates)
-    =/  =ship  (slav %p i:((lest knot) who.pole))
-    ``chorus-mcp-resource-templates+!>((malt ~[[ship (~(gut by mcp-resource-templates) ship ~)]]))
+      lis
+    =/  =nym  (slav %t i:((lest knot) who.pole))
+    (skim lis |=(lit=listing:template:resource:mcp:chorus =(nym nym.id.wick.lit)))
   ==
 ::
 ++  on-watch

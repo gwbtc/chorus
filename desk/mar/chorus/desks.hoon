@@ -1,28 +1,25 @@
-/-  *chorus
-|_  val=(map ship (set listing:desk))
+/-  chorus
+/+  *wick
+|_  val=(set listing:desk:chorus)
 ++  grad  %noun
 ++  grow
   |%
   ++  noun  val
-  ::  the wick is for verification, not for clients: json gives
-  ::  the desk and its description alone
+  ::  json gives the wick as a wire, which a client can hand
+  ::  back to chorus/verify-wire, and the desk and description
   ++  json
     ^-  ^json
-    :-  %o
-    %-  ~(gas by *(map @t ^json))
-    %+  turn  ~(tap by val)
-    |=  [=ship listings=(set listing:desk)]
-    :-  (scot %p ship)
     :-  %a
-    %+  turn  ~(tap in listings)
-    |=  lit=listing:desk
+    %+  turn  ~(tap in val)
+    |=  lit=listing:desk:chorus
     %-  pairs:enjs:format
     :~  ['desk' s+desk.lit]
         ['desc' s+desc.lit]
+        ['wire' s+(wick-to-wire wick.lit)]
     ==
   --
 ++  grab
   |%
-  ++  noun  ,(map ship (set listing:desk))
+  ++  noun  ,(set listing:desk:chorus)
   --
 --

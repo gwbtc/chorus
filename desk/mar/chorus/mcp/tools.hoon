@@ -1,18 +1,14 @@
 /-  mcp, *chorus
-|_  val=(map ship (set listing:tool:mcp))
+/+  *wick
+|_  val=(set listing:tool:mcp)
 ++  grad  %noun
 ++  grow
   |%
   ++  noun  val
   ++  json
     ^-  ^json
-    :-  %o
-    %-  ~(gas by *(map @t ^json))
-    %+  turn  ~(tap by val)
-    |=  [=ship tools=(set listing:tool:mcp)]
-    :-  (scot %p ship)
     :-  %a
-    %+  turn  ~(tap in tools)
+    %+  turn  ~(tap in val)
     |=  t=listing:tool:mcp
     =*  info  meta.t
     %-  pairs:enjs:format
@@ -33,10 +29,11 @@
             ==
             ['required' a+(turn required.info |=(r=@t s+r))]
         ==
+        ['wire' s+(wick-to-wire wick.t)]
     ==
   --
 ++  grab
   |%
-  ++  noun  ,(map ship (set listing:tool:mcp))
+  ++  noun  ,(set listing:tool:mcp)
   --
 --

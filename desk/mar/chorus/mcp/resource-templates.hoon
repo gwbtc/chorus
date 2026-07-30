@@ -1,18 +1,14 @@
 /-  *chorus
-|_  val=(map ship (set listing:template:resource:mcp))
+/+  *wick
+|_  val=(set listing:template:resource:mcp)
 ++  grad  %noun
 ++  grow
   |%
   ++  noun  val
   ++  json
     ^-  ^json
-    :-  %o
-    %-  ~(gas by *(map @t ^json))
-    %+  turn  ~(tap by val)
-    |=  [=ship templates=(set listing:template:resource:mcp)]
-    :-  (scot %p ship)
     :-  %a
-    %+  turn  ~(tap in templates)
+    %+  turn  ~(tap in val)
     |=  r=listing:template:resource:mcp
     =*  info  meta.r
     %-  pairs:enjs:format
@@ -25,13 +21,16 @@
         ~
       :~  ['title' s+u.title.info]
       ==
-    ?~  desc.info
-      ~
-    :~  ['description' s+u.desc.info]
+    %+  welp
+      ?~  desc.info
+        ~
+      :~  ['description' s+u.desc.info]
+      ==
+    :~  ['wire' s+(wick-to-wire wick.r)]
     ==
   --
 ++  grab
   |%
-  ++  noun  ,(map ship (set listing:template:resource:mcp))
+  ++  noun  ,(set listing:template:resource:mcp)
   --
 --

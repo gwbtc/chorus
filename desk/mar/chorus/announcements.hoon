@@ -1,28 +1,25 @@
 /-  *chorus
-|_  val=(map ship (set listing:announcement))
+/+  *wick
+|_  val=(set listing:announcement)
 ++  grad  %noun
 ++  grow
   |%
   ++  noun  val
-  ::  the wick is for verification, not for clients: json gives
-  ::  the time and text alone
+  ::  json gives the wick as a wire, which a client can hand
+  ::  back to chorus/verify-wire, and the time and text
   ++  json
     ^-  ^json
-    :-  %o
-    %-  ~(gas by *(map @t ^json))
-    %+  turn  ~(tap by val)
-    |=  [=ship listings=(set listing:announcement)]
-    :-  (scot %p ship)
     :-  %a
-    %+  turn  ~(tap in listings)
+    %+  turn  ~(tap in val)
     |=  lit=listing:announcement
     %-  pairs:enjs:format
     :~  ['time' s+(scot %da time.lit)]
         ['text' s+txt.lit]
+        ['wire' s+(wick-to-wire wick.lit)]
     ==
   --
 ++  grab
   |%
-  ++  noun  ,(map ship (set listing:announcement))
+  ++  noun  ,(set listing:announcement)
   --
 --
