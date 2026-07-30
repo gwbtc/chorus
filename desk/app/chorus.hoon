@@ -1,7 +1,8 @@
 ::
 ::  chorus: peer-to-peer multiplayer agent harness
 /-  mcp, *wick, chorus
-/+  dbug, verb, cho=chorus, default-agent, gossip, *wick
+/+  dbug, verb, cho=chorus, default-agent, gossip, mne=mnemonyms, *wick
+/*  english  %txt  /fil/wordlists/english/txt
 ::
 |%
 +$  card  card:agent:gall
@@ -29,6 +30,10 @@
               r=(scot %da now.bowl)
               s=/(scot %p our.bowl)/[q.byk.bowl]/(scot %da now.bowl)
           ==
+    ::  nyms for ships with valid suite C tweak data (one dot)
+    ::  and for those without (two dots)
+    me    ~(. me:mne [.y 128 english])
+    mu    ~(. me:mne [.n 128 english])
 ::
 ++  on-leave  on-leave:def
 ++  on-fail   on-fail:def
@@ -358,63 +363,6 @@
         ==
       ==
     ::
-    ::  verify saved content by its wick
-    ::  and delete listing if this fails
-        %verify
-      =/  who=ship
-        ?@(target.act target.act ship.target.act)
-      =/  wix=(list wick)
-        %+  murn
-          (sing:cho state)
-        |=  =message:chorus
-        ^-  (unit wick)
-        =/  =wick  wick.message
-        ?.(=(who ship.wick) ~ `wick)
-      =?  wix  ?=(^ target.act)
-        ?.  (~(has in (silt wix)) wick.target.act)
-          ~|("{<dap.bowl>}: no such wick in state" !!)
-        ~[wick.target.act]
-      ::
-      =|  caz=(list card)
-      =/  sat  state
-      |-  ^-  (quip card _this)
-      ?~  wix
-        [caz this(state sat)]
-      ::
-      ::  if the wick signed content, we fetch
-      ::  that content and verify in +on-arvo
-      ?.  flag.i.wix
-        %=  $
-          wix  t.wix
-          caz  :_  caz
-               :*  %pass
-                   /verify/(scot %p ship.i.wix)/(scot %uv (jam i.wix))
-                   %arvo  %a  %keen  ~
-                   [ship.i.wix (slag 2 path.i.wix)]
-               ==
-        ==
-      ::  if not, we can verify right away
-      =/  key=(unit [crypto-suite=@ud =pass])
-        .^  (unit [crypto-suite=@ud =pass])
-            %j
-            /(scot %p our.bowl)/puby/(scot %da now.bowl)/(scot %p ship.i.wix)/(scot %ud rot.i.wix)
-        ==
-      ?~  key
-        %-  (slog :_(~ [%leaf "{<dap.bowl>}: no pubkey in jael for {<ship.i.wix>}"]))
-        `this
-      ?:  (verify-wick i.wix `pass.u.key ~)
-        $(wix t.wix)
-      %-  (slog :_(~ [%leaf "{<dap.bowl>}: bad wick, forgetting ship {<ship.i.wix>}"]))
-      %=  $
-        wix  t.wix
-        caz  :_  caz
-             :*  %pass   ~
-                 %agent  [our.bowl %chorus]
-                 %poke   %chorus-action
-                 !>([%delete who])
-             ==
-      ==
-    ::
         %delete
       :-  ~
       ?@  target.act
@@ -455,13 +403,13 @@
   =/  =message:chorus  !<(message:chorus q.cage.sign)
   ::  XX handle %chorus-disavow here
   =/  =wick  wick.message
-  ?:  =(our.bowl ship.wick)
+  ?:  =(our.bowl ship.id.wick)
     `this
   =/  pre=path
     %.  message
     |=  =message:chorus
     ^-  path
-    =/  who=@ta  (scot %p ship.wick)
+    =/  who=@ta  (scot %p ship.id.wick)
     ?-  -.+.message
       %chorus-announcement    /fine/[who]/g/x/1/chorus//1/announcements
       %chorus-bio             /fine/[who]/g/x/1/chorus//1/bio
@@ -474,57 +422,62 @@
     %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping message with invalid path prefix"]))
     `this
   ::
-  ::  we verify a path-only wick as soon as we hear about it,
-  ::  and leave it to the client to verify fetched content against
-  ::  the wick that signed it when they decide to fetch that content
+  ::  only comets have nyms, so non-comets get cometized
+  =/  paw=@pH
+    ?:  =(%pawn (clan:title ship.id.wick))
+      ship.id.wick
+    (cometize:mu bowl ship.id.wick)
+  ::  use verified / unverified nym core
+  =/  gib
+    ?:  (verified-nym our.bowl now.bowl ship.id.wick rot.wick)
+      me
+    mu
+  =/  hep=message:chorus
+    message(wick wick(id [(name:gib paw) paw]))
+  =/  hip=^wick  wick.hep
+  ::
   ?.  flag.wick
-    `this(state (hear:cho state message))
-  =/  key=(unit [crypto-suite=@ud =pass])
-    .^  (unit [crypto-suite=@ud =pass])
-        %j
-        /(scot %p our.bowl)/puby/(scot %da now.bowl)/(scot %p ship.wick)/(scot %ud rot.wick)
-    ==
-  ?~  key
-    %-  (slog :_(~ [%leaf "{<dap.bowl>}: no pubkey in jael for {<ship.wick>}"]))
-    `this
-  ?.  (verify-wick wick `pass.u.key ~)
-    %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping message with bad signature from {<ship.wick>}"]))
-    `this
-  `this(state (hear:cho state message))
+    ::  don't verify contentful wicks right away
+    `this(state (hear:cho state hep))
+  ::  verify path-only wicks right away in +on-arvo
+  :_  this(state (hear:cho state hep))
+  :_  ~
+  :*  %pass  /verify/(scot %uv (jam hip))
+      %arvo  %k  %fard
+      [q.byk.bowl %verify-wick %noun !>(hip)]
+  ==
 ::
 ++  on-arvo
   |=  [=(pole knot) =sign-arvo]
   ^-  (quip card _this)
   ?+    pole  (on-arvo:def pole sign-arvo)
       ::
-      ::  the answer to a %verify poke for a contentful wick
-      ::
-      ::  XX handle keen | -> keen & -> chum fallback for
-      ::     two-way- and multi-party-encrypted remote scry
-      ::     paths; start with [%verify *] and branch on
-      ::     [%keen | *], [%keen & *], [%chum *]
-      [%verify who=@ta wik=@ta ~]
-    ?+    sign-arvo  (on-arvo:def pole sign-arvo)
-        [%ames %sage *]
-      =/  =ship  (slav %p who.pole)
-      =/  =wick  ;;(wick (cue (slav %uv wik.pole)))
-      =/  =sage:mess:ames  sage.sign-arvo
-      =/  key=(unit [crypto-suite=@ud =pass])
-        .^  (unit [crypto-suite=@ud =pass])
-            %j
-            /(scot %p our.bowl)/puby/(scot %da now.bowl)/(scot %p ship)/(scot %ud rot.wick)
-        ==
-      ::  an empty sage means the path is gone, which is a failure to
-      ::  verify like any other
-      =/  ok=?
-        ?&  =(ship ship.wick)
-            =(ship ship.p.sage)
-            =((slag 2 path.wick) path.p.sage)
-            ?=(^ q.sage)
-            (verify-wick wick ?~(key ~ `pass.u.key) `(fine-octs sage))
-        ==
-      ?:  ok  `this
-      %-  (slog :_(~ [%leaf "{<dap.bowl>}: forgetting unverified entry from {<ship>}"]))
+      ::  the answer from a %verify-wick thread we started for a
+      ::  wick we heard: we keep the entry or forget it
+      [%verify wik=@ta ~]
+    ?.  ?=([%khan %arow *] sign-arvo)
+      (on-arvo:def pole sign-arvo)
+    =/  =wick  ;;(wick (cue (slav %uv wik.pole)))
+    ::  we treat a crashed verification thread as %unknown
+    ?:  ?=(%| -.p.sign-arvo)
+      %-  %-  slog
+          :_  tang.p.p.sign-arvo
+          [%leaf "{<dap.bowl>}: could not check wick from {<ship.id.wick>}"]
+      `this
+    =/  =verdict  !<(verdict q.p.p.sign-arvo)
+    ?-    -.verdict
+        %verified
+      `this
+    ::
+    ::  wick we cannot verify =/= wick that failed verification
+        %unknown
+      %-  %-  slog
+          :_(~ [%leaf "{<dap.bowl>}: could not check wick from {<ship.id.wick>}: {(trip err.verdict)}"])
+      `this
+    ::
+        %failed
+      %-  %-  slog
+          :_(~ [%leaf "{<dap.bowl>}: forgetting entry: {(trip err.verdict)}"])
       :-  ~
       ::  remove wick from state
       %=  this

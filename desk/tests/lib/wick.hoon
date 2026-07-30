@@ -1,15 +1,20 @@
 /-  *wick
-/+  *test, *wick, nym=mnemonyms
+/+  *test, *wick, mne=mnemonyms
 /*  english  %txt  /fil/wordlists/english/txt
 =>
 |%
+::  untweaked, since that is all the wick library mints today
 ++  mock-nym
   ^-  @t
-  '.obtains.adapts.gazelles.unite.dessert.descend.behold.foreseen.remarks.devolve.regains.comprise'
+  '..obtains.adapts.gazelles.unite.dessert.descend.behold.foreseen.remarks.devolve.regains.comprise'
 ::
 ++  mock-ship
   ^-  ship
-  (~(ship me:nym [.y 128 english]) mock-nym)
+  (~(ship me:mne [.n 128 english]) mock-nym)
+::
+++  mock-id
+  ^-  [=nym =ship]
+  [mock-nym mock-ship]
 ::
 ++  mock-rot
   ^-  @ud
@@ -41,11 +46,11 @@
 ::
 ++  mock-unsigned-wick
   ^-  wick
-  [%7 mock-ship mock-rot .y mock-path 0x0]
+  [%7 mock-id mock-rot .y mock-path 0x0]
 ::
 ++  mock-signed-wick
   ^-  wick
-  [%7 mock-ship mock-rot .y mock-path mock-sig]
+  [%7 mock-id mock-rot .y mock-path mock-sig]
 ::
 ++  mock-content-sig
   ^-  @uxJ
@@ -53,14 +58,28 @@
 ::
 ++  mock-content-wick
   ^-  wick
-  [%7 mock-ship mock-rot .n mock-path mock-content-sig]
+  [%7 mock-id mock-rot .n mock-path mock-content-sig]
+::
+::  +wire-to-wick names the ship from the PKI, which a unit test
+::  cannot reach, so we test the wire format through +wire-to-wook
+++  mock-unsigned-parts
+  ^-  wook
+  [mock-ship mock-rot .y mock-path 0x0]
+::
+++  mock-signed-parts
+  ^-  wook
+  [mock-ship mock-rot .y mock-path mock-sig]
+::
+++  mock-content-parts
+  ^-  wook
+  [mock-ship mock-rot .n mock-path mock-content-sig]
 ::
 ++  mock-unsigned-wire
   ^-  cord
   %-  crip
   ;:  welp
     (trip 'wire://')
-    (slag 1 (trip mock-nym))
+    (slag 2 (trip mock-nym))
     (trip '/https/example.com')
   ==
 ::
@@ -69,7 +88,7 @@
   %-  crip
   ;:  welp
     (trip 'wire://')
-    (slag 1 (trip mock-nym))
+    (slag 2 (trip mock-nym))
     (trip '/8BEBAC9odHRwcy9leGFtcGxlLmNvbRam2y5UYO8BaCbZDGFToaaToJugs8BX_uEOs3Hy7M95LhTn21s3_Mg-wH9WG-CsUxm2JGWjAboum7waoMSWfgc')
   ==
 ::
@@ -78,27 +97,27 @@
   %-  crip
   ;:  welp
     (trip 'wire://')
-    (slag 1 (trip mock-nym))
+    (slag 2 (trip mock-nym))
     (trip '/cBEBAC9odHRwcy9leGFtcGxlLmNvbQGfeyjMNqOODM6dm2ECFzgG7eX9DY1fCHuYeRABM8yz0RoEsRank8M0KF_XavS1tpsRpXf5tH_v9L6NFC6XMAs')
   ==
 --
 ::
 |%
 ::
-++  test-wire-to-wick-signed
+++  test-wire-to-wook-signed
   %+  expect-eq
-    !>  mock-signed-wick
-  !>  (wire-to-wick mock-signed-wire)
+    !>  mock-signed-parts
+  !>  (wire-to-wook mock-signed-wire)
 ::
-++  test-wire-to-wick-unsigned
+++  test-wire-to-wook-unsigned
   %+  expect-eq
-    !>  mock-unsigned-wick
-  !>  (wire-to-wick mock-unsigned-wire)
+    !>  mock-unsigned-parts
+  !>  (wire-to-wook mock-unsigned-wire)
 ::
-++  test-wire-to-wick-content
+++  test-wire-to-wook-content
   %+  expect-eq
-    !>  mock-content-wick
-  !>  (wire-to-wick mock-content-wire)
+    !>  mock-content-parts
+  !>  (wire-to-wook mock-content-wire)
 ::
 ++  test-wick-to-wire-signed
   %+  expect-eq
@@ -112,13 +131,13 @@
 ::
 ++  test-roundtrip-signed
   %+  expect-eq
-    !>  mock-signed-wick
-  !>  (wire-to-wick (wick-to-wire mock-signed-wick))
+    !>  mock-signed-parts
+  !>  (wire-to-wook (wick-to-wire mock-signed-wick))
 ::
 ++  test-roundtrip-unsigned
   %+  expect-eq
-    !>  mock-unsigned-wick
-  !>  (wire-to-wick (wick-to-wire mock-unsigned-wick))
+    !>  mock-unsigned-parts
+  !>  (wire-to-wook (wick-to-wire mock-unsigned-wick))
 ::
 ++  test-verify-wick-signed
   %+  expect-eq
@@ -165,23 +184,23 @@
 ++  test-reject-wick-with-empty-path
   %+  expect-eq
     !>  .n
-  !>  (verify-wick `wick`[%7 mock-ship mock-rot .y ~ mock-sig] `mock-pubkey ~)
+  !>  (verify-wick `wick`[%7 mock-id mock-rot .y ~ mock-sig] `mock-pubkey ~)
 ::
 ++  test-reject-wick-with-zero-rotation
   %+  expect-eq
     !>  .n
-  !>  (verify-wick `wick`[%7 mock-ship 0 .y mock-path mock-sig] `mock-pubkey ~)
+  !>  (verify-wick `wick`[%7 mock-id 0 .y mock-path mock-sig] `mock-pubkey ~)
 ::
 ++  test-reject-wick-with-oversized-rotation
   %+  expect-eq
     !>  .n
-  !>  (verify-wick `wick`[%7 mock-ship 65.536 .y mock-path mock-sig] `mock-pubkey ~)
+  !>  (verify-wick `wick`[%7 mock-id 65.536 .y mock-path mock-sig] `mock-pubkey ~)
 ::
 ++  test-reject-wick-with-oversized-path
-  =/  long=path  /https/[(reap 40 `@ta`'0123456789')]
+  =/  long=path  /https/[`@ta`(rap 3 (reap 40 '0123456789'))]
   %+  expect-eq
     !>  .n
-  !>  (verify-wick `wick`[%7 mock-ship mock-rot .y long mock-sig] `mock-pubkey ~)
+  !>  (verify-wick `wick`[%7 mock-id mock-rot .y long mock-sig] `mock-pubkey ~)
 ::
 ++  test-reject-contentful-wick-without-content
   %+  expect-eq

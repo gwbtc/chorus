@@ -4,39 +4,39 @@
 ++  grow
   |%
   ++  noun  val
-  ::  every listing carries the wick that signed it; json gives
-  ::  clients the plaintext half alone
+  ::  the wire is the shareable form of the wick that signed the
+  ::  entry: a client can hand it back to chorus/verify-wire
   ++  json
     ^-  ^json
     ?-  -.val
         %chorus-bio-updated
       %-  pairs:enjs:format
       :~  ['type' s+'chorus-bio-updated']
-          ['ship' s+(scot %p ship.val)]
-          ['bio' s+txt.listing.val]
+          ['wire' s+wire.val]
+          ['bio' s+txt.val]
       ==
     ::
         %chorus-announcement
       %-  pairs:enjs:format
       :~  ['type' s+'chorus-announcement']
-          ['ship' s+(scot %p ship.val)]
-          ['time' s+(scot %da time.listing.val)]
-          ['text' s+txt.listing.val]
+          ['wire' s+wire.val]
+          ['time' s+(scot %da time.val)]
+          ['text' s+txt.val]
       ==
     ::
         %chorus-desk-published
       %-  pairs:enjs:format
       :~  ['type' s+'chorus-desk-published']
-          ['ship' s+(scot %p ship.val)]
-          ['desk' s+desk.listing.val]
-          ['desc' s+desc.listing.val]
+          ['wire' s+wire.val]
+          ['desk' s+desk.val]
+          ['desc' s+desc.val]
       ==
     ::
         %mcp-tool-listed
-      =/  t  meta.listing.val
+      =/  t  meta.val
       %-  pairs:enjs:format
       :~  ['type' s+'mcp-tool-listed']
-          ['ship' s+(scot %p ship.val)]
+          ['wire' s+wire.val]
           ['name' s+name.t]
           ['description' s+desc.t]
           :-  'inputSchema'
@@ -57,10 +57,10 @@
       ==
     ::
         %mcp-prompt-listed
-      =/  p  meta.listing.val
+      =/  p  meta.val
       %-  pairs:enjs:format
       :~  ['type' s+'mcp-prompt-listed']
-          ['ship' s+(scot %p ship.val)]
+          ['wire' s+wire.val]
           ['name' s+name.p]
           ['title' s+title.p]
           ['description' s+desc.p]
@@ -77,10 +77,10 @@
       ==
     ::
         %mcp-resource-listed
-      =/  r  meta.listing.val
+      =/  r  meta.val
       %-  pairs:enjs:format
       :~  ['type' s+'mcp-resource-listed']
-          ['ship' s+(scot %p ship.val)]
+          ['wire' s+wire.val]
           ['uri' s+uri.r]
           ['name' s+name.r]
           :-  'title'
@@ -90,10 +90,10 @@
       ==
     ::
         %mcp-resource-template-listed
-      =/  r  meta.listing.val
+      =/  r  meta.val
       %-  pairs:enjs:format
       :~  ['type' s+'mcp-resource-template-listed']
-          ['ship' s+(scot %p ship.val)]
+          ['wire' s+wire.val]
           ['uriTemplate' s+uri-template.r]
           ['name' s+name.r]
           :-  'title'

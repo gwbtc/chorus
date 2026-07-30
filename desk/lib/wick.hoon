@@ -1,8 +1,37 @@
 /-  *wick
-/+  nym=mnemonyms
+/+  mne=mnemonyms
 /*  english  %txt  /fil/wordlists/english/txt
 ::
+=>
 |%
+++  me  ~(. me:mne [.y 128 english])
+++  mu  ~(. me:mne [.n 128 english])
+--
+|%
+::  does this ship at this key rotation have a tweak we accept?
+::
+::  XX stub: a suite C pubkey ('c') carries plaintext tweak data
+::     in .tw ([ugn dat xtr], see +cric:crypto), but we have not
+::     settled on what tweak data this protocol accepts. until we
+::     have, we cannot in good conscience call anyone verified,
+::     so nobody gets a one-dot nym
+++  verified-nym
+  |=  [our=ship now=@da who=ship rot=@ud]
+  ^-  ?
+  ::  a key we cannot even look up is a key we cannot check
+  =/  key=(unit (unit [crypto-suite=@ud =pass]))
+    %-  mole
+    |.
+    .^  (unit [crypto-suite=@ud =pass])
+        %j
+        /(scot %p our)/puby/(scot %da now)/(scot %p who)/(scot %ud rot)
+    ==
+  ?~  key  .n
+  ?~  u.key  .n
+  ?.  =('c' (end 3 pass.u.u.key))  .n
+  ::  XX check .dat.tw of (com:nu:cric:crypto pass) here
+  .n
+::
 ++  validate-tag-path
   |=  pax=path
   ^-  path
@@ -104,16 +133,28 @@
       [64 sig]
   ==
 ::
+::  a wire names its id in bare words: the leading dots that mark
+::  a nym tweaked or untweaked are not part of the wire
+++  bare-nym
+  |=  =nym
+  ^-  tape
+  =/  txt=tape  (trip nym)
+  |-
+  ?~  txt
+    ~|(%nym-without-words !!)
+  ?.  =('.' i.txt)
+    txt
+  $(txt t.txt)
+::
 ++  wick-to-wire
   |=  =wick
   ^-  cord
-  =/  who=cord  (~(name me:nym [.y 128 english]) ship.wick)
   ?:  =(0x0 sig.wick)
     %-  crip
     %+  welp
       "wire://"
     %+  welp
-      (slag 1 (trip who))
+      (bare-nym nym.id.wick)
     %-  trip
     %-  spat
     (validate-tag-path path.wick)
@@ -124,7 +165,7 @@
     (add 66 (add 2 (met 3 (spat path.wick))))
   =/  enc=@t
     (~(en base64:mimes:html | &) [len pay])
-  (crip (weld "wire://" (weld (slag 1 (trip who)) ['/' (trip enc)])))
+  (crip (weld "wire://" (weld (bare-nym nym.id.wick) ['/' (trip enc)])))
 ::
 ++  make-wick
   |=  [path-only=? =seed:jael pax=path content=(unit octs)]
@@ -135,7 +176,6 @@
     ~|(%unexpected-content !!)
   ?:  &(!path-only ?=(~ content))
     ~|(%missing-content !!)
-  =/  who=@pH  who.seed
   =/  rot=@ud  lyf.seed
   =/  pat=@t   (spat pax)
   ?>  (lte (lent pax) 256)
@@ -148,41 +188,64 @@
   ?>  ?=(^ sek.+<.keys)
   =/  sig=@uxJ
     (sign-octs-raw:ed:crypto [32 dig] [sgn.pub sgn.sek]:+<:keys)
-  [%7 who rot path-only pax sig]
+  ::  only comets can have nyms, so a ship that is not a comet is
+  ::  named by the fingerprint of the key that signed here
+  =/  paw=@pH
+    ?:  =(%pawn (clan:title who.seed))
+      who.seed
+    `@pH`fig:ex:keys
+  [%7 [(name:mu paw) paw] rot path-only pax sig]
 ::
 ++  verify-wick
   |=  [=wick pubkey=(unit pass) content=(unit octs)]
   ^-  ?
   ?:  =(0x0 sig.wick)
-    %-  (slog [leaf+"wick: no signature on wick from {<ship.wick>}"]~)
+    %-  (slog [leaf+"wick: no signature on wick from {<ship.id.wick>}"]~)
     |
   ?~  pubkey
-    %-  (slog [leaf+"wick: no key for {<ship.wick>} at rotation {<rot.wick>}"]~)
+    %-  (slog [leaf+"wick: no key for {<ship.id.wick>} at rotation {<rot.wick>}"]~)
     |
   ?~  path.wick
-    %-  (slog [leaf+"wick: empty path on wick from {<ship.wick>}"]~)
+    %-  (slog [leaf+"wick: empty path on wick from {<ship.id.wick>}"]~)
     |
   ::  urbit ships cannot have a key rotation number of 0
   ?.  &((gth rot.wick 0) (lte rot.wick 65.535))
-    %-  (slog [leaf+"wick: bad rotation {<rot.wick>} on wick from {<ship.wick>}"]~)
+    %-  (slog [leaf+"wick: bad rotation {<rot.wick>} on wick from {<ship.id.wick>}"]~)
     |
   ?.  (lte (met 3 (spat path.wick)) 256)
-    %-  (slog [leaf+"wick: path over 256 bytes on wick from {<ship.wick>}"]~)
+    %-  (slog [leaf+"wick: path over 256 bytes on wick from {<ship.id.wick>}"]~)
     |
   =/  keys  (com:nu:cric:crypto u.pubkey)
   ?:  flag.wick
     ?^  content
-      %-  (slog [leaf+"wick: path-only wick from {<ship.wick>} signed no content"]~)
+      %-  (slog [leaf+"wick: path-only wick from {<ship.id.wick>} signed no content"]~)
       |
     (veri-octs:ed:crypto sig.wick [32 (sign-digest rot.wick path.wick)] sgn:ded:ex:keys)
   ?~  content
-    %-  (slog [leaf+"wick: no content to check wick from {<ship.wick>} against"]~)
+    %-  (slog [leaf+"wick: no content to check wick from {<ship.id.wick>} against"]~)
     |
   (veri-octs:ed:crypto sig.wick [32 (content-digest rot.wick path.wick u.content)] sgn:ded:ex:keys)
 ::
+::
 ++  wire-to-wick
-  |=  wir=cord
+  |=  [our=ship now=@da wir=cord]
   ^-  wick
+  =/  par=wook  (wire-to-wook wir)
+  =/  gib
+    ?:  (verified-nym our now ship.par rot.par)
+      me
+    mu
+  :*  %7
+      [(name:gib ship.par) ship.par]
+      rot.par
+      flag.par
+      path.par
+      sig.par
+  ==
+::
+++  wire-to-wook
+  |=  wir=cord
+  ^-  wook
   =/  txt=tape  (trip wir)
   ?.  =("wire://" (scag 7 txt))
     ~|(%not-a-wire !!)
@@ -192,10 +255,12 @@
     ~|(%not-a-wire !!)
   =/  who-tape=tape  (scag u.who-end rest)
   =/  bod=tape       (slag +(u.who-end) rest)
-  =/  who=ship
-    (~(ship me:nym [.y 128 english]) (crip ['.' who-tape]))
+  ::  a wire's nym is bare words, and both dot forms resolve to
+  ::  the same ship
+  =/  who=ship  (ship:mu (crip ['.' who-tape]))
+  ::  is wire signed /0x0... or unsigned /foo/bar
   ?:  ?=(^ (find "/" bod))
-    ::  return wick from unsigned wire
+    ::  return parts from unsigned wire
     [%7 who 1 & (validate-tag-path (stab (crip ['/' bod]))) 0x0]
   ::  parse base64url from signed wire
   =/  oct=(unit octs)  (~(de base64:mimes:html | &) (crip bod))
@@ -213,6 +278,6 @@
   ?>  (gth rot 0)
   =/  pat=@t  (cut 3 [4 path-width] q.dat)
   =/  sig=@uxJ  (cut 3 [(add 4 path-width) 64] q.dat)
-  ::  return wick from signed wire
+  ::  return parts from signed wire
   [%7 who rot flag (stab pat) sig]
 --

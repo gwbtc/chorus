@@ -106,7 +106,6 @@
 +$  action
   $+  chorus-action
   $%  [%publish crowd=(unit crowd:gossip) =body]
-      [%verify target=$@(ship [=ship =wick])]
       [%delete target=$@(ship [=ship =wick])]
       ::  XX %tombstone =path
   ==
@@ -147,12 +146,12 @@
 ::  ship-to-client facts
 +$  update
   $+  chorus-update
-  $%  [%chorus-bio-updated =ship =listing:bio]
-      [%chorus-announcement =ship =listing:announcement]
-      [%chorus-desk-published =ship =listing:desk]
-      [%mcp-tool-listed =ship =listing:tool:mcp]
-      [%mcp-prompt-listed =ship =listing:prompt:mcp]
-      [%mcp-resource-listed =ship =listing:resource:mcp]
-      [%mcp-resource-template-listed =ship =listing:template:resource:mcp]
+  $%  [%chorus-bio-updated txt=cord wire=@t]
+      [%chorus-announcement =time txt=cord wire=@t]
+      [%chorus-desk-published =^desk =desc:desk wire=@t]
+      [%mcp-tool-listed =meta:tool:mcp wire=@t]
+      [%mcp-prompt-listed =meta:prompt:mcp wire=@t]
+      [%mcp-resource-listed =meta:resource:mcp wire=@t]
+      [%mcp-resource-template-listed =meta:template:resource:mcp wire=@t]
   ==
 --

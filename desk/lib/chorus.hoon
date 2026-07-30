@@ -68,7 +68,7 @@
   |=  [sat=state-0:chorus =message:chorus]
   ^-  state-0:chorus
   =/  =wick  wick.message
-  =*  who  ship.wick
+  =*  who  ship.id.wick
   ?-    -.+.message
       %chorus-bio
     sat(rolodex (~(put by rolodex.sat) who [txt.+.message wick]))
