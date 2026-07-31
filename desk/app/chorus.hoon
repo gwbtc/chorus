@@ -107,18 +107,18 @@
   ::
   ::  .^((set listing:desk) %gx /=/chorus/=/desks/noun)
   ::  .^((set listing:desk) %gx /=/chorus/=/desks/(scot %t nym)/noun)
-      ::  [%x %desks who=*]
-    ::  =/  lis=(list listing:desk:chorus)
-      ::  %-  zing
-      ::  %+  turn  ~(val by desks)
-      ::  |=(liz=(set listing:desk:chorus) ~(tap in liz))
-    ::  :^  ~  ~  %chorus-desks
-    ::  !>  ^-  (set listing:desk:chorus)
-    ::  %-  silt
-    ::  ?~  who.pole
-      ::  lis
-    ::  =/  =nym  (slav %t i:((lest knot) who.pole))
-    ::  (skim lis |=(lit=listing:desk:chorus =(nym nym.id.wick.lit)))
+      [%x %desks who=*]
+    =/  lis=(list listing:desk:chorus)
+      %-  zing
+      %+  turn  ~(val by desks)
+      |=(liz=(set listing:desk:chorus) ~(tap in liz))
+    :^  ~  ~  %chorus-desks
+    !>  ^-  (set listing:desk:chorus)
+    %-  silt
+    ?~  who.pole
+      lis
+    =/  =nym  (slav %t i:((lest knot) who.pole))
+    (skim lis |=(lit=listing:desk:chorus =(nym nym.id.wick.lit)))
   ::
   ::  .^((set listing:tool:mcp) %gx /=/chorus/=/mcp-tools/noun)
   ::  .^((set listing:tool:mcp) %gx /=/chorus/=/mcp-tools/(scot %t nym)/noun)
@@ -207,7 +207,7 @@
     =/  act  !<(action:chorus vase)
     ?-    -.act
         %publish
-      ?+    -.body.act  (on-poke:def mark vase)
+      ?-    -.body.act
           %bio
         ?.  (lte (lent (trip bio.body.act)) 256)
           ~|  "{<dap.bowl>}: bio must be 256 characters or less"
@@ -254,17 +254,29 @@
           %chorus-bulla
         !>(bulla)
       ::
-          ::  %desk
-        ::  ::  XX gossip a wick of /fine/[p.pyk]/c/z/[ud.cass]/[desk];
-        ::  ::     there is no %desk bulla:chorus kind yet
-        ::  =/  =wick  (make-grow-wick:cho bowl /desks txt+desc.body.act)
-        ::  :-  ~
-        ::  %=  this
-          ::  desks  %-  ~(put by desks)
-                 ::  :-  our.bowl
-                 ::  %-  ~(put in (~(gut by desks) our.bowl ~))
-                 ::  [desk.body.act desc.body.act wick]
-        ::  ==
+          %desk
+        ?.  (lte (lent (trip desc.body.act)) 256)
+          ~|  "{<dap.bowl>}: desk description must be 256 characters or less"
+          !!
+        =/  =wick  (make-desk-wick:cho bowl desk.body.act)
+        =/  =bulla:chorus
+          %+  sign-bulla:cho
+            bowl
+          [%chorus-desk [desk.body.act desc.body.act] wick]
+        :_  %=  this
+              desks  %-  ~(put by desks)
+                     :-  our.bowl
+                     %-  ~(put in (~(gut by desks) our.bowl ~))
+                     [desk.body.act desc.body.act wick]
+              sigs   (~(put by sigs) wick [ship sig]:bulla)
+            ==
+        ?:  =(`~ crowd.act)
+          ~
+        :_  ~
+        %^    confect:gossip
+            [`%2 crowd.act ~]
+          %chorus-bulla
+        !>(bulla)
       ::
           %mcp-tool
         =*  dek  desk.body.act
@@ -420,9 +432,6 @@
         state  %.  [state wick.target.act]
                |=  [sat=state-0:chorus =wick]
                ^-  state-0:chorus
-               ::  XX .desks has no missive kind yet, so its wicks
-               ::     are invisible to +sing:cho and cannot be forgotten here
-               =-  -(desks desks.sat)
                %+  roll
                  %+  skip
                    (sing:cho sat)
@@ -456,6 +465,7 @@
     ?-  -.msg.bulla
       %chorus-announcement    /fine/[who]/g/x/1/chorus//1/announcements
       %chorus-bio             /fine/[who]/g/x/1/chorus//1/bio
+      %chorus-desk            /fine/[who]/c/z
       %mcp-prompt             /fine/[who]/c/x
       %mcp-resource           /fine/[who]/c/x
       %mcp-resource-template  /fine/[who]/c/x

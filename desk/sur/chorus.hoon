@@ -18,6 +18,9 @@
 ++  desk
   |%
   +$  desc  @t
+  +$  meta
+    $+  chorus-desk-metadata
+    [=^desk =desc]
   +$  listing
     $+  chorus-desk-listing
     [=^desk =desc =wick]
@@ -143,6 +146,7 @@
   $%  [%chorus-bio txt=cord =wick]
       ::  [%chorus-disavow =missive]  ::  XX not implemented
       [%chorus-announcement txt=cord =wick]
+      [%chorus-desk =meta:desk =wick]
       [%mcp-tool =meta:tool:mcp =wick]
       [%mcp-resource =meta:resource:mcp =wick]
       [%mcp-resource-template =meta:template:resource:mcp =wick]

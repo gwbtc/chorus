@@ -30,6 +30,15 @@
         [%chorus-announcement txt.lit wick.lit]
       ::
         %-  zing
+        %+  turn  ~(tap by desks.sat)
+        |=  [* liz=(set listing:desk:chorus)]
+        ^-  (list missive:chorus)
+        %+  turn  ~(tap in liz)
+        |=  lit=listing:desk:chorus
+        ^-  missive:chorus
+        [%chorus-desk [desk.lit desc.lit] wick.lit]
+      ::
+        %-  zing
         %+  turn  ~(tap by mcp-tools.sat)
         |=  [* liz=(set listing:tool:mcp:chorus)]
         ^-  (list missive:chorus)
@@ -93,6 +102,14 @@
                      :-  who
                      %-  ~(put in (~(gut by announcements.sat) who ~))
                      [time txt.msg wick]
+    ==
+  ::
+      %chorus-desk
+    %=  sat
+      desks  %-  ~(put by desks.sat)
+             :-  who
+             %-  ~(put in (~(gut by desks.sat) who ~))
+             [desk.meta.msg desc.meta.msg wick]
     ==
   ::
       %mcp-tool
@@ -161,6 +178,18 @@
     :(welp /fine/(scot %p our.bowl)/c/x/(scot %ud ud.cas)/[desk] pax)
   =/  =page  [(slav %tas (rear pax)) .^(* %cx (welp bek pax))]
   (make-wick | (feed-to-seed bowl) fyn `(fine-octs [[our.bowl (slag 2 fyn)] page]))
+::
+::  sign a path-only wick over the clay fine path for a desk
+::  at its current revision; a requester verifies the content
+::  by scrying files at that revision themselves
+++  make-desk-wick
+  |=  [=bowl:gall =desk]
+  ^-  wick
+  =/  cas=cass:clay
+    .^(cass:clay %cw /(scot %p our.bowl)/[desk]/(scot %da now.bowl))
+  =/  fyn=path
+    /fine/(scot %p our.bowl)/c/z/(scot %ud ud.cas)/[desk]
+  (make-wick & (feed-to-seed bowl) fyn ~)
 ::
 ::  seal a missive in a bulla: .sig signs (jam msg) with the
 ::  same networking key that signed the wick, so a hearer can

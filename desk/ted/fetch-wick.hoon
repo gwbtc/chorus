@@ -23,19 +23,30 @@
   |=  [our=ship pax=path]
   ^-  sage:mess:ames
   =/  rest=path  (slag 2 pax)
-  ?.  (gte (lent rest) 5)
+  ?.  (gte (lent rest) 4)
     ~|(%unsupported-wick-path !!)
   =/  rev=@ta    (snag 2 rest)
   =/  nam=@ta    (snag 3 rest)
   =/  spur=path  (slag 4 rest)
   :-  [our rest]
-  ?:  ?=([%c %x *] rest)
+  ?+    rest  ~|(%unsupported-wick-path !!)
+      [%c %x *]
+    ?~  spur
+      ~|(%unsupported-wick-path !!)
     =/  nun=(unit *)
       (mole |.(.^(* %cx [(scot %p our) nam rev spur])))
     ?~  nun
       ~
     [(slav %tas (rear spur)) u.nun]
-  ?:  ?=([%g %x @ @ %$ @ ^] rest)
+  ::
+      [%c %z *]
+    =/  nun=(unit *)
+      (mole |.(.^(* %cz [(scot %p our) nam rev spur])))
+    ?~  nun
+      ~
+    [%uvi u.nun]
+  ::
+      [%g %x @ @ %$ @ ^]
     =/  nun=(unit *)
       (mole |.(.^(* %gx [(scot %p our) nam rev spur])))
     ?~  nun
@@ -46,7 +57,7 @@
     ::  does not name the mark of a grown page locally,
     ::  every grow path chorus signs carries a %txt page
     [%txt u.nun]
-  ~|(%unsupported-wick-path !!)
+  ==
 ::
 ::  fetch the sage a /fine path serves
 ++  fetch-fine
