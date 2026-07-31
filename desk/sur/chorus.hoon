@@ -100,6 +100,10 @@
       mcp-prompts=(map ship (set listing:prompt:mcp))
       mcp-resources=(map ship (set listing:resource:mcp))
       mcp-resource-templates=(map ship (set listing:template:resource:mcp))
+      ::
+      ::  signatures for old bullas, lets us
+      ::  replay messages to heard subscribers
+      sigs=(map wick [=ship sig=@ux])
   ==
 ::
 ::  client-to-ship pokes
@@ -123,24 +127,29 @@
 ::
 ::  ship-to-ship gossip
 ::
-::  every kind is [unsigned metadata, wick]: the wick names the
-::  ship that signed it and the path its content lives at, and
-::  the metadata is what a listener needs to hold the entry
-::  without fetching that content
-+$  message
-  $+  chorus-message
-  $:  %chorus-message
-    $%  [%chorus-bio txt=cord =wick]
-        ::  [%chorus-disavow =message]  ::  XX not implemented
-        [%chorus-announcement txt=cord =wick]
-        [%mcp-tool =meta:tool:mcp =wick]
-        [%mcp-resource =meta:resource:mcp =wick]
-        [%mcp-resource-template =meta:template:resource:mcp =wick]
-        [%mcp-prompt =meta:prompt:mcp =wick]
-        ::  XX %agent-skill =meta:skill =wick
-        ::  XX %a2a-agent-card =meta:card:a2a =wick
-        ::  XX %a2a-agent-skill =meta:skill:a2a =wick
-    ==
+::  signed container for a missive
++$  bulla
+  $+  chorus-bulla
+  $:  %chorus-bulla
+      =ship
+      sig=@ux
+      msg=missive
+  ==
+::
+::  contents of a bulla: metadata for some content,
+::  and a wick we can call to find out more
++$  missive
+  $+  chorus-missive
+  $%  [%chorus-bio txt=cord =wick]
+      ::  [%chorus-disavow =missive]  ::  XX not implemented
+      [%chorus-announcement txt=cord =wick]
+      [%mcp-tool =meta:tool:mcp =wick]
+      [%mcp-resource =meta:resource:mcp =wick]
+      [%mcp-resource-template =meta:template:resource:mcp =wick]
+      [%mcp-prompt =meta:prompt:mcp =wick]
+      ::  XX %agent-skill =meta:skill =wick
+      ::  XX %a2a-agent-card =meta:card:a2a =wick
+      ::  XX %a2a-agent-skill =meta:skill:a2a =wick
   ==
 ::
 ::  ship-to-client facts

@@ -1,8 +1,7 @@
 ::
 ::  chorus: peer-to-peer multiplayer agent harness
 /-  mcp, *wick, chorus
-/+  dbug, verb, cho=chorus, default-agent, gossip, mne=mnemonyms, *wick
-/*  english  %txt  /fil/wordlists/english/txt
+/+  dbug, verb, cho=chorus, default-agent, gossip, *wick
 ::
 |%
 +$  card  card:agent:gall
@@ -18,8 +17,9 @@
           .n             ::  pass
           %urb-watcher   ::  pki domain
       ==
-    %+  ~(put by *(map mark $-(* vase)))  %chorus-message
-    |=(n=* !>(;;(message:chorus n)))
+    %+  ~(put by *(map mark $-(* vase)))
+      %chorus-bulla
+    |=(n=* !>(;;(bulla:chorus n)))
 %-  agent:dbug
 ^-  agent:gall
 |_  =bowl:gall
@@ -30,10 +30,6 @@
               r=(scot %da now.bowl)
               s=/(scot %p our.bowl)/[q.byk.bowl]/(scot %da now.bowl)
           ==
-    ::  nyms for ships with valid suite C tweak data (one dot)
-    ::  and for those without (two dots)
-    me    ~(. me:mne [.y 128 english])
-    mu    ~(. me:mne [.n 128 english])
 ::
 ++  on-leave  on-leave:def
 ++  on-fail   on-fail:def
@@ -191,15 +187,15 @@
   ?+  pole
     (on-watch:def pole)
   ::
-  ::  replay heard messages to new subscribers
+  ::  replay heard bullas to new subscribers
   ::  XX need to not leak state to subscribers that's
   ::     just for us; punt on this for now
       [%~.~ %gossip %source ~]
     :_  this
     %+  turn  (sing:cho state)
-    |=  =message:chorus
+    |=  =bulla:chorus
     ^-  card
-    [%give %fact ~ %chorus-message !>(message)]
+    [%give %fact ~ %chorus-bulla !>(bulla)]
   ==
 ::
 ++  on-poke
@@ -217,27 +213,34 @@
           ~|  "{<dap.bowl>}: bio must be 256 characters or less"
           !!
         =/  =wick  (make-grow-wick:cho bowl /bio txt+bio.body.act)
-        :_  this(rolodex (~(put by rolodex) our.bowl [bio.body.act wick]))
+        =/  =bulla:chorus
+          (sign-bulla:cho bowl [%chorus-bio bio.body.act wick])
+        :_  %=  this
+              rolodex  (~(put by rolodex) our.bowl [bio.body.act wick])
+              sigs     (~(put by sigs) wick [ship sig]:bulla)
+            ==
         :-  [%pass ~ %grow (snoc /bio (scot %da now.bowl)) txt+bio.body.act]
         ?:  =(`~ crowd.act)
           ~
         :_  ~
         %^    confect:gossip
             [`%2 crowd.act ~]
-          %chorus-message
-        !>  ^-  message:chorus
-        [%chorus-message %chorus-bio bio.body.act wick]
+          %chorus-bulla
+        !>(bulla)
       ::
           %announcement
         ?.  (lte (lent (trip announcement.body.act)) 256)
           ~|  "{<dap.bowl>}: announcement must be 256 characters or less"
           !!
         =/  =wick  (make-grow-wick:cho bowl /announcements txt+announcement.body.act)
+        =/  =bulla:chorus
+          (sign-bulla:cho bowl [%chorus-announcement announcement.body.act wick])
         :_  %=  this
               announcements  %-  ~(put by announcements)
                              :-  our.bowl
                              %-  ~(put in (~(gut by announcements) our.bowl ~))
                              [now.bowl announcement.body.act wick]
+              sigs           (~(put by sigs) wick [ship sig]:bulla)
             ==
         :-  :*  %pass  ~  %grow
                 (snoc /announcements (scot %da now.bowl))
@@ -248,13 +251,12 @@
         :_  ~
         %^    confect:gossip
             [`%2 crowd.act ~]
-          %chorus-message
-        !>  ^-  message:chorus
-        [%chorus-message %chorus-announcement announcement.body.act wick]
+          %chorus-bulla
+        !>(bulla)
       ::
           ::  %desk
         ::  ::  XX gossip a wick of /fine/[p.pyk]/c/z/[ud.cass]/[desk];
-        ::  ::     there is no %desk message:chorus kind yet
+        ::  ::     there is no %desk bulla:chorus kind yet
         ::  =/  =wick  (make-grow-wick:cho bowl /desks txt+desc.body.act)
         ::  :-  ~
         ::  %=  this
@@ -270,6 +272,12 @@
         =/  =tool:mcp
           !<(tool:mcp .^(^vase %ca (welp /[p.pyk]/[dek]/[r.pyk] pax)))
         =/  =wick  (make-clay-wick:cho bowl dek pax)
+        =/  =bulla:chorus
+          %+  sign-bulla:cho
+            bowl
+          :+  %mcp-tool
+            [name.tool desc.tool parameters.tool required.tool]
+          wick
         :_  %=  this
               mcp-tools  %-  ~(put by mcp-tools)
                          :-  our.bowl
@@ -280,23 +288,15 @@
                              parameters.tool
                              required.tool
                          ==
+              sigs       (~(put by sigs) wick [ship sig]:bulla)
             ==
         ?:  =(`~ crowd.act)
           ~
         :_  ~
         %^    confect:gossip
             [`%2 crowd.act ~]
-          %chorus-message
-        !>  ^-  message:chorus
-        :*  %chorus-message
-            %mcp-tool
-            :_  wick
-            :*  name.tool
-                desc.tool
-                parameters.tool
-                required.tool
-            ==
-        ==
+          %chorus-bulla
+        !>(bulla)
       ::
           %mcp-prompt
         =*  dek  desk.body.act
@@ -304,6 +304,12 @@
         =/  =prompt:mcp
           !<(prompt:mcp .^(^vase %ca (welp /[p.pyk]/[dek]/[r.pyk] pax)))
         =/  =wick  (make-clay-wick:cho bowl dek pax)
+        =/  =bulla:chorus
+          %+  sign-bulla:cho
+            bowl
+          :+  %mcp-prompt
+            [name.prompt title.prompt desc.prompt arguments.prompt]
+          wick
         :_  %=  this
               mcp-prompts  %-  ~(put by mcp-prompts)
                            :-  our.bowl
@@ -314,23 +320,15 @@
                                desc.prompt
                                arguments.prompt
                            ==
+              sigs         (~(put by sigs) wick [ship sig]:bulla)
             ==
         ?:  =(`~ crowd.act)
           ~
         :_  ~
         %^    confect:gossip
             [`%2 crowd.act ~]
-          %chorus-message
-        !>  ^-  message:chorus
-        :*  %chorus-message
-            %mcp-prompt
-            :_  wick
-            :*  name.prompt
-                title.prompt
-                desc.prompt
-                arguments.prompt
-            ==
-        ==
+          %chorus-bulla
+        !>(bulla)
       ::
           %mcp-resource
         =*  dek  desk.body.act
@@ -338,6 +336,12 @@
         =/  =resource:mcp
           !<(resource:mcp .^(^vase %ca (welp /[p.pyk]/[dek]/[r.pyk] pax)))
         =/  =wick  (make-clay-wick:cho bowl dek pax)
+        =/  =bulla:chorus
+          %+  sign-bulla:cho
+            bowl
+          :+  %mcp-resource
+            [uri.resource name.resource title.resource desc.resource]
+          wick
         :_  %=  this
               mcp-resources  %-  ~(put by mcp-resources)
                              :-  our.bowl
@@ -348,23 +352,15 @@
                                  title.resource
                                  desc.resource
                              ==
+              sigs           (~(put by sigs) wick [ship sig]:bulla)
             ==
         ?:  =(`~ crowd.act)
           ~
         :_  ~
         %^    confect:gossip
             [`%2 crowd.act ~]
-          %chorus-message
-        !>  ^-  message:chorus
-        :*  %chorus-message
-            %mcp-resource
-            :_  wick
-            :*  uri.resource
-                name.resource
-                title.resource
-                desc.resource
-            ==
-        ==
+          %chorus-bulla
+        !>(bulla)
       ::
           %mcp-resource-template
         =*  dek  desk.body.act
@@ -373,6 +369,12 @@
           !<  template:resource:mcp
           .^(^vase %ca (welp /[p.pyk]/[dek]/[r.pyk] pax))
         =/  =wick  (make-clay-wick:cho bowl dek pax)
+        =/  =bulla:chorus
+          %+  sign-bulla:cho
+            bowl
+          :+  %mcp-resource-template
+            [uri-template.template name.template title.template desc.template]
+          wick
         :_  %=  this
               mcp-resource-templates
               %-  ~(put by mcp-resource-templates)
@@ -384,23 +386,15 @@
                   title.template
                   desc.template
               ==
+              sigs  (~(put by sigs) wick [ship sig]:bulla)
             ==
         ?:  =(`~ crowd.act)
           ~
         :_  ~
         %^    confect:gossip
             [`%2 crowd.act ~]
-          %chorus-message
-        !>  ^-  message:chorus
-        :*  %chorus-message
-            %mcp-resource-template
-            :_  wick
-            :*  uri-template.template
-                name.template
-                title.template
-                desc.template
-            ==
-        ==
+          %chorus-bulla
+        !>(bulla)
       ==
     ::
         %delete
@@ -415,20 +409,26 @@
           mcp-prompts             (~(del by mcp-prompts) target.act)
           mcp-resources           (~(del by mcp-resources) target.act)
           mcp-resource-templates  (~(del by mcp-resource-templates) target.act)
+          sigs                    %-  malt
+                                  %+  skip
+                                    ~(tap by sigs)
+                                  |=  [=wick *]
+                                  =(target.act ship.id.wick)
         ==
       ::  remove wick from state
       %=  this
         state  %.  [state wick.target.act]
                |=  [sat=state-0:chorus =wick]
                ^-  state-0:chorus
-               ::  XX .desks has no message kind yet, so its wicks
+               ::  XX .desks has no missive kind yet, so its wicks
                ::     are invisible to +sing:cho and cannot be forgotten here
                =-  -(desks desks.sat)
                %+  roll
-                 %+  skip  (sing:cho sat)
-                 |=(=message:chorus =(wick wick.message))
-               |=  [=message:chorus acc=state-0:chorus]
-               (hear:cho acc message)
+                 %+  skip
+                   (sing:cho sat)
+                 |=(=bulla:chorus =(wick wick.msg.bulla))
+               |=  [=bulla:chorus acc=state-0:chorus]
+               (hear:cho acc bulla)
       ==
     ==
   ==
@@ -438,19 +438,22 @@
   ^-  (quip card _this)
   ?.  ?=([%~.~ %gossip %gossip ~] pole)
     (on-agent:def pole sign)
-  ?.  ?=([%fact %chorus-message *] sign)
+  ?.  ?=([%fact %chorus-bulla *] sign)
     `this
-  =/  =message:chorus  !<(message:chorus q.cage.sign)
+  =/  =bulla:chorus  !<(bulla:chorus q.cage.sign)
   ::  XX handle %chorus-disavow here
-  =/  =wick  wick.message
-  ?:  =(our.bowl ship.id.wick)
+  =/  =wick  wick.msg.bulla
+  ?:  =(our.bowl ship.bulla)
+    `this
+  ::
+  ::  the sender signed the whole missive: check the outer
+  ::  signature and the wick id before we believe the metadata
+  ?.  (verify-bulla:cho bowl bulla)
+    %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping unverified bulla from {<ship.bulla>}"]))
     `this
   =/  pre=path
-    %.  message
-    |=  =message:chorus
-    ^-  path
-    =/  who=@ta  (scot %p ship.id.wick)
-    ?-  -.+.message
+    =/  who=@ta  (scot %p ship.bulla)
+    ?-  -.msg.bulla
       %chorus-announcement    /fine/[who]/g/x/1/chorus//1/announcements
       %chorus-bio             /fine/[who]/g/x/1/chorus//1/bio
       %mcp-prompt             /fine/[who]/c/x
@@ -459,80 +462,28 @@
       %mcp-tool               /fine/[who]/c/x
     ==
   ?.  =(pre (scag (lent pre) path.wick))
-    %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping message with invalid path prefix"]))
+    %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping bulla with invalid path prefix"]))
     `this
-  ::
-  ::  only comets have nyms, so non-comets get cometized
-  =/  paw=@pH
-    ?:  =(%pawn (clan:title ship.id.wick))
-      ship.id.wick
-    (cometize:mu bowl ship.id.wick)
-  ::  use verified / unverified nym core
-  =/  gib
-    ?:  (verified-nym our.bowl now.bowl ship.id.wick rot.wick)
-      me
-    mu
-  =/  hep=message:chorus
-    message(wick wick(id [(name:gib paw) paw]))
-  =/  hip=^wick  wick.hep
-  ::
   ?.  flag.wick
     ::  don't verify contentful wicks right away
-    `this(state (hear:cho state hep))
-  ::  verify path-only wicks right away in +on-arvo
-  :_  this(state (hear:cho state hep))
-  :_  ~
-  :*  %pass  /verify/(scot %uv (jam hip))
-      %arvo  %k  %fard
-      [q.byk.bowl %verify-wick %noun !>(hip)]
-  ==
-::
-++  on-arvo
-  |=  [=(pole knot) =sign-arvo]
-  ^-  (quip card _this)
-  ?+    pole  (on-arvo:def pole sign-arvo)
-      ::
-      ::  the answer from a %verify-wick thread we started for a
-      ::  wick we heard: we keep the entry or forget it
-      [%verify wik=@ta ~]
-    ?.  ?=([%khan %arow *] sign-arvo)
-      (on-arvo:def pole sign-arvo)
-    =/  =wick  ;;(wick (cue (slav %uv wik.pole)))
-    ::  we treat a crashed verification thread as %unknown
-    ?:  ?=(%| -.p.sign-arvo)
-      %-  %-  slog
-          :_  tang.p.p.sign-arvo
-          [%leaf "{<dap.bowl>}: could not check wick from {<ship.id.wick>}"]
-      `this
-    =/  =verdict  !<(verdict q.p.p.sign-arvo)
-    ?-    -.verdict
-        %verified
-      `this
-    ::
-    ::  wick we cannot verify =/= wick that failed verification
-        %unknown
-      %-  %-  slog
-          :_(~ [%leaf "{<dap.bowl>}: could not check wick from {<ship.id.wick>}: {(trip err.verdict)}"])
-      `this
-    ::
-        %failed
-      %-  %-  slog
-          :_(~ [%leaf "{<dap.bowl>}: forgetting entry: {(trip err.verdict)}"])
-      :-  ~
-      ::  remove wick from state
-      %=  this
-        state  %.  [state wick]
-               |=  [sat=state-0:chorus =^wick]
-               ^-  state-0:chorus
-               ::  XX .desks has no message kind yet, so its wicks
-               ::     are invisible to +sing:cho and cannot be forgotten here
-               =-  -(desks desks.sat)
-               %+  roll
-                 %+  skip  (sing:cho sat)
-                 |=(=message:chorus =(wick wick.message))
-               |=  [=message:chorus acc=state-0:chorus]
-               (hear:cho acc message)
-      ==
+    `this(state (hear:cho state bulla))
+  ::  a path-only wick signed its path alone, so jael settles
+  ::  it right here; a key we cannot find leaves the wick
+  ::  unverified, not caught out
+  =/  key=(unit (unit [crypto-suite=@ud =pass]))
+    %-  mole
+    |.
+    .^  (unit [crypto-suite=@ud =pass])
+        %j
+        /(scot %p our.bowl)/puby/(scot %da now.bowl)/(scot %p ship.bulla)/(scot %ud rot.wick)
     ==
-  ==
+  ?:  |(?=(~ key) ?=(~ u.key))
+    %-  (slog :_(~ [%leaf "{<dap.bowl>}: could not check wick from {<ship.bulla>}"]))
+    `this(state (hear:cho state bulla))
+  ?.  (verify-wick wick `pass.u.u.key ~)
+    %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping wick that {<ship.bulla>} did not sign"]))
+    `this
+  `this(state (hear:cho state bulla))
+::
+++  on-arvo  on-arvo:def
 --

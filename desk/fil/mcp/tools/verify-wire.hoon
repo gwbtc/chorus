@@ -29,14 +29,14 @@
     ::  +await-thread:io would look for the thread on the desk that
     ::  ran this tool, which is not ours, so we name our own beak
     =/  tid=@ta
-      (scot %ta (cat 3 'strand_' (scot %uv (sham %verify-wick eny.bowl))))
+      (scot %ta (cat 3 'strand_' (scot %uv (sham %fetch-wick eny.bowl))))
     ;<  ~  bind:m
       (watch-our:io /awaiting/[tid] %spider /thread-result/[tid])
     ;<  ~  bind:m
       %+  poke-our:io  %spider
       :-  %spider-start
       !>  ^-  start-args:spider
-      [`tid.bowl `tid [our.bowl %chorus da+now.bowl] %verify-wick !>(wick)]
+      [`tid.bowl `tid [our.bowl %chorus da+now.bowl] %fetch-wick !>(wick)]
     ;<  =cage  bind:m  (take-fact:io /awaiting/[tid])
     ;<  ~      bind:m  (take-kick:io /awaiting/[tid])
     %-  pure:m
@@ -45,12 +45,11 @@
       =+  !<([=term =tang] q.cage)
       [%error (crip "could not verify the wick: {<term>}") ~]
     ?>  =(%thread-done p.cage)
-    =/  =verdict  !<(verdict q.cage)
+    =/  =verdict  verdict:!<(haul q.cage)
     ?:  ?=(%verified -.verdict)
       :-  %result
       :-  %structured
       (frond:enjs:format %verified b+&)
-    ::  a wire we could not check is not a wire we caught out
     ?:  ?=(%unknown -.verdict)
       [%error (crip "could not check the wire: {(trip err.verdict)}") ~]
     [%error err.verdict ~]

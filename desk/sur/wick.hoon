@@ -20,4 +20,11 @@
       [%unknown err=@t]
       [%failed err=@t]
   ==
+::
+::  wick handlers return a haul: the verification status
+::  of the wick, and maybe also the content at that wick
++$  haul
+  $:  =verdict
+      content=(unit vase)
+  ==
 --
