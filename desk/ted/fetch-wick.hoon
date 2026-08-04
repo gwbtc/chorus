@@ -12,52 +12,10 @@
 ::  if its signature is unverifiable it is %unknown
 ::
 /-  spider, *wick
-/+  io=strandio, *wick
+/+  io=strandio, *wick, cho=chorus
 =,  strand=strand:spider
 =>
 |%
-::
-::  rebuild the sage a remote requester would
-::  receive for one of our own paths
-++  scry-sage
-  |=  [our=ship pax=path]
-  ^-  sage:mess:ames
-  =/  rest=path  (slag 2 pax)
-  ?.  (gte (lent rest) 4)
-    ~|(%unsupported-wick-path !!)
-  =/  rev=@ta    (snag 2 rest)
-  =/  nam=@ta    (snag 3 rest)
-  =/  spur=path  (slag 4 rest)
-  :-  [our rest]
-  ?+    rest  ~|(%unsupported-wick-path !!)
-      [%c %x *]
-    ?~  spur
-      ~|(%unsupported-wick-path !!)
-    =/  nun=(unit *)
-      (mole |.(.^(* %cx [(scot %p our) nam rev spur])))
-    ?~  nun
-      ~
-    [(slav %tas (rear spur)) u.nun]
-  ::
-      [%c %z *]
-    =/  nun=(unit *)
-      (mole |.(.^(* %cz [(scot %p our) nam rev spur])))
-    ?~  nun
-      ~
-    [%uvi u.nun]
-  ::
-      [%g %x @ @ %$ @ ^]
-    =/  nun=(unit *)
-      (mole |.(.^(* %gx [(scot %p our) nam rev spur])))
-    ?~  nun
-      ~
-    ::  XX generalise the grow mark once gall exposes it
-    ::
-    ::  clay names its mark in the path, and while gall
-    ::  does not name the mark of a grown page locally,
-    ::  every grow path chorus signs carries a %txt page
-    [%txt u.nun]
-  ==
 ::
 ::  fetch the sage a /fine path serves
 ++  fetch-fine
@@ -65,7 +23,7 @@
   =/  m  (strand ,(unit sage:mess:ames))
   ^-  form:m
   ?:  =(our target)
-    (pure:m `(scry-sage our pax))
+    (pure:m `(our-sage:cho our pax))
   ::  XX we never yawn a keen we gave up on, so ames goes on
   ::     asking for it; cancel it here once we can
   %+  (set-timeout:io ,(unit sage:mess:ames))  ~m2

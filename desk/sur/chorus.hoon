@@ -86,6 +86,42 @@
     --
   --
 ::
+::  agent skills standard,
+::  per https://agentskills.io
+++  skill
+  =<  skill
+  |%
+  ::
+  +$  listing
+    $+  chorus-agent-skill-listing
+    [=meta =wick]
+  ::
+  +$  meta
+    $+  chorus-agent-skill-metadata
+    [name=@t description=@t compatibility=@t]
+  ::
+  +$  frontmatter
+    $+  chorus-agent-skill-frontmatter
+    $:  name=@t
+        description=@t
+        license=(unit $@(cord path))
+        compatibility=(unit cord)
+        metadata=(unit (map cord cord))
+        allowed-tools=(unit cord)
+    ==
+  ::
+  ::  a skill is a directory of files,
+  ::  referenced by signed wicks
+  +$  skill
+    $+  chorus-agent-skill
+    $:  =frontmatter
+        body=wick
+        references=(list wick)
+        scripts=(list wick)
+        assets=(list wick)
+    ==
+  --
+::
 +$  versioned-state
   $%  state-0
   ==
@@ -103,6 +139,8 @@
       mcp-prompts=(map ship (set listing:prompt:mcp))
       mcp-resources=(map ship (set listing:resource:mcp))
       mcp-resource-templates=(map ship (set listing:template:resource:mcp))
+      ::  agent skills
+      skills=(map ship (set listing:skill))
       ::
       ::  signatures for old bullas, lets us
       ::  replay messages to heard subscribers
@@ -126,6 +164,7 @@
       [%mcp-prompt =^desk =path]
       [%mcp-resource =^desk =path]
       [%mcp-resource-template =^desk =path]
+      [%agent-skill =skill]
   ==
 ::
 ::  ship-to-ship gossip
@@ -151,7 +190,7 @@
       [%mcp-resource =meta:resource:mcp =wick]
       [%mcp-resource-template =meta:template:resource:mcp =wick]
       [%mcp-prompt =meta:prompt:mcp =wick]
-      ::  XX %agent-skill =meta:skill =wick
+      [%agent-skill =meta:skill =wick]
       ::  XX %a2a-agent-card =meta:card:a2a =wick
       ::  XX %a2a-agent-skill =meta:skill:a2a =wick
   ==
@@ -166,5 +205,6 @@
       [%mcp-prompt-listed =meta:prompt:mcp wire=@t]
       [%mcp-resource-listed =meta:resource:mcp wire=@t]
       [%mcp-resource-template-listed =meta:template:resource:mcp wire=@t]
+      [%agent-skill-listed =meta:skill wire=@t]
   ==
 --

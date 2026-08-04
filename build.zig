@@ -28,6 +28,17 @@ const dependencies = [_]RepoImport{
         },
     },
     .{
+        .name = "urbit-markdown",
+        .url = "https://github.com/tinnus-napbus/urbit-markdown",
+        .commit = "75f6922e7d48320a09b6b0615833730f227556ea",
+        .prefix = "",
+        .paths = &.{
+            "lib/markdown.hoon",
+            "mar/md.hoon",
+            "sur/markdown.hoon",
+        },
+    },
+    .{
         .name = "mnemonyms",
         .local = "../mnemonyms",
         .prefix = "libraries/hoon",

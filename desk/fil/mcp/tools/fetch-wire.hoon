@@ -63,19 +63,35 @@
         ?:  ?=(%| -.jon)
           [%error 'the wire serves malformed json' ~]
         [%result %structured p.jon]
-      ::  other marks are converted to mime via their mark file
+      ::  other marks are converted to mime via their mark
+      ::  file; our shed runs under the %mcp desk, so we name
+      ::  our own desk for marks, and check the mark exists
+      ::  first since a failed scry would kill the thread; a
+      ::  hyphenated mark may live flat or in nested folders
+      =/  bek=path  /(scot %p our.bowl)/chorus/(scot %da now.bowl)
+      =/  marked=?
+        ?|  .^(? %cu (welp bek /mar/[p.con]/hoon))
+            =/  segs=(unit (list @ta))
+              (rush p.con (most hep (cook crip (plus ;~(pose low nud)))))
+            ?~  segs  |
+            .^(? %cu (welp bek (welp /mar (snoc `path`u.segs %hoon))))
+        ==
+      ?:  &(!=(%mime p.con) !marked)
+        [%error (crip "the wire serves a mark we cannot read: {<p.con>}") ~]
       =/  mym=(each mime tang)
         %-  mule  |.
         ^-  mime
         ?:  =(%mime p.con)
           ;;(mime q.q.con)
         =/  =dais:clay
-          .^(dais:clay %cb /(scot %p our.bowl)/[q.byk.bowl]/(scot %da now.bowl)/[p.con])
+          .^(dais:clay %cb /(scot %p our.bowl)/chorus/(scot %da now.bowl)/[p.con])
         =/  =tube:clay
-          .^(tube:clay %cc /(scot %p our.bowl)/[q.byk.bowl]/(scot %da now.bowl)/[p.con]/mime)
+          .^(tube:clay %cc /(scot %p our.bowl)/chorus/(scot %da now.bowl)/[p.con]/mime)
         !<(mime (tube (vale:dais q.q.con)))
       ?:  ?=(%| -.mym)
-        [%error (crip "the wire serves a mark we cannot read: {<p.con>}") ~]
+        :+  %error
+          (crip "could not convert mark {<p.con>} to mime")
+        `a+(turn (scag 10 p.mym) |=(t=tank s+(crip ~(ram re t))))
       :-  %result
       :-  %structured
       %-  pairs:enjs:format

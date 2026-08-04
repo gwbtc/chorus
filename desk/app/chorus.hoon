@@ -179,6 +179,21 @@
       lis
     =/  =nym  (slav %t i:((lest knot) who.pole))
     (skim lis |=(lit=listing:template:resource:mcp:chorus =(nym nym.id.wick.lit)))
+  ::
+  ::  .^((set listing:skill) %gx /=/chorus/=/skills/noun)
+  ::  .^((set listing:skill) %gx /=/chorus/=/skills/(scot %t nym)/noun)
+      [%x %skills who=*]
+    =/  lis=(list listing:skill:chorus)
+      %-  zing
+      %+  turn  ~(val by skills)
+      |=(liz=(set listing:skill:chorus) ~(tap in liz))
+    :^  ~  ~  %chorus-skills
+    !>  ^-  (set listing:skill:chorus)
+    %-  silt
+    ?~  who.pole
+      lis
+    =/  =nym  (slav %t i:((lest knot) who.pole))
+    (skim lis |=(lit=listing:skill:chorus =(nym nym.id.wick.lit)))
   ==
 ::
 ++  on-watch
@@ -212,9 +227,9 @@
         ?.  (lte (lent (trip bio.body.act)) 256)
           ~|  "{<dap.bowl>}: bio must be 256 characters or less"
           !!
-        =/  =wick  (make-grow-wick:cho bowl /bio txt+bio.body.act)
+        =/  =wick  (make-grow-wick:cho our.bowl now.bowl /bio txt+bio.body.act)
         =/  =bulla:chorus
-          (sign-bulla:cho bowl [%chorus-bio bio.body.act wick])
+          (sign-bulla:cho our.bowl now.bowl [%chorus-bio bio.body.act wick])
         :_  %=  this
               rolodex  (~(put by rolodex) our.bowl [bio.body.act wick])
               sigs     (~(put by sigs) wick [ship sig]:bulla)
@@ -232,9 +247,9 @@
         ?.  (lte (lent (trip announcement.body.act)) 256)
           ~|  "{<dap.bowl>}: announcement must be 256 characters or less"
           !!
-        =/  =wick  (make-grow-wick:cho bowl /announcements txt+announcement.body.act)
+        =/  =wick  (make-grow-wick:cho our.bowl now.bowl /announcements txt+announcement.body.act)
         =/  =bulla:chorus
-          (sign-bulla:cho bowl [%chorus-announcement announcement.body.act wick])
+          (sign-bulla:cho our.bowl now.bowl [%chorus-announcement announcement.body.act wick])
         :_  %=  this
               announcements  %-  ~(put by announcements)
                              :-  our.bowl
@@ -258,10 +273,9 @@
         ?.  (lte (lent (trip desc.body.act)) 256)
           ~|  "{<dap.bowl>}: desk description must be 256 characters or less"
           !!
-        =/  =wick  (make-desk-wick:cho bowl desk.body.act)
+        =/  =wick  (make-desk-wick:cho our.bowl now.bowl desk.body.act)
         =/  =bulla:chorus
-          %+  sign-bulla:cho
-            bowl
+          %^  sign-bulla:cho  our.bowl  now.bowl
           [%chorus-desk [desk.body.act desc.body.act] wick]
         :_  %=  this
               desks  %-  ~(put by desks)
@@ -283,10 +297,9 @@
         =*  pax  path.body.act
         =/  =tool:mcp
           !<(tool:mcp .^(^vase %ca (welp /[p.pyk]/[dek]/[r.pyk] pax)))
-        =/  =wick  (make-clay-wick:cho bowl dek pax)
+        =/  =wick  (make-clay-wick:cho our.bowl now.bowl dek pax)
         =/  =bulla:chorus
-          %+  sign-bulla:cho
-            bowl
+          %^  sign-bulla:cho  our.bowl  now.bowl
           :+  %mcp-tool
             [name.tool desc.tool parameters.tool required.tool]
           wick
@@ -315,10 +328,9 @@
         =*  pax  path.body.act
         =/  =prompt:mcp
           !<(prompt:mcp .^(^vase %ca (welp /[p.pyk]/[dek]/[r.pyk] pax)))
-        =/  =wick  (make-clay-wick:cho bowl dek pax)
+        =/  =wick  (make-clay-wick:cho our.bowl now.bowl dek pax)
         =/  =bulla:chorus
-          %+  sign-bulla:cho
-            bowl
+          %^  sign-bulla:cho  our.bowl  now.bowl
           :+  %mcp-prompt
             [name.prompt title.prompt desc.prompt arguments.prompt]
           wick
@@ -347,10 +359,9 @@
         =*  pax  path.body.act
         =/  =resource:mcp
           !<(resource:mcp .^(^vase %ca (welp /[p.pyk]/[dek]/[r.pyk] pax)))
-        =/  =wick  (make-clay-wick:cho bowl dek pax)
+        =/  =wick  (make-clay-wick:cho our.bowl now.bowl dek pax)
         =/  =bulla:chorus
-          %+  sign-bulla:cho
-            bowl
+          %^  sign-bulla:cho  our.bowl  now.bowl
           :+  %mcp-resource
             [uri.resource name.resource title.resource desc.resource]
           wick
@@ -380,10 +391,9 @@
         =/  =template:resource:mcp
           !<  template:resource:mcp
           .^(^vase %ca (welp /[p.pyk]/[dek]/[r.pyk] pax))
-        =/  =wick  (make-clay-wick:cho bowl dek pax)
+        =/  =wick  (make-clay-wick:cho our.bowl now.bowl dek pax)
         =/  =bulla:chorus
-          %+  sign-bulla:cho
-            bowl
+          %^  sign-bulla:cho  our.bowl  now.bowl
           :+  %mcp-resource-template
             [uri-template.template name.template title.template desc.template]
           wick
@@ -407,6 +417,39 @@
             [`%2 crowd.act ~]
           %chorus-bulla
         !>(bulla)
+      ::
+          %agent-skill
+        ::  gossiped metadata, with '' standing in for no
+        ::  compatibility field
+        =/  =meta:skill:chorus
+          =*  fm  frontmatter.skill.body.act
+          [name.fm description.fm (fall compatibility.fm '')]
+        =/  err  (vet-skill-meta:cho meta)
+        ?^  err
+          ~|  "{<dap.bowl>}: {(trip u.err)}"
+          !!
+        =/  nam=@ta  `@ta`name.meta
+        =/  rev=@ud  (next-grow-rev:cho our.bowl now.bowl /skills/[nam])
+        =/  =wick
+          %^  make-grow-wick-at:cho  our.bowl  now.bowl
+          [rev /skills/[nam] chorus-skill+skill.body.act]
+        =/  =bulla:chorus
+          (sign-bulla:cho our.bowl now.bowl [%agent-skill meta wick])
+        :_  %=  this
+              skills  %-  ~(put by skills)
+                      :-  our.bowl
+                      %-  ~(put in (~(gut by skills) our.bowl ~))
+                      [meta wick]
+              sigs    (~(put by sigs) wick [ship sig]:bulla)
+            ==
+        :-  [%pass ~ %grow /skills/[nam] chorus-skill+skill.body.act]
+        ?:  =(`~ crowd.act)
+          ~
+        :_  ~
+        %^    confect:gossip
+            [`%2 crowd.act ~]
+          %chorus-bulla
+        !>(bulla)
       ==
     ::
         %delete
@@ -421,6 +464,7 @@
           mcp-prompts             (~(del by mcp-prompts) target.act)
           mcp-resources           (~(del by mcp-resources) target.act)
           mcp-resource-templates  (~(del by mcp-resource-templates) target.act)
+          skills                  (~(del by skills) target.act)
           sigs                    %-  malt
                                   %+  skip
                                     ~(tap by sigs)
@@ -470,9 +514,19 @@
       %mcp-resource           /fine/[who]/c/x
       %mcp-resource-template  /fine/[who]/c/x
       %mcp-tool               /fine/[who]/c/x
+      %agent-skill            /fine/[who]/g/x/1/chorus//1/skills
     ==
   ?.  =(pre (scag (lent pre) path.wick))
     %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping bulla with invalid path prefix"]))
+    `this
+  ::
+  ::  a skill listing must meet the agentskills.io
+  ::  constraints before we take it into state
+  =/  bad=(unit @t)
+    ?.  ?=(%agent-skill -.msg.bulla)  ~
+    (vet-skill-meta:cho meta.msg.bulla)
+  ?^  bad
+    %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping invalid skill from {<ship.bulla>}: {(trip u.bad)}"]))
     `this
   ?.  flag.wick
     ::  don't verify contentful wicks right away

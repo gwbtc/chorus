@@ -4,8 +4,6 @@
 ++  grow
   |%
   ++  noun  val
-  ::  the wire is the shareable form of the wick that signed the
-  ::  entry: a client can hand it back to chorus/verify-wire
   ++  json
     ^-  ^json
     ?-  -.val
@@ -100,6 +98,16 @@
           ?~  title.r  ~  s+u.title.r
           :-  'description'
           ?~  desc.r  ~  s+u.desc.r
+      ==
+    ::
+        %agent-skill-listed
+      =/  s  meta.val
+      %-  pairs:enjs:format
+      :~  ['type' s+'agent-skill-listed']
+          ['wire' s+wire.val]
+          ['name' s+name.s]
+          ['description' s+description.s]
+          ['compatibility' s+compatibility.s]
       ==
     ==
   --
