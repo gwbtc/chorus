@@ -59,7 +59,7 @@
         ?:  ?=(%unknown -.verdict.haul)
           [%error err.verdict.haul ~]
         [%error 'the wire serves nothing at its path' ~]
-      =/  pag  !<(page u.content.haul)
+      =/  con=^cage  u.content.haul
       :-  %result
       :-  %structured
       %-  pairs:enjs:format
@@ -73,13 +73,13 @@
             'the ship signed the path of this wire, but its signature does not cover this content'
           'the ship signed this content'
         ::
-          ['mark' s+p.pag]
+          ['mark' s+p.con]
         ::
           :-  'content'
           :-  %s
-          ?:  &(?=(@ q.pag) ((sane %t) `@t`q.pag))
-            `@t`q.pag
-          (crip (noah !>(q.pag)))
+          ?:  &(?=(@ q.q.con) ((sane %t) `@t`q.q.con))
+            `@t`q.q.con
+          (crip (noah q.con))
       ==
     ==
 ==

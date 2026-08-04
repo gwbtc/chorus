@@ -76,20 +76,21 @@
 ::  content from a sage, unless the wrong spar answered
 ++  vet
   |=  [target=ship rest=path sag=(unit sage:mess:ames)]
-  ^-  (unit vase)
+  ^-  (unit cage)
   ?~  sag
     ~
   ?.  &(=(target ship.p.u.sag) =(rest path.p.u.sag))
     ~
   ?@  q.u.sag
     ~
-  `!>(`page`q.u.sag)
+  =/  pag  `page`q.u.sag
+  `[p.pag !>(q.pag)]
 ::
 ::  fetch whatever content a path serves; each tag protocol
-::  fetches its own way and vases its own content type
+::  fetches its own way and cages its own content type
 ++  fetch-content
   |=  [our=ship host=(unit ship) tag=@ta rest=path pax=path]
-  =/  m  (strand ,(unit vase))
+  =/  m  (strand ,(unit cage))
   ^-  form:m
   ?+    tag  (pure:m ~)
     ::  XX slot /https etc. code paths here
@@ -167,12 +168,12 @@
 ?:  &(flag.wick !=(0x0 sig.wick))
   ?.  (verify-wick wick key ~)
     (pure:m !>([[%failed (crip "{who} did not sign {(spud path.wick)}")] ~]))
-  ;<  con=(unit vase)  bind:m
+  ;<  con=(unit cage)  bind:m
     (fetch-content our host tag.u.fin rest path.wick)
   (pure:m !>([[%verified ~] con]))
 ::  an unsigned wick proves nothing, but may still serve content
 ?:  =(0x0 sig.wick)
-  ;<  con=(unit vase)  bind:m
+  ;<  con=(unit cage)  bind:m
     (fetch-content our host tag.u.fin rest path.wick)
   (pure:m !>([[%unknown (crip "the wick from {who} carries no signature")] con]))
 ::
@@ -196,5 +197,6 @@
     (pure:m !>([[%unknown (crip "{<u.host>} serves nothing at {(spud rest)}")] ~]))
   ?.  (verify-wick wick key `(fine-octs u.sag))
     (pure:m !>([[%failed (crip "{who} did not sign what {<u.host>} serves at {(spud rest)}")] ~]))
-  (pure:m !>([[%verified ~] `!>(`page`q.u.sag)]))
+  =/  pag  `page`q.u.sag
+  (pure:m !>([[%verified ~] `[p.pag !>(q.pag)]]))
 ==

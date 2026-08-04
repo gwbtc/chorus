@@ -25,6 +25,6 @@
 ::  of the wick, and maybe also the content at that wick
 +$  haul
   $:  =verdict
-      content=(unit vase)
+      content=(unit cage)
   ==
 --
