@@ -3,11 +3,8 @@
 ^-  tool:mcp
 :*  'chorus/fetch-wire'
     '''
-    Fetch the content a wire:// URI points at, and verify what
-    its signature covers: a contentful wire signed the content
-    itself, while a path-only wire signed only the path, so its
-    content comes back unverified. Reports the content with the
-    verification status.
+    Fetch the content a wire:// URI points at.
+    Will verify the path/content as appropriate and crash if that fails.
     '''
     %-  my
     :~  :-  'wire'
@@ -50,9 +47,9 @@
     =/  =haul  !<(haul q.cage)
     ?:  ?=(%failed -.verdict.haul)
       [%error err.verdict.haul ~]
-    ::  each tag protocol vases its own content type
+    ::  each tag protocol cages its own content type
     ?+    ?~(path.wick %$ i.path.wick)
-        ::  XX de-vase /https content here
+        ::  XX read /https content here
         [%error 'the wire uses a tag protocol we cannot read yet' ~]
         %fine
       ?~  content.haul
@@ -60,26 +57,30 @@
           [%error err.verdict.haul ~]
         [%error 'the wire serves nothing at its path' ~]
       =/  con=^cage  u.content.haul
+      ::  json content is returned as the object itself
+      ?:  =(%json p.con)
+        =/  jon=(each json tang)  (mule |.(;;(json q.q.con)))
+        ?:  ?=(%| -.jon)
+          [%error 'the wire serves malformed json' ~]
+        [%result %structured p.jon]
+      ::  other marks are converted to mime via their mark file
+      =/  mym=(each mime tang)
+        %-  mule  |.
+        ^-  mime
+        ?:  =(%mime p.con)
+          ;;(mime q.q.con)
+        =/  =dais:clay
+          .^(dais:clay %cb /(scot %p our.bowl)/[q.byk.bowl]/(scot %da now.bowl)/[p.con])
+        =/  =tube:clay
+          .^(tube:clay %cc /(scot %p our.bowl)/[q.byk.bowl]/(scot %da now.bowl)/[p.con]/mime)
+        !<(mime (tube (vale:dais q.q.con)))
+      ?:  ?=(%| -.mym)
+        [%error (crip "the wire serves a mark we cannot read: {<p.con>}") ~]
       :-  %result
       :-  %structured
       %-  pairs:enjs:format
-      :~  ['verified' b+?=(%verified -.verdict.haul)]
-        ::
-          :-  'status'
-          :-  %s
-          ?:  ?=(%unknown -.verdict.haul)
-            (cat 3 'unverified: ' err.verdict.haul)
-          ?:  flag.wick
-            'the ship signed the path of this wire, but its signature does not cover this content'
-          'the ship signed this content'
-        ::
-          ['mark' s+p.con]
-        ::
-          :-  'content'
-          :-  %s
-          ?:  &(?=(@ q.q.con) ((sane %t) `@t`q.q.con))
-            `@t`q.q.con
-          (crip (noah q.con))
+      :~  ['mimeType' s+(rsh 3^1 (spat p.p.mym))]
+          ['data' s+(en:base64:mimes:html q.p.mym)]
       ==
     ==
 ==
