@@ -207,7 +207,12 @@ fn buildDesk(step: *std.Build.Step, allocator: std.mem.Allocator, install_path: 
     try fetchMissingImports(step, allocator, fetches.items);
 
     for (import_copies.items) |copy| {
-        try copyFilePath(copy.cache_path, copy.dest_path);
+        copyFilePath(copy.cache_path, copy.dest_path) catch |err| {
+            return step.fail(
+                "failed to copy imported '{s}' from RepoImport '{s}' into install prefix: {s}",
+                .{ copy.import_path, copy.name, @errorName(err) },
+            );
+        };
     }
 
     std.debug.print("Built!\n", .{});
@@ -229,6 +234,8 @@ fn clear(step: *std.Build.Step) !void {
 }
 
 const ImportCopy = struct {
+    name: []const u8,
+    import_path: []const u8,
     cache_path: []const u8,
     dest_path: []const u8,
 };
@@ -251,6 +258,8 @@ const ImportFetchTask = struct {
     source: RepoSource,
     imports: []const MissingImport,
     err: ?anyerror = null,
+    // which import file failed, if the failure was file-specific
+    failed_import: ?[]const u8 = null,
 };
 
 const RepoSource = union(enum) {
@@ -259,6 +268,14 @@ const RepoSource = union(enum) {
         commit: []const u8,
     },
     local: []const u8,
+
+    // human-readable origin for error messages
+    fn describe(self: RepoSource) []const u8 {
+        return switch (self) {
+            .url => |remote| remote.url,
+            .local => |local_path| local_path,
+        };
+    }
 };
 
 fn collectDependencyImports(
@@ -278,6 +295,8 @@ fn collectDependencyImports(
         const cache_path = try fileImportCachePath(step, dep, import_path);
         const dest_path = try std.fs.path.join(allocator, &.{ install_path, rel });
         try import_copies.append(allocator, .{
+            .name = dep.name,
+            .import_path = import_path,
             .cache_path = cache_path,
             .dest_path = dest_path,
         });
@@ -352,9 +371,17 @@ fn fetchMissingImports(
     }
 
     for (tasks) |task| {
-        if (task.err) |err| {
-            return step.fail("failed to import {s}: {s}", .{ task.name, @errorName(err) });
+        const err = task.err orelse continue;
+        if (task.failed_import) |import_path| {
+            return step.fail(
+                "failed to import '{s}' from RepoImport '{s}' ({s}): {s}",
+                .{ import_path, task.name, task.source.describe(), @errorName(err) },
+            );
         }
+        return step.fail(
+            "failed to fetch RepoImport '{s}' ({s}): {s}",
+            .{ task.name, task.source.describe(), @errorName(err) },
+        );
     }
 }
 
@@ -380,7 +407,10 @@ fn fetchMissingImportsThreadInner(
 
     for (task.imports) |import| {
         const repo_file_path = try std.fs.path.join(allocator, &.{ task.repo_path, import.import_path });
-        try copyFilePath(repo_file_path, import.cache_path);
+        copyFilePath(repo_file_path, import.cache_path) catch |err| {
+            task.failed_import = import.import_path;
+            return err;
+        };
     }
 }
 
@@ -436,7 +466,10 @@ fn ensureLocalRepoImport(
     local_path: []const u8,
 ) !void {
     const git_dir = try std.fs.path.join(allocator, &.{ local_path, ".git" });
-    if (!pathExists(git_dir)) return error.NotGitRepository;
+    if (!pathExists(git_dir)) {
+        std.debug.print("local import {s}: '{s}' is not a git repository\n", .{ name, local_path });
+        return error.NotGitRepository;
+    }
 
     if (pathExists(repo_path)) {
         try std.fs.cwd().deleteTree(repo_path);
