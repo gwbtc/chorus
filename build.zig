@@ -457,6 +457,74 @@ fn ensureRemoteRepoImport(
     }
 
     try run(allocator, &.{ "git", "-C", repo_path, "checkout", "--detach", "--force", commit });
+
+    // imported paths may run through symlinks committed to the repo whose
+    // targets sit outside the sparse set; widen the set until every link
+    // resolves to checked-out content
+    var wanted = std.ArrayList([]const u8){};
+    try wanted.appendSlice(allocator, paths);
+    var rounds: usize = 0;
+    while (rounds < max_symlink_rounds) : (rounds += 1) {
+        if (!try addSymlinkTargets(allocator, repo_path, paths, &wanted)) return;
+        try setSparseCheckout(allocator, repo_path, wanted.items);
+        try run(allocator, &.{ "git", "-C", repo_path, "checkout", "--detach", "--force", commit });
+    }
+    return error.TooManySymlinkRounds;
+}
+
+const max_symlink_rounds = 8;
+
+// walks each imported path component by component inside the checked-out
+// repo. a component that is a symlink re-roots the rest of the path at
+// the link target; a component that is missing may be a symlink not yet
+// checked out, so it is requested on its own. returns whether anything
+// new was added to wanted
+fn addSymlinkTargets(
+    allocator: std.mem.Allocator,
+    repo_path: []const u8,
+    paths: []const []const u8,
+    wanted: *std.ArrayList([]const u8),
+) !bool {
+    const repo_root = try std.fs.path.resolve(allocator, &.{repo_path});
+    var added = false;
+    for (paths) |path| {
+        var cur = repo_root;
+        var it = std.mem.splitScalar(u8, path, '/');
+        while (it.next()) |component| {
+            if (component.len == 0) continue;
+            cur = try std.fs.path.join(allocator, &.{ cur, component });
+            var buf: [std.fs.max_path_bytes]u8 = undefined;
+            const link = std.fs.cwd().readLink(cur, &buf) catch |err| switch (err) {
+                error.NotLink => continue,
+                error.FileNotFound, error.NotDir => {
+                    if (it.peek() == null) break;
+                    if (try appendUnique(allocator, wanted, strippedPath(repo_root, cur))) added = true;
+                    break;
+                },
+                else => return err,
+            };
+            const target = if (std.fs.path.isAbsolute(link))
+                try allocator.dupe(u8, link)
+            else
+                try std.fs.path.resolve(allocator, &.{ std.fs.path.dirname(cur).?, link });
+            if (!hasPathPrefix(repo_root, target)) {
+                std.debug.print("symlink '{s}' points outside its repository\n", .{cur});
+                return error.SymlinkEscapesRepository;
+            }
+            const rerooted = try std.fs.path.join(allocator, &.{ strippedPath(repo_root, target), it.rest() });
+            if (try appendUnique(allocator, wanted, rerooted)) added = true;
+            cur = target;
+        }
+    }
+    return added;
+}
+
+fn appendUnique(allocator: std.mem.Allocator, list: *std.ArrayList([]const u8), item: []const u8) !bool {
+    for (list.items) |existing| {
+        if (std.mem.eql(u8, existing, item)) return false;
+    }
+    try list.append(allocator, item);
+    return true;
 }
 
 fn ensureLocalRepoImport(
