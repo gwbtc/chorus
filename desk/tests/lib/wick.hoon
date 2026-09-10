@@ -6,11 +6,11 @@
 ::  untweaked, since that is all the wick library mints today
 ++  mock-nym
   ^-  @t
-  '..obtains.adapts.gazelles.unite.dessert.descend.behold.foreseen.remarks.devolve.regains.comprise'
+  '..obstruct.adapts.galore.unite.despite.descale.behold.forego.remakes.devoid.refute.comprise'
 ::
 ++  mock-ship
   ^-  ship
-  (~(ship me:mne [.n 128 english]) mock-nym)
+  (en:ship:~(. me:mne [.n 128 english]) mock-nym)
 ::
 ++  mock-id
   ^-  [=nym =ship]
@@ -64,15 +64,15 @@
 ::  cannot reach, so we test the wire format through +wire-to-wook
 ++  mock-unsigned-parts
   ^-  wook
-  [mock-ship mock-rot .y mock-path 0x0]
+  [%7 mock-ship mock-rot .y mock-path 0x0]
 ::
 ++  mock-signed-parts
   ^-  wook
-  [mock-ship mock-rot .y mock-path mock-sig]
+  [%7 mock-ship mock-rot .y mock-path mock-sig]
 ::
 ++  mock-content-parts
   ^-  wook
-  [mock-ship mock-rot .n mock-path mock-content-sig]
+  [%7 mock-ship mock-rot .n mock-path mock-content-sig]
 ::
 ++  mock-unsigned-wire
   ^-  cord

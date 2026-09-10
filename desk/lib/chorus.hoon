@@ -481,7 +481,7 @@
   =/  paw=(unit @pH)
     ?:  =(%pawn (clan:title ship.bulla))
       `ship.bulla
-    (mole |.((cometize:mu bowl ship.bulla)))
+    (mole |.((come:mu bowl ship.bulla)))
   ?~  paw
     %-  (slog [leaf+"chorus: could not cometize {who}"]~)
     |
@@ -494,7 +494,7 @@
     ?:  (verified-nym our.bowl now.bowl ship.bulla rot.wick)
       me
     mu
-  ?.  =((name:gib u.paw) nym.id.wick)
+  ?.  =((de:ship:gib u.paw) nym.id.wick)
     %-  (slog [leaf+"chorus: the wick from {who} carries the wrong nym"]~)
     |
   &

@@ -194,7 +194,7 @@
     ?:  =(%pawn (clan:title who.seed))
       who.seed
     `@pH`fig:ex:keys
-  [%7 [(name:mu paw) paw] rot path-only pax sig]
+  [%7 [(de:ship:mu paw) paw] rot path-only pax sig]
 ::
 ++  verify-wick
   |=  [=wick pubkey=(unit pass) content=(unit octs)]
@@ -236,7 +236,7 @@
       me
     mu
   :*  %7
-      [(name:gib ship.par) ship.par]
+      [(de:ship:gib ship.par) ship.par]
       rot.par
       flag.par
       path.par
@@ -257,7 +257,7 @@
   =/  bod=tape       (slag +(u.who-end) rest)
   ::  a wire's nym is bare words, and both dot forms resolve to
   ::  the same ship
-  =/  who=ship  (ship:mu (crip ['.' who-tape]))
+  =/  who=ship  (en:ship:mu (crip ['.' who-tape]))
   ::  is wire signed /0x0... or unsigned /foo/bar
   ?:  ?=(^ (find "/" bod))
     ::  return parts from unsigned wire
