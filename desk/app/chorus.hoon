@@ -50,6 +50,18 @@
   ?+    pole
       (on-peek:def pole)
   ::
+  ::  every bulla of one feature heard after a time, as
+  ::  updates: a state field name like /announcements, an
+  ::  action body tag like /announcement, or /updates for
+  ::  every feature; see +replay-feature
+  ::  .^((list update) %gx /=/chorus/=/updates/since/(scot %da wen)/noun)
+  ::  .^((list update) %gx /=/chorus/=/announcements/since/(scot %da wen)/noun)
+      [%x feat=@ %since wen=@ ~]
+    =/  msgs  (replay-feature:cho state `@tas`feat.pole)
+    ?~  msgs
+      (on-peek:def pole)
+    ``chorus-updates+!>((since:cho state u.msgs (slav %da wen.pole)))
+  ::
   ::  .^((list tool:mcp) %gx /=/chorus/=/mcp/tools/noun)
       [%x %mcp %tools ~]
     %-  some
@@ -219,11 +231,6 @@
     ^-  cabinet:chorus
     :-  ?~(fil.fat ~ `u.fil.fat(txt.slip ''))
     (~(run by dir.fat) |=(kid=cabinet:chorus ^$(fat kid)))
-  ::
-  ::  every bulla heard after a time, as updates
-  ::  .^((list update) %gx /=/chorus/=/since/(scot %da wen)/noun)
-      [%x %since wen=@ta ~]
-    ``chorus-updates+!>((since:cho state (slav %da wen.pole)))
   ==
 ::
 ++  on-watch
@@ -260,259 +267,132 @@
     =/  act  !<(action:chorus vase)
     ?-    -.act
         %publish
-      ?-    -.body.act
-          %bio
-        ?.  (lte (lent (trip bio.body.act)) 256)
-          ~|  "{<dap.bowl>}: bio must be 256 characters or less"
-          !!
-        =/  =wick  (make-grow-wick:cho our.bowl now.bowl /bio txt+bio.body.act)
-        =/  =bulla:chorus
-          (sign-bulla:cho our.bowl now.bowl [%chorus-bio bio.body.act wick])
-        :_  %=  this
-              rolodex  (~(put by rolodex) our.bowl [bio.body.act wick])
-              sigs     (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
-            ==
-        :-  [%pass ~ %grow (snoc /bio (scot %da now.bowl)) txt+bio.body.act]
-        ?:  =(`~ crowd.act)
-          ~
-        :_  ~
-        %^    confect:gossip
-            [`%2 crowd.act ~]
-          %chorus-bulla
-        !>(bulla)
       ::
-          %announcement
-        ?.  (lte (lent (trip announcement.body.act)) 256)
-          ~|  "{<dap.bowl>}: announcement must be 256 characters or less"
-          !!
-        =/  =wick  (make-grow-wick:cho our.bowl now.bowl /announcements txt+announcement.body.act)
-        =/  =bulla:chorus
-          (sign-bulla:cho our.bowl now.bowl [%chorus-announcement announcement.body.act wick])
-        :_  %=  this
-              announcements  %-  ~(put by announcements)
-                             :-  our.bowl
-                             %-  ~(put in (~(gut by announcements) our.bowl ~))
-                             [now.bowl announcement.body.act wick]
-              sigs           (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
-            ==
-        :-  :*  %pass  ~  %grow
-                (snoc /announcements (scot %da now.bowl))
-                txt+announcement.body.act
-            ==
-        ?:  =(`~ crowd.act)
-          ~
-        :_  ~
-        %^    confect:gossip
-            [`%2 crowd.act ~]
-          %chorus-bulla
-        !>(bulla)
-      ::
-          %desk
-        ?.  (lte (lent (trip desc.body.act)) 256)
-          ~|  "{<dap.bowl>}: desk description must be 256 characters or less"
-          !!
-        =/  =wick  (make-desk-wick:cho our.bowl now.bowl desk.body.act)
-        =/  =bulla:chorus
-          %^  sign-bulla:cho  our.bowl  now.bowl
+      ::  each kind of listing makes its wick, and any cards
+      ::  that grow its content; the missive is then signed,
+      ::  filed under us, and gossiped alike
+      =/  [cards=(list card) msg=missive:chorus]
+        ?-    -.body.act
+            %bio
+          ?.  (lte (lent (trip bio.body.act)) 256)
+            ~|  "{<dap.bowl>}: bio must be 256 characters or less"
+            !!
+          =/  =wick  (make-grow-wick:cho our.bowl now.bowl /bio txt+bio.body.act)
+          :-  [%pass ~ %grow (snoc /bio (scot %da now.bowl)) txt+bio.body.act]~
+          [%chorus-bio bio.body.act wick]
+        ::
+            %announcement
+          ?.  (lte (lent (trip announcement.body.act)) 256)
+            ~|  "{<dap.bowl>}: announcement must be 256 characters or less"
+            !!
+          =/  =wick
+            (make-grow-wick:cho our.bowl now.bowl /announcements txt+announcement.body.act)
+          :-  :_  ~
+              :*  %pass  ~  %grow
+                  (snoc /announcements (scot %da now.bowl))
+                  txt+announcement.body.act
+              ==
+          [%chorus-announcement announcement.body.act wick]
+        ::
+            %desk
+          ?.  (lte (lent (trip desc.body.act)) 256)
+            ~|  "{<dap.bowl>}: desk description must be 256 characters or less"
+            !!
+          =/  =wick  (make-desk-wick:cho our.bowl now.bowl desk.body.act)
+          :-  ~
           [%chorus-desk [desk.body.act desc.body.act] wick]
-        :_  %=  this
-              desks  %-  ~(put by desks)
-                     :-  our.bowl
-                     %-  ~(put in (~(gut by desks) our.bowl ~))
-                     [desk.body.act desc.body.act wick]
-              sigs   (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
-            ==
-        ?:  =(`~ crowd.act)
-          ~
-        :_  ~
-        %^    confect:gossip
-            [`%2 crowd.act ~]
-          %chorus-bulla
-        !>(bulla)
-      ::
-          %mcp-tool
-        =*  dek  desk.body.act
-        =*  pax  path.body.act
-        =/  =tool:mcp
-          !<(tool:mcp .^(^vase %ca (welp /[p.pyk]/[dek]/[r.pyk] pax)))
-        =/  =wick  (make-clay-wick:cho our.bowl now.bowl dek pax)
-        =/  =bulla:chorus
-          %^  sign-bulla:cho  our.bowl  now.bowl
+        ::
+            %mcp-tool
+          =*  dek  desk.body.act
+          =*  pax  path.body.act
+          =/  =tool:mcp
+            !<(tool:mcp .^(^vase %ca (welp /[p.pyk]/[dek]/[r.pyk] pax)))
+          =/  =wick  (make-clay-wick:cho our.bowl now.bowl dek pax)
+          :-  ~
           :+  %mcp-tool
             [name.tool desc.tool parameters.tool required.tool]
           wick
-        :_  %=  this
-              mcp-tools  %-  ~(put by mcp-tools)
-                         :-  our.bowl
-                         %-  ~(put in (~(gut by mcp-tools) our.bowl ~))
-                         :_  wick
-                         :*  name.tool
-                             desc.tool
-                             parameters.tool
-                             required.tool
-                         ==
-              sigs       (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
-            ==
-        ?:  =(`~ crowd.act)
-          ~
-        :_  ~
-        %^    confect:gossip
-            [`%2 crowd.act ~]
-          %chorus-bulla
-        !>(bulla)
-      ::
-          %mcp-prompt
-        =*  dek  desk.body.act
-        =*  pax  path.body.act
-        =/  =prompt:mcp
-          !<(prompt:mcp .^(^vase %ca (welp /[p.pyk]/[dek]/[r.pyk] pax)))
-        =/  =wick  (make-clay-wick:cho our.bowl now.bowl dek pax)
-        =/  =bulla:chorus
-          %^  sign-bulla:cho  our.bowl  now.bowl
+        ::
+            %mcp-prompt
+          =*  dek  desk.body.act
+          =*  pax  path.body.act
+          =/  =prompt:mcp
+            !<(prompt:mcp .^(^vase %ca (welp /[p.pyk]/[dek]/[r.pyk] pax)))
+          =/  =wick  (make-clay-wick:cho our.bowl now.bowl dek pax)
+          :-  ~
           :+  %mcp-prompt
             [name.prompt title.prompt desc.prompt arguments.prompt]
           wick
-        :_  %=  this
-              mcp-prompts  %-  ~(put by mcp-prompts)
-                           :-  our.bowl
-                           %-  ~(put in (~(gut by mcp-prompts) our.bowl ~))
-                           :_  wick
-                           :*  name.prompt
-                               title.prompt
-                               desc.prompt
-                               arguments.prompt
-                           ==
-              sigs         (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
-            ==
-        ?:  =(`~ crowd.act)
-          ~
-        :_  ~
-        %^    confect:gossip
-            [`%2 crowd.act ~]
-          %chorus-bulla
-        !>(bulla)
-      ::
-          %mcp-resource
-        =*  dek  desk.body.act
-        =*  pax  path.body.act
-        =/  =resource:mcp
-          !<(resource:mcp .^(^vase %ca (welp /[p.pyk]/[dek]/[r.pyk] pax)))
-        =/  =wick  (make-clay-wick:cho our.bowl now.bowl dek pax)
-        =/  =bulla:chorus
-          %^  sign-bulla:cho  our.bowl  now.bowl
+        ::
+            %mcp-resource
+          =*  dek  desk.body.act
+          =*  pax  path.body.act
+          =/  =resource:mcp
+            !<(resource:mcp .^(^vase %ca (welp /[p.pyk]/[dek]/[r.pyk] pax)))
+          =/  =wick  (make-clay-wick:cho our.bowl now.bowl dek pax)
+          :-  ~
           :+  %mcp-resource
             [uri.resource name.resource title.resource desc.resource]
           wick
-        :_  %=  this
-              mcp-resources  %-  ~(put by mcp-resources)
-                             :-  our.bowl
-                             %-  ~(put in (~(gut by mcp-resources) our.bowl ~))
-                             :_  wick
-                             :*  uri.resource
-                                 name.resource
-                                 title.resource
-                                 desc.resource
-                             ==
-              sigs           (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
-            ==
-        ?:  =(`~ crowd.act)
-          ~
-        :_  ~
-        %^    confect:gossip
-            [`%2 crowd.act ~]
-          %chorus-bulla
-        !>(bulla)
-      ::
-          %mcp-resource-template
-        =*  dek  desk.body.act
-        =*  pax  path.body.act
-        =/  =template:resource:mcp
-          !<  template:resource:mcp
-          .^(^vase %ca (welp /[p.pyk]/[dek]/[r.pyk] pax))
-        =/  =wick  (make-clay-wick:cho our.bowl now.bowl dek pax)
-        =/  =bulla:chorus
-          %^  sign-bulla:cho  our.bowl  now.bowl
+        ::
+            %mcp-resource-template
+          =*  dek  desk.body.act
+          =*  pax  path.body.act
+          =/  =template:resource:mcp
+            !<  template:resource:mcp
+            .^(^vase %ca (welp /[p.pyk]/[dek]/[r.pyk] pax))
+          =/  =wick  (make-clay-wick:cho our.bowl now.bowl dek pax)
+          :-  ~
           :+  %mcp-resource-template
             [uri-template.template name.template title.template desc.template]
           wick
-        :_  %=  this
-              mcp-resource-templates
-              %-  ~(put by mcp-resource-templates)
-              :-  our.bowl
-              %-  ~(put in (~(gut by mcp-resource-templates) our.bowl ~))
-              :_  wick
-              :*  uri-template.template
-                  name.template
-                  title.template
-                  desc.template
-              ==
-              sigs  (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
-            ==
-        ?:  =(`~ crowd.act)
-          ~
-        :_  ~
-        %^    confect:gossip
-            [`%2 crowd.act ~]
-          %chorus-bulla
-        !>(bulla)
+        ::
+            %agent-skill
+          ::  gossiped metadata, with '' standing in for no
+          ::  compatibility field
+          =/  =meta:skill:chorus
+            =*  fm  frontmatter.skill.body.act
+            [name.fm description.fm (fall compatibility.fm '')]
+          =/  err  (vet-skill-meta:cho meta)
+          ?^  err
+            ~|  "{<dap.bowl>}: {(trip u.err)}"
+            !!
+          =/  nam=@ta  `@ta`name.meta
+          =/  rev=@ud  (next-grow-rev:cho our.bowl now.bowl /skills/[nam])
+          =/  =wick
+            %^  make-grow-wick-at:cho  our.bowl  now.bowl
+            [rev /skills/[nam] chorus-skill+skill.body.act]
+          :-  [%pass ~ %grow /skills/[nam] chorus-skill+skill.body.act]~
+          [%agent-skill meta wick]
+        ::
+            %slip
+          =*  pax  path.body.act
+          =/  err  (vet-slip:slp our.bowl pax txt.slip.body.act)
+          ?^  err
+            ~|  "{<dap.bowl>}: {(trip u.err)}"
+            !!
+          =/  =slip:chorus  [our.bowl now.bowl txt.slip.body.act]
+          =/  rev=@ud  (next-grow-rev:cho our.bowl now.bowl [%cabinet pax])
+          =/  =wick  %^    make-grow-wick-at:cho
+                         our.bowl
+                       now.bowl
+                     [rev [%cabinet pax] md+txt.slip]
+          :-  [%pass ~ %grow [%cabinet pax] md+txt.slip]~
+          [%chorus-slip slip wick]
+        ==
+      =/  =bulla:chorus  (sign-bulla:cho our.bowl now.bowl msg)
+      =/  new  (shelve:cho state our.bowl now.bowl bulla)
+      :_  this(state new)
+      ;:  weld
+        cards
       ::
-          %agent-skill
-        ::  gossiped metadata, with '' standing in for no
-        ::  compatibility field
-        =/  =meta:skill:chorus
-          =*  fm  frontmatter.skill.body.act
-          [name.fm description.fm (fall compatibility.fm '')]
-        =/  err  (vet-skill-meta:cho meta)
-        ?^  err
-          ~|  "{<dap.bowl>}: {(trip u.err)}"
-          !!
-        =/  nam=@ta  `@ta`name.meta
-        =/  rev=@ud  (next-grow-rev:cho our.bowl now.bowl /skills/[nam])
-        =/  =wick
-          %^  make-grow-wick-at:cho  our.bowl  now.bowl
-          [rev /skills/[nam] chorus-skill+skill.body.act]
-        =/  =bulla:chorus
-          (sign-bulla:cho our.bowl now.bowl [%agent-skill meta wick])
-        :_  %=  this
-              skills  %-  ~(put by skills)
-                      :-  our.bowl
-                      %-  ~(put in (~(gut by skills) our.bowl ~))
-                      [meta wick]
-              sigs    (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
-            ==
-        :-  [%pass ~ %grow /skills/[nam] chorus-skill+skill.body.act]
-        ?:  =(`~ crowd.act)
-          ~
+        ?.  ?=(%chorus-slip -.msg)  ~
         :_  ~
-        %^    confect:gossip
-            [`%2 crowd.act ~]
-          %chorus-bulla
-        !>(bulla)
+        :*  %give  %fact  ~[/cabinet]  %chorus-update
+            !>((update-of:cho new msg))
+        ==
       ::
-          %slip
-        =*  pax  path.body.act
-        =/  err  (vet-slip:slp our.bowl pax txt.slip.body.act)
-        ?^  err
-          ~|  "{<dap.bowl>}: {(trip u.err)}"
-          !!
-        =/  =slip:chorus  [our.bowl now.bowl txt.slip.body.act]
-        =/  rev=@ud  (next-grow-rev:cho our.bowl now.bowl [%cabinet pax])
-        =/  =wick  %^    make-grow-wick-at:cho
-                       our.bowl
-                     now.bowl
-                   [rev [%cabinet pax] md+txt.slip]
-        =/  =bulla:chorus
-          (sign-bulla:cho our.bowl now.bowl [%chorus-slip slip wick])
-        :_  %=  this
-              cabinet  (~(put of cabinet) pax [slip wick])
-              sigs     (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
-            ==
-        :+  [%pass ~ %grow [%cabinet pax] md+txt.slip]
-          :*  %give  %fact  ~[/cabinet]  %chorus-update
-              !>(`update:chorus`[%chorus-slip pax slip (wick-to-wire wick)])
-          ==
-        ?:  =(`~ crowd.act)
-          ~
+        ?:  =(`~ crowd.act)  ~
         :_  ~
         %^    confect:gossip
             [`%2 crowd.act ~]
@@ -624,10 +504,11 @@
     =/  new  (hear:cho state our.bowl now.bowl bulla)
     ?:  =(cabinet cabinet.new)
       `this
-    =/  =update:chorus
-      [%chorus-slip (need (slip-path:cho new wick)) slip (wick-to-wire wick)]
     :_  this(state new)
-    [%give %fact ~[/cabinet /heard] %chorus-update !>(update)]~
+    :_  ~
+    :*  %give  %fact  ~[/cabinet /heard]  %chorus-update
+        !>((update-of:cho new msg.bulla))
+    ==
   ?.  flag.wick
     ::  don't verify contentful wicks right away
     `this(state (hear:cho state our.bowl now.bowl bulla))
