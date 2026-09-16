@@ -76,32 +76,28 @@ const dependencies = [_]RepoImport{
             "sur/verb.hoon",
         },
     },
-    // .{
-    //     .name = "aqua-deps",
-    //     .local = "../urbit",
-    //     .prefix = "pkg/arvo",
-    //     .paths = &.{
-    //         "lib/aqua-azimuth.hoon",
-    //         "lib/aqua-vane-thread.hoon",
-    //         "lib/azimuth.hoon",
-    //         "lib/ethereum.hoon",
-    //         "lib/naive.hoon",
-    //         "lib/ph/gw/io.hoon",
-    //         "lib/ph/gw/util.hoon",
-    //         "lib/ph/io.hoon",
-    //         "lib/ph/util.hoon",
-    //         "lib/tiny.hoon",
-    //         "lib/vere.hoon",
-    //         "mar/aqua/effect.hoon",
-    //         "sur/aquarium.hoon",
-    //         "sur/dice.hoon",
-    //         "sys/vane/ames.hoon",
-    //         "ted/aqua/ames.hoon",
-    //         "ted/aqua/behn.hoon",
-    //         "ted/aqua/dill.hoon",
-    //         "ted/aqua/eyre.hoon",
-    //     },
-    // },
+};
+
+const test_dependency_paths = [_][]const u8{
+    "lib/aqua-azimuth.hoon",
+    "lib/aqua-vane-thread.hoon",
+    "lib/azimuth.hoon",
+    "lib/ethereum.hoon",
+    "lib/naive.hoon",
+    "lib/ph/gw/io.hoon",
+    "lib/ph/gw/util.hoon",
+    "lib/ph/io.hoon",
+    "lib/ph/util.hoon",
+    "lib/tiny.hoon",
+    "lib/vere.hoon",
+    "mar/aqua/effect.hoon",
+    "sur/aquarium.hoon",
+    "sur/dice.hoon",
+    "sys/vane/ames.hoon",
+    "ted/aqua/ames.hoon",
+    "ted/aqua/behn.hoon",
+    "ted/aqua/dill.hoon",
+    "ted/aqua/eyre.hoon",
 };
 
 const dependency_cache_dir = "desk-deps";
@@ -124,8 +120,10 @@ const DeskStep = struct {
     action: Action,
     install_path: []const u8,
     copy_target: ?[]const u8,
+    include_tests: bool,
+    groundwire_path: []const u8,
 
-    fn create(b: *std.Build, name: []const u8, action: Action, copy_target: ?[]const u8) *DeskStep {
+    fn create(b: *std.Build, name: []const u8, action: Action, copy_target: ?[]const u8, include_tests: bool, groundwire_path: []const u8) *DeskStep {
         const self = b.allocator.create(DeskStep) catch @panic("OOM");
         self.* = .{
             .step = std.Build.Step.init(.{
@@ -137,6 +135,8 @@ const DeskStep = struct {
             .action = action,
             .install_path = b.install_path,
             .copy_target = copy_target,
+            .include_tests = include_tests,
+            .groundwire_path = groundwire_path,
         };
         return self;
     }
@@ -147,7 +147,7 @@ const DeskStep = struct {
         const allocator = step.owner.allocator;
 
         switch (self.action) {
-            .build => try buildDesk(step, allocator, self.install_path, self.copy_target),
+            .build => try buildDesk(step, allocator, self.install_path, self.copy_target, self.include_tests, self.groundwire_path),
             .clean => try clean(self.install_path),
             .clear => try clear(step),
         }
@@ -168,23 +168,25 @@ pub fn build(b: *std.Build) void {
     _ = optimize;
 
     const desk = b.option([]const u8, "desk", "After building, replace the desk at this path with install prefix contents");
+    const include_tests = b.option(bool, "tests", "Include Aqua integration-test dependencies") orelse false;
+    const groundwire_path = b.option([]const u8, "groundwire", "Path to the Groundwire Urbit checkout used by Aqua tests") orelse "../gw-urbit";
 
-    const build_step = DeskStep.create(b, "build desk", .build, desk);
+    const build_step = DeskStep.create(b, "build desk", .build, desk, include_tests, groundwire_path);
     b.default_step.dependOn(&build_step.step);
 
     const named_build = b.step("build", "Build install prefix from /desk and dependencies");
     named_build.dependOn(&build_step.step);
 
-    const clean_step = DeskStep.create(b, "clean", .clean, null);
+    const clean_step = DeskStep.create(b, "clean", .clean, null, false, groundwire_path);
     const named_clean = b.step("clean", "Remove install prefix");
     named_clean.dependOn(&clean_step.step);
 
-    const clear_step = DeskStep.create(b, "clear", .clear, null);
+    const clear_step = DeskStep.create(b, "clear", .clear, null, false, groundwire_path);
     const named_clear = b.step("clear", "Remove install prefix and cached dependencies");
     named_clear.dependOn(&clear_step.step);
 }
 
-fn buildDesk(step: *std.Build.Step, allocator: std.mem.Allocator, install_path: []const u8, copy_target: ?[]const u8) !void {
+fn buildDesk(step: *std.Build.Step, allocator: std.mem.Allocator, install_path: []const u8, copy_target: ?[]const u8, include_tests: bool, groundwire_path: []const u8) !void {
     try requireGitVersion(step);
 
     if (!pathExists("desk") and !pathExists("desk-dev")) {
@@ -203,6 +205,15 @@ fn buildDesk(step: *std.Build.Step, allocator: std.mem.Allocator, install_path: 
     var fetches = std.ArrayList(RepoFetch){};
     for (dependencies) |dep| {
         try collectDependencyImports(step, allocator, dep, install_path, &import_copies, &fetches);
+    }
+    if (include_tests) {
+        const aqua_dependency = RepoImport{
+            .name = "aqua-deps",
+            .local = groundwire_path,
+            .prefix = "pkg/arvo",
+            .paths = &test_dependency_paths,
+        };
+        try collectDependencyImports(step, allocator, aqua_dependency, install_path, &import_copies, &fetches);
     }
 
     try fetchMissingImports(step, allocator, fetches.items);
