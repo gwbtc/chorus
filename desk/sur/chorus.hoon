@@ -122,6 +122,11 @@
     ==
   --
 ::
+::  shared wiki
++$  cabinet  (axal [=slip =wick])
++$  slip     [=ship =time txt=@t]
+::
+::  state
 +$  versioned-state
   $%  state-0
   ==
@@ -141,10 +146,13 @@
       mcp-resource-templates=(map ship (set listing:template:resource:mcp))
       ::  agent skills
       skills=(map ship (set listing:skill))
+      ::  wiki
+      =cabinet
       ::
-      ::  signatures for old bullas, lets us
-      ::  replay messages to heard subscribers
-      sigs=(map wick [=ship sig=@ux])
+      ::  signatures for old bullas, lets us replay
+      ::  messages to heard subscribers, and when we
+      ::  heard each, for the since scry
+      sigs=(map wick [=ship sig=@ux when=@da])
   ==
 ::
 ::  client-to-ship pokes
@@ -165,6 +173,7 @@
       [%mcp-resource =^desk =path]
       [%mcp-resource-template =^desk =path]
       [%agent-skill =skill]
+      [%slip =path =slip]
   ==
 ::
 ::  ship-to-ship gossip
@@ -184,6 +193,7 @@
   $+  chorus-missive
   $%  [%chorus-bio txt=cord =wick]
       ::  [%chorus-disavow =missive]  ::  XX not implemented
+      [%chorus-slip =slip =wick]
       [%chorus-announcement txt=cord =wick]
       [%chorus-desk =meta:desk =wick]
       [%mcp-tool =meta:tool:mcp =wick]
@@ -206,5 +216,6 @@
       [%mcp-resource-listed =meta:resource:mcp wire=@t]
       [%mcp-resource-template-listed =meta:template:resource:mcp wire=@t]
       [%agent-skill-listed =meta:skill wire=@t]
+      [%chorus-slip =path =slip wire=@t]
   ==
 --
