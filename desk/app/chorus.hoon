@@ -1,7 +1,7 @@
 ::
 ::  chorus: peer-to-peer multiplayer agent harness
 /-  mcp, *wick, chorus
-/+  dbug, verb, cho=chorus, default-agent, gossip, *wick
+/+  dbug, verb, cho=chorus, default-agent, gossip, slp=slip, *wick
 ::
 |%
 +$  card  card:agent:gall
@@ -194,6 +194,36 @@
       lis
     =/  =nym  (slav %t i:((lest knot) who.pole))
     (skim lis |=(lit=listing:skill:chorus =(nym nym.id.wick.lit)))
+  ::
+  ::  .^([slip wick] %gx /=/chorus/=/cabinet/slip/notes/foo/noun)
+      [%x %cabinet %slip pax=*]
+    =/  lef  (~(get of cabinet) ;;(path pax.pole))
+    ?~  lef
+      [~ ~]
+    ``chorus-slip+!>(u.lef)
+  ::
+  ::  .^(cabinet %gx /=/chorus/=/cabinet/drawer/noun)
+  ::  .^(cabinet %gx /=/chorus/=/cabinet/drawer/notes/noun)
+      [%x %cabinet %drawer pax=*]
+    ``chorus-cabinet+!>((~(dip of cabinet) ;;(path pax.pole)))
+  ::
+  ::  the same tree with every body blanked, for listing
+  ::  .^(cabinet %gx /=/chorus/=/cabinet/paths/noun)
+      [%x %cabinet %paths pax=*]
+    :^    ~
+        ~
+      %chorus-cabinet
+    !>  ^-  cabinet:chorus
+    =/  fat  (~(dip of cabinet) ;;(path pax.pole))
+    |-
+    ^-  cabinet:chorus
+    :-  ?~(fil.fat ~ `u.fil.fat(txt.slip ''))
+    (~(run by dir.fat) |=(kid=cabinet:chorus ^$(fat kid)))
+  ::
+  ::  every bulla heard after a time, as updates
+  ::  .^((list update) %gx /=/chorus/=/since/(scot %da wen)/noun)
+      [%x %since wen=@ta ~]
+    ``chorus-updates+!>((since:cho state (slav %da wen.pole)))
   ==
 ::
 ++  on-watch
@@ -201,6 +231,14 @@
   ^-  (quip card _this)
   ?+  pole
     (on-watch:def pole)
+  ::
+  ::  every slip that lands in the cabinet
+      [%cabinet ~]
+    `this
+  ::
+  ::  slips that land in the cabinet except ours
+      [%heard ~]
+    `this
   ::
   ::  replay heard bullas to new subscribers
   ::  XX need to not leak state to subscribers that's
@@ -232,7 +270,7 @@
           (sign-bulla:cho our.bowl now.bowl [%chorus-bio bio.body.act wick])
         :_  %=  this
               rolodex  (~(put by rolodex) our.bowl [bio.body.act wick])
-              sigs     (~(put by sigs) wick [ship sig]:bulla)
+              sigs     (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
             ==
         :-  [%pass ~ %grow (snoc /bio (scot %da now.bowl)) txt+bio.body.act]
         ?:  =(`~ crowd.act)
@@ -255,7 +293,7 @@
                              :-  our.bowl
                              %-  ~(put in (~(gut by announcements) our.bowl ~))
                              [now.bowl announcement.body.act wick]
-              sigs           (~(put by sigs) wick [ship sig]:bulla)
+              sigs           (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
             ==
         :-  :*  %pass  ~  %grow
                 (snoc /announcements (scot %da now.bowl))
@@ -282,7 +320,7 @@
                      :-  our.bowl
                      %-  ~(put in (~(gut by desks) our.bowl ~))
                      [desk.body.act desc.body.act wick]
-              sigs   (~(put by sigs) wick [ship sig]:bulla)
+              sigs   (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
             ==
         ?:  =(`~ crowd.act)
           ~
@@ -313,7 +351,7 @@
                              parameters.tool
                              required.tool
                          ==
-              sigs       (~(put by sigs) wick [ship sig]:bulla)
+              sigs       (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
             ==
         ?:  =(`~ crowd.act)
           ~
@@ -344,7 +382,7 @@
                                desc.prompt
                                arguments.prompt
                            ==
-              sigs         (~(put by sigs) wick [ship sig]:bulla)
+              sigs         (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
             ==
         ?:  =(`~ crowd.act)
           ~
@@ -375,7 +413,7 @@
                                  title.resource
                                  desc.resource
                              ==
-              sigs           (~(put by sigs) wick [ship sig]:bulla)
+              sigs           (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
             ==
         ?:  =(`~ crowd.act)
           ~
@@ -408,7 +446,7 @@
                   title.template
                   desc.template
               ==
-              sigs  (~(put by sigs) wick [ship sig]:bulla)
+              sigs  (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
             ==
         ?:  =(`~ crowd.act)
           ~
@@ -440,9 +478,39 @@
                       :-  our.bowl
                       %-  ~(put in (~(gut by skills) our.bowl ~))
                       [meta wick]
-              sigs    (~(put by sigs) wick [ship sig]:bulla)
+              sigs    (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
             ==
         :-  [%pass ~ %grow /skills/[nam] chorus-skill+skill.body.act]
+        ?:  =(`~ crowd.act)
+          ~
+        :_  ~
+        %^    confect:gossip
+            [`%2 crowd.act ~]
+          %chorus-bulla
+        !>(bulla)
+      ::
+          %slip
+        =*  pax  path.body.act
+        =/  err  (vet-slip:slp our.bowl pax txt.slip.body.act)
+        ?^  err
+          ~|  "{<dap.bowl>}: {(trip u.err)}"
+          !!
+        =/  =slip:chorus  [our.bowl now.bowl txt.slip.body.act]
+        =/  rev=@ud  (next-grow-rev:cho our.bowl now.bowl [%cabinet pax])
+        =/  =wick  %^    make-grow-wick-at:cho
+                       our.bowl
+                     now.bowl
+                   [rev [%cabinet pax] md+txt.slip]
+        =/  =bulla:chorus
+          (sign-bulla:cho our.bowl now.bowl [%chorus-slip slip wick])
+        :_  %=  this
+              cabinet  (~(put of cabinet) pax [slip wick])
+              sigs     (~(put by sigs) wick [ship.bulla sig.bulla now.bowl])
+            ==
+        :+  [%pass ~ %grow [%cabinet pax] md+txt.slip]
+          :*  %give  %fact  ~[/cabinet]  %chorus-update
+              !>(`update:chorus`[%chorus-slip pax slip (wick-to-wire wick)])
+          ==
         ?:  =(`~ crowd.act)
           ~
         :_  ~
@@ -465,6 +533,9 @@
           mcp-resources           (~(del by mcp-resources) target.act)
           mcp-resource-templates  (~(del by mcp-resource-templates) target.act)
           skills                  (~(del by skills) target.act)
+          cabinet                 %-  ~(gas of *cabinet:chorus)
+                                  %+  skip  ~(tap of cabinet)
+                                  |=([* =slip:chorus *] =(target.act ship.slip))
           sigs                    %-  malt
                                   %+  skip
                                     ~(tap by sigs)
@@ -472,17 +543,7 @@
                                   =(target.act ship.id.wick)
         ==
       ::  remove wick from state
-      %=  this
-        state  %.  [state wick.target.act]
-               |=  [sat=state-0:chorus =wick]
-               ^-  state-0:chorus
-               %+  roll
-                 %+  skip
-                   (sing:cho sat)
-                 |=(=bulla:chorus =(wick wick.msg.bulla))
-               |=  [=bulla:chorus acc=state-0:chorus]
-               (hear:cho acc bulla)
-      ==
+      this(state (forget:cho state wick.target.act))
     ==
   ==
 ::
@@ -504,19 +565,23 @@
   ?.  (verify-bulla:cho bowl bulla)
     %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping unverified bulla from {<ship.bulla>}"]))
     `this
-  =/  pre=path
-    =/  who=@ta  (scot %p ship.bulla)
+  ::
+  ::  the wick must point at the sender's own namespace, and
+  ::  at the path shape this kind of missive grows or serves
+  =/  who=@ta  (scot %p ship.bulla)
+  =/  fit=?
     ?-  -.msg.bulla
-      %chorus-announcement    /fine/[who]/g/x/1/chorus//1/announcements
-      %chorus-bio             /fine/[who]/g/x/1/chorus//1/bio
-      %chorus-desk            /fine/[who]/c/z
-      %mcp-prompt             /fine/[who]/c/x
-      %mcp-resource           /fine/[who]/c/x
-      %mcp-resource-template  /fine/[who]/c/x
-      %mcp-tool               /fine/[who]/c/x
-      %agent-skill            /fine/[who]/g/x/1/chorus//1/skills
+      %chorus-announcement    ?=([%fine @ %g %x @ %chorus %$ @ %announcements *] path.wick)
+      %chorus-bio             ?=([%fine @ %g %x @ %chorus %$ @ %bio *] path.wick)
+      %chorus-desk            ?=([%fine @ %c %z *] path.wick)
+      %mcp-prompt             ?=([%fine @ %c %x *] path.wick)
+      %mcp-resource           ?=([%fine @ %c %x *] path.wick)
+      %mcp-resource-template  ?=([%fine @ %c %x *] path.wick)
+      %mcp-tool               ?=([%fine @ %c %x *] path.wick)
+      %agent-skill            ?=([%fine @ %g %x @ %chorus %$ @ %skills *] path.wick)
+      %chorus-slip            ?=([%fine @ %g %x @ %chorus %$ @ %cabinet *] path.wick)
     ==
-  ?.  =(pre (scag (lent pre) path.wick))
+  ?.  &(fit ?=([@ @ *] path.wick) =(who (snag 1 `path`path.wick)))
     %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping bulla with invalid path prefix"]))
     `this
   ::
@@ -528,9 +593,44 @@
   ?^  bad
     %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping invalid skill from {<ship.bulla>}: {(trip u.bad)}"]))
     `this
+  ::
+  ::  a slip travels whole, so we can rebuild the sage its
+  ::  wick signed and check it on the spot; the fqsp must
+  ::  name the sender, and so must the slip
+  ?:  ?=(%chorus-slip -.msg.bulla)
+    =*  slip  slip.msg.bulla
+    =/  fin  (wick-fqsp:slp path.wick)
+    ?.  &(?=(^ fin) =(ship.bulla host.u.fin) =(ship.bulla ship.slip))
+      %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping slip from {<ship.bulla>} that names another ship"]))
+      `this
+    =/  bad=(unit @t)  (vet-slip:slp ship.bulla pax.u.fin txt.slip)
+    ?^  bad
+      %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping invalid slip from {<ship.bulla>}: {(trip u.bad)}"]))
+      `this
+    =/  key=(unit (unit [crypto-suite=@ud =pass]))
+      %-  mole
+      |.
+      .^  (unit [crypto-suite=@ud =pass])
+          %j
+          /(scot %p our.bowl)/puby/(scot %da now.bowl)/(scot %p ship.bulla)/(scot %ud rot.wick)
+      ==
+    ?:  |(?=(~ key) ?=(~ u.key))
+      %-  (slog :_(~ [%leaf "{<dap.bowl>}: could not check slip from {<ship.bulla>}"]))
+      `this
+    =/  octs  (fine-octs [[ship.bulla (slag 2 `path`path.wick)] md+txt.slip])
+    ?.  (verify-wick wick `pass.u.u.key `octs)
+      %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping slip that {<ship.bulla>} did not sign"]))
+      `this
+    =/  new  (hear:cho state our.bowl now.bowl bulla)
+    ?:  =(cabinet cabinet.new)
+      `this
+    =/  =update:chorus
+      [%chorus-slip (need (slip-path:cho new wick)) slip (wick-to-wire wick)]
+    :_  this(state new)
+    [%give %fact ~[/cabinet /heard] %chorus-update !>(update)]~
   ?.  flag.wick
     ::  don't verify contentful wicks right away
-    `this(state (hear:cho state bulla))
+    `this(state (hear:cho state our.bowl now.bowl bulla))
   ::  a path-only wick signed its path alone, so jael settles
   ::  it right here; a key we cannot find leaves the wick
   ::  unverified, not caught out
@@ -543,11 +643,11 @@
     ==
   ?:  |(?=(~ key) ?=(~ u.key))
     %-  (slog :_(~ [%leaf "{<dap.bowl>}: could not check wick from {<ship.bulla>}"]))
-    `this(state (hear:cho state bulla))
+    `this(state (hear:cho state our.bowl now.bowl bulla))
   ?.  (verify-wick wick `pass.u.u.key ~)
     %-  (slog :_(~ [%leaf "{<dap.bowl>}: dropping wick that {<ship.bulla>} did not sign"]))
     `this
-  `this(state (hear:cho state bulla))
+  `this(state (hear:cho state our.bowl now.bowl bulla))
 ::
 ++  on-arvo  on-arvo:def
 --

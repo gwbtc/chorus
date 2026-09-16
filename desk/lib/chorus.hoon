@@ -1,5 +1,5 @@
 /-  mcp, chorus, *wick
-/+  *wick, md=markdown
+/+  *wick, md=markdown, slp=slip
 |%
 ::
 ::  strip leading whitespace from a tape
@@ -216,6 +216,11 @@
         |=  lit=listing:skill:chorus
         ^-  missive:chorus
         [%agent-skill meta.lit wick.lit]
+      ::
+        %+  turn  ~(tap of cabinet.sat)
+        |=  [* =slip:chorus =wick]
+        ^-  missive:chorus
+        [%chorus-slip slip wick]
     ==
   |=  msg=missive:chorus
   ^-  (unit bulla:chorus)
@@ -224,15 +229,49 @@
     ~
   `[%chorus-bulla ship.u.gis sig.u.gis msg]
 ::
+::  replay effects since .when
+++  since
+  |=  [sat=state-0:chorus when=@da]
+  ^-  (list update:chorus)
+  %-  turn
+  :_  |=([* =update:chorus] update)
+  %-  sort
+  :_  |=([a=[=time *] b=[=time *]] (lth time.a time.b))
+  ^-  (list [=time =update:chorus])
+  %+  murn
+    (sing sat)
+  |=  =bulla:chorus
+  ^-  (unit [=time =update:chorus])
+  =*  msg  msg.bulla
+  =/  gis  (~(get by sigs.sat) wick.msg)
+  ?~  gis
+    ~
+  ?.  (gth when.u.gis when)
+    ~
+  :-  ~
+  :-  when.u.gis
+  =/  wire=@t  (wick-to-wire wick.msg)
+  ?-  -.msg
+    %chorus-bio             [%chorus-bio-updated txt.msg wire]
+    %chorus-announcement    [%chorus-announcement (slav %da (rear path.wick.msg)) txt.msg wire]
+    %chorus-desk            [%chorus-desk-published desk.meta.msg desc.meta.msg wire]
+    %mcp-tool               [%mcp-tool-listed meta.msg wire]
+    %mcp-prompt             [%mcp-prompt-listed meta.msg wire]
+    %mcp-resource           [%mcp-resource-listed meta.msg wire]
+    %mcp-resource-template  [%mcp-resource-template-listed meta.msg wire]
+    %agent-skill            [%agent-skill-listed meta.msg wire]
+    %chorus-slip            [%chorus-slip pax:(need (wick-fqsp:slp path.wick.msg)) slip.msg wire]
+  ==
+::
 ::  fold a heard bulla into state,
 ::  keyed to the ship that signed the wick
 ++  hear
-  |=  [sat=state-0:chorus =bulla:chorus]
+  |=  [sat=state-0:chorus our=ship now=@da =bulla:chorus]
   ^-  state-0:chorus
   =/  msg  msg.bulla
   =/  =wick  wick.msg
   =*  who  ship.id.wick
-  =.  sigs.sat  (~(put by sigs.sat) wick [ship.bulla sig.bulla])
+  =.  sigs.sat  (~(put by sigs.sat) wick [ship.bulla sig.bulla now])
   ?-    -.msg
       %chorus-bio
     sat(rolodex (~(put by rolodex.sat) who [txt.msg wick]))
@@ -295,6 +334,110 @@
               %-  ~(put in (~(gut by skills.sat) who ~))
               [meta.msg wick]
     ==
+  ::
+  ::  a heard slip lands at the cabinet path its fqsp names,
+  ::  the same tree path its author keeps it at. only its
+  ::  author replaces it, at a newer revision. two heard
+  ::  authors at one path split it: each lands under the
+  ::  path at a segment naming their ship, /foo/bar/~sampel
+  ::  and /foo/bar/~palnet, and later arrivals at a split
+  ::  path do the same. our own slip at a path stays put
+      %chorus-slip
+    =/  fin  (need (wick-fqsp:slp path.wick))
+    =/  spot=path  (snoc pax.fin (scot %p ship.bulla))
+    =/  old=(unit [=slip:chorus w=^wick])  (~(get of cabinet.sat) pax.fin)
+    =/  own=(unit [=slip:chorus w=^wick])  (~(get of cabinet.sat) spot)
+    =/  split=?
+      %+  lien  ~(tap in ~(key by dir:(~(dip of cabinet.sat) pax.fin)))
+      |=(seg=@ta =('~' (end 3 seg)))
+    ::  where this author's slip at this path lives,
+    ::  and what we hold there now
+    =/  [at=path cur=(unit [=slip:chorus w=^wick])]
+      ?^  own  [spot own]
+      ?~  old  ?:(split [spot ~] [pax.fin ~])
+      ?:  =(ship.bulla ship.slip.u.old)  [pax.fin old]
+      [spot ~]
+    ?:  &(?=(^ cur) =(wick w.u.cur))
+      sat
+    ?:  ?&  ?=(^ cur)
+            =/  fon  (wick-fqsp:slp path.w.u.cur)
+            &(?=(^ fon) (gte rev.u.fon rev.fin))
+        ==
+      sat(sigs (~(del by sigs.sat) wick))
+    =?  sigs.sat  ?=(^ cur)  (~(del by sigs.sat) w.u.cur)
+    ::  another heard author at the bare path moves under
+    ::  their own ship as this one lands under theirs
+    =?    cabinet.sat
+        ?&  ?=(^ old)
+            !=(our ship.slip.u.old)
+            !=(ship.bulla ship.slip.u.old)
+        ==
+      %+  ~(put of (~(del of cabinet.sat) pax.fin))
+        (snoc pax.fin (scot %p ship.slip.u.old))
+      u.old
+    sat(cabinet (~(put of cabinet.sat) at [slip.msg wick]))
+  ==
+::
+::  where the slip signed by .wick sits in our tree
+++  slip-path
+  |=  [sat=state-0:chorus =wick]
+  ^-  (unit path)
+  =/  hit  (skim ~(tap of cabinet.sat) |=([* * w=^wick] =(wick w)))
+  ?~  hit  ~
+  `-.i.hit
+::
+::  drop one wick, and whatever it signed, from state
+++  forget
+  |=  [sat=state-0:chorus =wick]
+  ^-  state-0:chorus
+  =*  who  ship.id.wick
+  %=    sat
+      sigs  (~(del by sigs.sat) wick)
+      rolodex
+    =/  lit  (~(get by rolodex.sat) who)
+    ?:  &(?=(^ lit) =(wick wick.u.lit))
+      (~(del by rolodex.sat) who)
+    rolodex.sat
+  ::
+      announcements
+    %-  ~(run by announcements.sat)
+    |=  liz=(set listing:announcement:chorus)
+    (silt (skip ~(tap in liz) |=(lit=listing:announcement:chorus =(wick wick.lit))))
+  ::
+      desks
+    %-  ~(run by desks.sat)
+    |=  liz=(set listing:desk:chorus)
+    (silt (skip ~(tap in liz) |=(lit=listing:desk:chorus =(wick wick.lit))))
+  ::
+      mcp-tools
+    %-  ~(run by mcp-tools.sat)
+    |=  liz=(set listing:tool:mcp:chorus)
+    (silt (skip ~(tap in liz) |=(lit=listing:tool:mcp:chorus =(wick wick.lit))))
+  ::
+      mcp-prompts
+    %-  ~(run by mcp-prompts.sat)
+    |=  liz=(set listing:prompt:mcp:chorus)
+    (silt (skip ~(tap in liz) |=(lit=listing:prompt:mcp:chorus =(wick wick.lit))))
+  ::
+      mcp-resources
+    %-  ~(run by mcp-resources.sat)
+    |=  liz=(set listing:resource:mcp:chorus)
+    (silt (skip ~(tap in liz) |=(lit=listing:resource:mcp:chorus =(wick wick.lit))))
+  ::
+      mcp-resource-templates
+    %-  ~(run by mcp-resource-templates.sat)
+    |=  liz=(set listing:template:resource:mcp:chorus)
+    (silt (skip ~(tap in liz) |=(lit=listing:template:resource:mcp:chorus =(wick wick.lit))))
+  ::
+      skills
+    %-  ~(run by skills.sat)
+    |=  liz=(set listing:skill:chorus)
+    (silt (skip ~(tap in liz) |=(lit=listing:skill:chorus =(wick wick.lit))))
+  ::
+      cabinet
+    %-  ~(gas of *cabinet:chorus)
+    %+  skip  ~(tap of cabinet.sat)
+    |=([* * w=^wick] =(wick w))
   ==
 ::
 ++  feed-to-seed
@@ -350,27 +493,31 @@
     ::  %txt pages under every other grow path
     ?:  ?=([@ @ @ @ @ @ %skills *] rest)
       [%chorus-skill u.nun]
+    ?:  ?=([@ @ @ @ @ @ %cabinet *] rest)
+      [%md u.nun]
     [%txt u.nun]
   ==
 ::
 ::  the revision the next %grow at this path will land at:
-::  one past the latest revision gall's %w care reports
-::  XX after a nuke gall keeps a revision floor that %gw
-::     does not report, so the first regrow of a tombstoned
-::     path signs the wrong revision
+::  one past the latest revision gall's %w care reports, or
+::  1 for a path never grown. a %w scry on a path gall has
+::  not grown blocks rather than failing, and +mole forwards
+::  the block, so ask the %t care whether the path exists
+::  before asking %w for its revision
 ++  next-grow-rev
   |=  [our=ship now=@da seg=path]
   ^-  @ud
-  =/  las=(unit case)
-    %-  mole
-    |.
-    .^  case
-        %gw
-        (welp /(scot %p our)/chorus/(scot %da now)//1 seg)
-    ==
-  ?.  ?=([~ %ud @] las)
+  ?~  seg
     1
-  +(p.u.las)
+  =/  bek=path  /(scot %p our)/chorus/(scot %da now)//1
+  =/  grown=(list path)
+    .^((list path) %gt (welp bek (snip `path`seg)))
+  ?.  (lien grown |=(pax=path =(pax seg)))
+    1
+  =/  las  .^(case %gw (welp bek seg))
+  ?.  ?=(%ud -.las)
+    1
+  +(p.las)
 ::
 ::  sign a contentful wick over a grow path as given, with
 ::  no date appended, at the revision the grow will land
@@ -498,4 +645,124 @@
     %-  (slog [leaf+"chorus: the wick from {who} carries the wrong nym"]~)
     |
   &
+::
+::  an update as json, shared by the update and updates marks
+++  enjs-update
+  |=  val=update:chorus
+  ^-  json
+  ?-  -.val
+      %chorus-bio-updated
+    %-  pairs:enjs:format
+    :~  ['type' s+'chorus-bio-updated']
+        ['wire' s+wire.val]
+        ['bio' s+txt.val]
+    ==
+  ::
+      %chorus-announcement
+    %-  pairs:enjs:format
+    :~  ['type' s+'chorus-announcement']
+        ['wire' s+wire.val]
+        ['time' s+(scot %da time.val)]
+        ['text' s+txt.val]
+    ==
+  ::
+      %chorus-desk-published
+    %-  pairs:enjs:format
+    :~  ['type' s+'chorus-desk-published']
+        ['wire' s+wire.val]
+        ['desk' s+desk.val]
+        ['desc' s+desc.val]
+    ==
+  ::
+      %mcp-tool-listed
+    =/  t  meta.val
+    %-  pairs:enjs:format
+    :~  ['type' s+'mcp-tool-listed']
+        ['wire' s+wire.val]
+        ['name' s+name.t]
+        ['description' s+desc.t]
+        :-  'inputSchema'
+        %-  pairs:enjs:format
+        :~  ['type' s+'object']
+            :-  'properties'
+            :-  %o
+            %-  ~(gas by *(map @t ^json))
+            %+  turn  ~(tap by parameters.t)
+            |=  [pname=@t =def:parameter:tool:mcp]
+            :-  pname
+            %-  pairs:enjs:format
+            :~  ['type' s+type.def]
+                ['description' s+desc.def]
+            ==
+            ['required' a+(turn required.t |=(r=@t s+r))]
+        ==
+    ==
+  ::
+      %mcp-prompt-listed
+    =/  p  meta.val
+    %-  pairs:enjs:format
+    :~  ['type' s+'mcp-prompt-listed']
+        ['wire' s+wire.val]
+        ['name' s+name.p]
+        ['title' s+title.p]
+        ['description' s+desc.p]
+        :-  'arguments'
+        :-  %a
+        %+  turn
+          arguments.p
+        |=  arg=argument:prompt:mcp
+        %-  pairs:enjs:format
+        :~  ['name' s+name.arg]
+            ['description' s+desc.arg]
+            ['required' b+required.arg]
+        ==
+    ==
+  ::
+      %mcp-resource-listed
+    =/  r  meta.val
+    %-  pairs:enjs:format
+    :~  ['type' s+'mcp-resource-listed']
+        ['wire' s+wire.val]
+        ['uri' s+uri.r]
+        ['name' s+name.r]
+        :-  'title'
+        ?~  title.r  ~  s+u.title.r
+        :-  'description'
+        ?~  desc.r  ~  s+u.desc.r
+    ==
+  ::
+      %mcp-resource-template-listed
+    =/  r  meta.val
+    %-  pairs:enjs:format
+    :~  ['type' s+'mcp-resource-template-listed']
+        ['wire' s+wire.val]
+        ['uriTemplate' s+uri-template.r]
+        ['name' s+name.r]
+        :-  'title'
+        ?~  title.r  ~  s+u.title.r
+        :-  'description'
+        ?~  desc.r  ~  s+u.desc.r
+    ==
+  ::
+      %agent-skill-listed
+    =/  s  meta.val
+    %-  pairs:enjs:format
+    :~  ['type' s+'agent-skill-listed']
+        ['wire' s+wire.val]
+        ['name' s+name.s]
+        ['description' s+description.s]
+        ['compatibility' s+compatibility.s]
+    ==
+  ::
+      %chorus-slip
+    %-  pairs:enjs:format
+    :~  ['type' s+'chorus-slip']
+        ['wire' s+wire.val]
+        ['path' s+(spat path.val)]
+        ['author' s+(scot %p ship.slip.val)]
+        ['created' s+(scot %da time.slip.val)]
+        ['links' a+(turn (links:slp txt.slip.val) |=(l=@t s+l))]
+        ['text' s+txt.slip.val]
+    ==
+  ==
 --

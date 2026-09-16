@@ -57,6 +57,7 @@ const dependencies = [_]RepoImport{
         .local = "../urbit",
         .prefix = "pkg/base-dev",
         .paths = &.{
+            "lib/cram.hoon",
             "lib/dbug.hoon",
             "lib/default-agent.hoon",
             "lib/skeleton.hoon",
@@ -72,6 +73,8 @@ const dependencies = [_]RepoImport{
             "mar/thread-done.hoon",
             "mar/thread-fail.hoon",
             "mar/txt.hoon",
+            "mar/udon.hoon",
+            "mar/xml.hoon",
             "sur/spider.hoon",
             "sur/verb.hoon",
         },
