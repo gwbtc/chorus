@@ -840,10 +840,21 @@
     :~  ['type' s+'chorus-slip']
         ['wire' s+wire.val]
         ['path' s+(spat path.val)]
+        :-  'fqsp'
+        =/  wok  (mole |.((wire-to-wook wire.val)))
+        ?~  wok  ~
+        s+(spat (slag 1 `path`path.u.wok))
         ['author' s+(scot %p ship.slip.val)]
         ['created' s+(scot %da time.slip.val)]
         ['links' a+(turn (links:slp txt.slip.val) |=(l=@t s+l))]
         ['text' s+txt.slip.val]
+    ==
+  ::
+      %chorus-slip-discarded
+    %-  pairs:enjs:format
+    :~  ['type' s+'chorus-slip-discarded']
+        ['wire' s+wire.val]
+        ['path' s+(spat path.val)]
     ==
   ==
 --

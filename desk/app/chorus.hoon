@@ -401,7 +401,19 @@
       ==
     ::
         %delete
-      :-  ~
+      ::  every slip this takes out of the cabinet gives a
+      ::  discard fact, so clients can drop their copies
+      :-  %+  turn
+            %+  skim  ~(tap of cabinet)
+            |=  [* =slip:chorus =wick]
+            ?@  target.act
+              =(target.act ship.slip)
+            =(wick.target.act wick)
+          |=  [pax=path * =wick]
+          ^-  card
+          :*  %give  %fact  ~[/cabinet]  %chorus-update
+              !>(`update:chorus`[%chorus-slip-discarded pax (wick-to-wire wick)])
+          ==
       ?@  target.act
         ::  remove ship from state
         %=  this

@@ -20,7 +20,7 @@
   (rap 3 (reap n 'é'))
 ::
 ::  an unsigned wire over the fixture fqsp, under the same
-::  nym the wick tests use; only the path matters here
+::  nym the wick tests use; links must skip it
 ++  fixture-wire
   ^-  @t
   =/  =nym
@@ -96,8 +96,6 @@
     ==
   %+  expect-eq
     !>  ^-  (list @t)
-    :~  '/~sampel-palnet/g/x/3/chorus//1/cabinet/notes/foo'
-        fixture-wire
-    ==
+    ~['/~sampel-palnet/g/x/3/chorus//1/cabinet/notes/foo']
   !>  (links:slp txt)
 --

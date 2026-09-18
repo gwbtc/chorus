@@ -65,8 +65,7 @@
     `'path is too long'
   ~
 ::
-::  every [[...]] target in the text that names a slip:
-::  an fqsp, or a wire whose path is a /fine tag over one
+::  every [[...]] target in the text that is an fqsp
 ++  links
   |=  txt=@t
   ^-  (list @t)
@@ -82,10 +81,6 @@
     (flop out)
   =/  tar=@t  (crip (scag u.clo rest))
   =/  ok=?
-    ?:  =("wire://" (scag 7 (trip tar)))
-      =/  wok=(unit wook)  (mole |.((wire-to-wook tar)))
-      ?~  wok  |
-      ?=(^ (wick-fqsp path.u.wok))
     =/  pax=(unit path)  (rush tar stap)
     ?~  pax  |
     ?=(^ (parse-fqsp u.pax))

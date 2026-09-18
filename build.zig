@@ -103,6 +103,27 @@ const test_dependency_paths = [_][]const u8{
     "ted/aqua/eyre.hoon",
 };
 
+// the chorus claude code adapter ships inside the desk, one static
+// binary per target, at /fil/claude/chorus-<os>-<arch>/bin
+const sync_source = "sync/main.zig";
+const sync_desk_dir = "fil/claude";
+const sync_targets = [_]SyncTarget{
+    .{ .name = "chorus-darwin-arm64", .query = .{ .cpu_arch = .aarch64, .os_tag = .macos } },
+    .{ .name = "chorus-darwin-x86_64", .query = .{ .cpu_arch = .x86_64, .os_tag = .macos } },
+    .{ .name = "chorus-linux-arm64", .query = .{ .cpu_arch = .aarch64, .os_tag = .linux, .abi = .musl } },
+    .{ .name = "chorus-linux-x86_64", .query = .{ .cpu_arch = .x86_64, .os_tag = .linux, .abi = .musl } },
+};
+
+const SyncTarget = struct {
+    name: []const u8,
+    query: std.Target.Query,
+};
+
+const SyncBinary = struct {
+    name: []const u8,
+    path: std.Build.LazyPath,
+};
+
 const dependency_cache_dir = "desk-deps";
 const minimum_git_version = GitVersion{ .major = 2, .minor = 25, .patch = 0 };
 
@@ -125,6 +146,7 @@ const DeskStep = struct {
     copy_target: ?[]const u8,
     include_tests: bool,
     groundwire_path: []const u8,
+    sync_binaries: []const SyncBinary = &.{},
 
     fn create(b: *std.Build, name: []const u8, action: Action, copy_target: ?[]const u8, include_tests: bool, groundwire_path: []const u8) *DeskStep {
         const self = b.allocator.create(DeskStep) catch @panic("OOM");
@@ -150,7 +172,7 @@ const DeskStep = struct {
         const allocator = step.owner.allocator;
 
         switch (self.action) {
-            .build => try buildDesk(step, allocator, self.install_path, self.copy_target, self.include_tests, self.groundwire_path),
+            .build => try buildDesk(step, allocator, self.install_path, self.copy_target, self.include_tests, self.groundwire_path, self.sync_binaries),
             .clean => try clean(self.install_path),
             .clear => try clear(step),
         }
@@ -175,7 +197,17 @@ pub fn build(b: *std.Build) void {
     const groundwire_path = b.option([]const u8, "groundwire", "Path to the Groundwire Urbit checkout used by Aqua tests") orelse "../gw-urbit";
 
     const build_step = DeskStep.create(b, "build desk", .build, desk, include_tests, groundwire_path);
+    build_step.sync_binaries = addSyncBinaries(b, &build_step.step);
     b.default_step.dependOn(&build_step.step);
+
+    const sync_tests = b.addTest(.{
+        .root_module = b.createModule(.{
+            .root_source_file = b.path(sync_source),
+            .target = b.graph.host,
+        }),
+    });
+    const named_sync_test = b.step("test-sync", "Run the chorus adapter unit tests");
+    named_sync_test.dependOn(&b.addRunArtifact(sync_tests).step);
 
     const named_build = b.step("build", "Build install prefix from /desk and dependencies");
     named_build.dependOn(&build_step.step);
@@ -189,7 +221,28 @@ pub fn build(b: *std.Build) void {
     named_clear.dependOn(&clear_step.step);
 }
 
-fn buildDesk(step: *std.Build.Step, allocator: std.mem.Allocator, install_path: []const u8, copy_target: ?[]const u8, include_tests: bool, groundwire_path: []const u8) !void {
+// compile the adapter for every target the desk carries, small and
+// stripped since each binary lands in clay
+fn addSyncBinaries(b: *std.Build, desk_step: *std.Build.Step) []const SyncBinary {
+    const binaries = b.allocator.alloc(SyncBinary, sync_targets.len) catch @panic("OOM");
+    for (sync_targets, 0..) |target, i| {
+        const exe = b.addExecutable(.{
+            .name = target.name,
+            .root_module = b.createModule(.{
+                .root_source_file = b.path(sync_source),
+                .target = b.resolveTargetQuery(target.query),
+                .optimize = .ReleaseSmall,
+                .strip = true,
+            }),
+        });
+        const path = exe.getEmittedBin();
+        path.addStepDependencies(desk_step);
+        binaries[i] = .{ .name = target.name, .path = path };
+    }
+    return binaries;
+}
+
+fn buildDesk(step: *std.Build.Step, allocator: std.mem.Allocator, install_path: []const u8, copy_target: ?[]const u8, include_tests: bool, groundwire_path: []const u8, sync_binaries: []const SyncBinary) !void {
     try requireGitVersion(step);
 
     if (!pathExists("desk") and !pathExists("desk-dev")) {
@@ -227,6 +280,14 @@ fn buildDesk(step: *std.Build.Step, allocator: std.mem.Allocator, install_path: 
                 "failed to copy imported '{s}' from RepoImport '{s}' into install prefix: {s}",
                 .{ copy.import_path, copy.name, @errorName(err) },
             );
+        };
+    }
+
+    for (sync_binaries) |binary| {
+        const file_name = try std.fmt.allocPrint(allocator, "{s}.bin", .{binary.name});
+        const dest_path = try std.fs.path.join(allocator, &.{ install_path, sync_desk_dir, file_name });
+        copyFilePath(binary.path.getPath2(step.owner, step), dest_path) catch |err| {
+            return step.fail("failed to copy '{s}' into install prefix: {s}", .{ binary.name, @errorName(err) });
         };
     }
 

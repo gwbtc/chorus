@@ -217,5 +217,6 @@
       [%mcp-resource-template-listed =meta:template:resource:mcp wire=@t]
       [%agent-skill-listed =meta:skill wire=@t]
       [%chorus-slip =path =slip wire=@t]
+      [%chorus-slip-discarded =path wire=@t]
   ==
 --
