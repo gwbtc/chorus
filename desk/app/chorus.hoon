@@ -207,6 +207,11 @@
     =/  =nym  (slav %t i:((lest knot) who.pole))
     (skim lis |=(lit=listing:skill:chorus =(nym nym.id.wick.lit)))
   ::
+  ::  the nym to credit a ship with; see +author-nym
+  ::  .^(json %gx /=/chorus/=/nym/(scot %p who)/json)
+      [%x %nym who=@ ~]
+    ``json+!>(`json`s+(author-nym:cho bowl (slav %p who.pole)))
+  ::
   ::  .^([slip wick] %gx /=/chorus/=/cabinet/slip/notes/foo/noun)
       [%x %cabinet %slip pax=*]
     =/  lef  (~(get of cabinet) ;;(path pax.pole))

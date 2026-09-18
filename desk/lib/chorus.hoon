@@ -727,6 +727,21 @@
     |
   &
 ::
+::  the nym we credit a ship's words to: one-dot if the ship
+::  exists under the %gw-btc domain, two-dot if not. only comets
+::  have nyms, so any other ship takes the nym of its cometized
+::  form, as in +verify-bulla
+++  author-nym
+  |=  [=bowl:gall who=ship]
+  ^-  nym
+  =/  paw=@pH
+    ?:  =(%pawn (clan:title who))
+      who
+    (come:mu bowl who)
+  ?:  (veri:mu bowl %gw-btc who)
+    (de:ship:me paw)
+  (de:ship:mu paw)
+::
 ::  an update as json, shared by the update and updates marks
 ++  enjs-update
   |=  val=update:chorus

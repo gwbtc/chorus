@@ -8,6 +8,9 @@ const Slip = @import("ship.zig").Slip;
 
 pub const Entry = struct {
     slip: Slip,
+    // the author's groundwire id, which is how we name them. the @p in
+    // .slip.author stays for trust and for links
+    nym: []const u8,
 };
 
 pub const folder = "chorus";
@@ -47,7 +50,7 @@ pub fn apply(
             .rel = rel,
             // a slip we did not write is named for its author, so the
             // index says whose words these are
-            .author = if (std.mem.eql(u8, entry.slip.author, our)) null else entry.slip.author,
+            .author = if (std.mem.eql(u8, entry.slip.author, our)) null else entry.nym,
             .description = description,
         });
     }
@@ -95,10 +98,9 @@ fn render(arena: std.mem.Allocator, entry: Entry, description: []const u8, body:
         \\description: "{s}"
         \\metadata:
         \\  type: {s}
-        \\  cabinet: {s}
-        \\  wire: {s}
         \\  author: {s}
         \\  created: {s}
+        \\  fqsp: {s}
         \\---
         \\
         \\{s}
@@ -107,10 +109,9 @@ fn render(arena: std.mem.Allocator, entry: Entry, description: []const u8, body:
         try nameOf(arena, slip.path),
         try yamlEscape(arena, description),
         memory_type,
-        slip.fqsp,
-        slip.wire,
-        slip.author,
+        entry.nym,
         slip.created,
+        slip.fqsp,
         std.mem.trimRight(u8, body, "\n"),
     });
 }
@@ -124,8 +125,9 @@ fn yamlEscape(arena: std.mem.Allocator, text: []const u8) ![]const u8 {
     return out.items;
 }
 
-// the first line of the body with its markup stripped, cut at 150
-// characters
+// the first sentence of the body's first line with its markup
+// stripped: it ends before the first full stop or semicolon. a line
+// that runs past 150 characters without one ends at a word instead
 pub fn describe(arena: std.mem.Allocator, text: []const u8) ![]const u8 {
     var it = std.mem.splitScalar(u8, text, '\n');
     const first = while (it.next()) |line| {
@@ -147,16 +149,32 @@ pub fn describe(arena: std.mem.Allocator, text: []const u8) ![]const u8 {
             else => |c| try out.append(arena, c),
         }
     }
+    const sentence = out.items[0..sentenceEnd(out.items)];
 
     var chars: usize = 0;
     var end: usize = 0;
-    var view = std.unicode.Utf8View.initUnchecked(out.items).iterator();
+    var word: usize = 0;
+    var view = std.unicode.Utf8View.initUnchecked(sentence).iterator();
     while (view.nextCodepointSlice()) |cp| {
-        if (chars == max_description_chars) break;
+        if (chars == max_description_chars) {
+            return std.mem.trimRight(u8, sentence[0..if (word > 0) word else end], " ,:");
+        }
+        if (cp[0] == ' ') word = end;
         chars += 1;
         end += cp.len;
     }
-    return out.items[0..end];
+    return sentence;
+}
+
+// where the first sentence stops: at a semicolon, or at a full stop
+// that ends a word. the dot in aqua-notes.md or 2.048 is no full stop
+fn sentenceEnd(line: []const u8) usize {
+    for (line, 0..) |c, i| {
+        if (c == ';') return i;
+        if (c != '.') continue;
+        if (i + 1 == line.len or line[i + 1] == ' ') return i;
+    }
+    return line.len;
 }
 
 // a wikilink to another synced slip becomes [[<name>]], the way claude
@@ -272,7 +290,7 @@ fn reconcile(
         const path = slipPath(rel) orelse continue;
         if (old) |bytes| {
             // a file rewritten for its links alone is not news
-            if (std.mem.eql(u8, wireLine(bytes), wireLine(file.value_ptr.*))) continue;
+            if (std.mem.eql(u8, fqspLine(bytes), fqspLine(file.value_ptr.*))) continue;
             try out.print("chorus: {s} updated\n", .{path});
         } else {
             try out.print("chorus: {s} added\n", .{path});
@@ -308,10 +326,10 @@ fn reconcile(
     }
 }
 
-// the frontmatter line naming the wire, which changes with every
-// revision of a slip
-fn wireLine(file: []const u8) []const u8 {
-    const key = "\n  wire: ";
+// the frontmatter line naming the fqsp, which holds the revision and
+// so changes with every revision of a slip
+fn fqspLine(file: []const u8) []const u8 {
+    const key = "\n  fqsp: ";
     const start = std.mem.indexOf(u8, file, key) orelse return "";
     const end = std.mem.indexOfScalarPos(u8, file, start + 1, '\n') orelse file.len;
     return file[start + 1 .. end];
@@ -379,12 +397,11 @@ pub fn mergeIndex(arena: std.mem.Allocator, old: []const u8, section: []const u8
 const testing = std.testing;
 
 fn testEntry(path: []const u8, author: []const u8, text: []const u8) Entry {
-    return .{ .slip = .{
+    return .{ .nym = "..abet.baboon", .slip = .{
         .path = path,
         .author = author,
         .created = "~2026.9.17",
         .fqsp = "",
-        .wire = "",
         .text = text,
     } };
 }
@@ -395,14 +412,40 @@ test "names join the cabinet path with dots" {
     try testing.expectEqualStrings("projects.chorus.foo", try nameOf(arena.allocator(), "/projects/chorus/foo"));
 }
 
-test "descriptions strip markup and stop at 150 characters" {
+test "descriptions strip markup and stop at the first sentence" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const a = arena.allocator();
     try testing.expectEqualStrings("Bullas carry two signatures", try describe(a, "\n# Bullas carry *two* `signatures`\nmore"));
     try testing.expectEqualStrings("see the docs now", try describe(a, "- see [the docs](https://example.com) now"));
+    try testing.expectEqualStrings("Tests are green", try describe(a, "Tests are green; the old thread is gone."));
+    try testing.expectEqualStrings("Read aqua-notes.md first", try describe(a, "Read `aqua-notes.md` first. Then the slips."));
+    try testing.expectEqualStrings("no stop here", try describe(a, "no stop here"));
     const long = try describe(a, "é" ** 200);
     try testing.expectEqual(@as(usize, 300), long.len);
+    const words = try describe(a, "word " ** 40);
+    try testing.expectEqualStrings("word " ** 29 ++ "word", words);
+}
+
+test "frontmatter runs type, author, created, fqsp and names no wire" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    var entry = testEntry("/notes/bar", "~zod", "");
+    entry.slip.fqsp = "/~zod/g/x/1/chorus//1/cabinet/notes/bar";
+    try testing.expectEqualStrings(
+        \\---
+        \\name: notes.bar
+        \\description: "a note"
+        \\metadata:
+        \\  type: reference
+        \\  author: ..abet.baboon
+        \\  created: ~2026.9.17
+        \\  fqsp: /~zod/g/x/1/chorus//1/cabinet/notes/bar
+        \\---
+        \\
+        \\body
+        \\
+    , try render(arena.allocator(), entry, "a note", "body\n"));
 }
 
 test "links to synced slips take memory names; others stay" {
@@ -436,13 +479,13 @@ test "index lines name the author of a slip we did not write" {
     const a = arena.allocator();
     const lines = [_]IndexLine{
         .{ .path = "/notes/bar", .rel = "chorus/notes/bar.md", .author = null, .description = "ours" },
-        .{ .path = "/notes/baz", .rel = "chorus/notes/baz.md", .author = "~sampel", .description = "theirs" },
+        .{ .path = "/notes/baz", .rel = "chorus/notes/baz.md", .author = ".abet.baboon", .description = "theirs" },
     };
     const section = try indexSection(a, &lines, &.{"/notes"}, undefined);
     try testing.expectEqualStrings(
         heading ++ "\n\n" ++ note ++ "\n\n" ++
             "- [notes.bar](chorus/notes/bar.md) — ours\n" ++
-            "- [notes.baz](chorus/notes/baz.md) — ~sampel: theirs\n",
+            "- [notes.baz](chorus/notes/baz.md) — .abet.baboon: theirs\n",
         section,
     );
 }

@@ -9,7 +9,8 @@ pub const file_name = "config.json";
 pub const Drawer = struct {
     // a drawer in our cabinet, e.g. /projects/chorus
     path: []const u8,
-    // the authors whose slips sync from it; null means only ours
+    // the authors whose slips sync from it, each by groundwire id;
+    // null means only ours
     who: ?[]const []const u8 = null,
 };
 
@@ -32,14 +33,40 @@ pub const Config = struct {
 
 // whether an author's slips may reach project memory through a drawer.
 // every reader of .who goes through here, so the source of trust can
-// move onto the ship without touching the sync core
-pub fn trusted(drawer: Drawer, our: []const u8, author: []const u8) bool {
-    if (std.mem.eql(u8, our, author)) return true;
+// move onto the ship without touching the sync core. .nym is the
+// author's groundwire id as the ship gives it
+pub fn trusted(drawer: Drawer, ours: bool, nym: []const u8) bool {
+    if (ours) return true;
     const who = drawer.who orelse return false;
-    for (who) |ship| {
-        if (std.mem.eql(u8, ship, author)) return true;
+    for (who) |name| {
+        if (names(name, nym)) return true;
     }
     return false;
+}
+
+// whether a nym in the config names an author. the words are the id.
+// a one-dot name asks for an author the ship found under %gw-btc, so
+// it turns away the same words at two dots; a two-dot or bare name
+// takes either
+fn names(name: []const u8, nym: []const u8) bool {
+    const words = std.mem.trimLeft(u8, name, ".");
+    if (words.len == 0) return false;
+    if (!std.mem.eql(u8, words, std.mem.trimLeft(u8, nym, "."))) return false;
+    return !verified(name) or verified(nym);
+}
+
+fn verified(nym: []const u8) bool {
+    return nym.len > 1 and nym[0] == '.' and nym[1] != '.';
+}
+
+pub const Error = error{
+    // a drawer's .who holds an urbit id where a groundwire id belongs
+    AuthorMustBeNym,
+};
+
+// a groundwire id is dotted words; an urbit id opens with a sig
+pub fn checkAuthor(name: []const u8) Error!void {
+    if (name.len == 0 or name[0] == '~') return Error.AuthorMustBeNym;
 }
 
 // null when the project has no chorus config
@@ -51,6 +78,9 @@ pub fn load(arena: std.mem.Allocator, project: []const u8) !?Config {
     };
     var parsed = try std.json.parseFromSliceLeaky(Config, arena, bytes, .{ .ignore_unknown_fields = true });
     parsed.memory = try expandHome(arena, parsed.memory);
+    for (parsed.drawers) |drawer| {
+        for (drawer.who orelse continue) |name| try checkAuthor(name);
+    }
     return parsed;
 }
 
@@ -73,11 +103,22 @@ test "a drawer holds its own path and the paths under it" {
     try std.testing.expect(config.drawerFor("/notes/foo") == null);
 }
 
-test "our own slips always sync; others need naming" {
+test "our own slips always sync; others need naming by nym" {
     const closed = Drawer{ .path = "/a" };
-    const open = Drawer{ .path = "/a", .who = &.{"~sampel"} };
-    try std.testing.expect(trusted(closed, "~zod", "~zod"));
-    try std.testing.expect(!trusted(closed, "~zod", "~sampel"));
-    try std.testing.expect(trusted(open, "~zod", "~sampel"));
-    try std.testing.expect(!trusted(open, "~zod", "~palnet"));
+    const open = Drawer{ .path = "/a", .who = &.{ "..abet.baboon", ".cabin.dawn", "early.fable" } };
+    try std.testing.expect(trusted(closed, true, "..zeal.zebra"));
+    try std.testing.expect(!trusted(closed, false, "..abet.baboon"));
+    try std.testing.expect(trusted(open, false, "..abet.baboon"));
+    try std.testing.expect(!trusted(open, false, "..abet.bacon"));
+    // a two-dot or bare name takes the author at either standing
+    try std.testing.expect(trusted(open, false, ".abet.baboon"));
+    try std.testing.expect(trusted(open, false, "..early.fable"));
+    // a one-dot name turns away the same words unverified
+    try std.testing.expect(trusted(open, false, ".cabin.dawn"));
+    try std.testing.expect(!trusted(open, false, "..cabin.dawn"));
+}
+
+test "an urbit id is no author" {
+    try std.testing.expectError(Error.AuthorMustBeNym, checkAuthor("~sampel"));
+    try checkAuthor("..abet.baboon");
 }

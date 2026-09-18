@@ -41,7 +41,7 @@ const dependencies = [_]RepoImport{
     .{
         .name = "mnemonyms",
         .url = "https://github.com/gwbtc/mnemonyms",
-        .commit = "4cbb1984bac1d035642037d2811933021b4e71c1",
+        .commit = "b2b8e664c2ca5eb20d9603e0e7f96ff0628cefed",
         .prefix = "libraries/hoon",
         .paths = &.{
             "fil/test-vectors.json",

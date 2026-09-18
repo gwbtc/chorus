@@ -8,7 +8,7 @@
 //   chorus sync [--project <dir>] [--once | --detached]
 //   chorus guard
 //   chorus init [--project <dir>] [--ship <url>] [--code <+code>]
-//               [--drawer </path[:~ship,~ship]>]...
+//               [--drawer </path[:nym,nym]>]...
 
 const std = @import("std");
 const builtin = @import("builtin");
@@ -29,7 +29,7 @@ const usage =
     \\  chorus guard
     \\      PreToolUse hook: deny edits to synced slips
     \\  chorus init [--project <dir>] [--ship <url>] [--code <+code>]
-    \\              [--drawer </path[:~ship,~ship]>]...
+    \\              [--drawer </path[:nym,nym]>]...
     \\      write the config and the claude code plugin for a project
     \\
 ;
@@ -210,9 +210,13 @@ fn start(gpa: std.mem.Allocator, arena: std.mem.Allocator, args: []const []const
         return 2;
     }
     const project = try projectDir(arena, project_flag);
-    if ((try config.load(arena, project)) == null) return 0;
+    const once = [_][]const u8{ "--once", "--project", project };
+    // a config we cannot use is for the sync to log, and no daemon
+    // could work from it
+    const cfg = config.load(arena, project) catch return sync(gpa, arena, &once);
+    if (cfg == null) return 0;
 
-    const code = try sync(gpa, arena, &.{ "--once", "--project", project });
+    const code = try sync(gpa, arena, &once);
     const sessions = Sessions{ .dir = try std.fs.path.join(arena, &.{ project, config.dir_name, "sessions" }) };
     try sessions.note(try sessionPid(arena));
 
@@ -235,6 +239,9 @@ const Sync = struct {
     // which a full resync empties
     store: std.heap.ArenaAllocator,
     set: std.StringArrayHashMapUnmanaged(claude.Entry) = .empty,
+    // the nym of every author in the set, as the ship last gave it.
+    // lives in .store, so a full resync asks again
+    nyms: std.StringHashMapUnmanaged([]const u8) = .empty,
     log: Log,
     synced: bool = false,
 
@@ -249,6 +256,7 @@ const Sync = struct {
         }
         _ = self.store.reset(.retain_capacity);
         self.set = .empty;
+        self.nyms = .empty;
         for (slips.items) |slip| try self.keep(slip);
         try self.write();
         self.synced = true;
@@ -258,15 +266,19 @@ const Sync = struct {
     // its author
     fn keep(self: *Sync, slip: ship_lib.Slip) !void {
         const drawer = self.cfg.drawerFor(slip.path) orelse return;
-        if (!config.trusted(drawer, self.our, slip.author)) return;
         const a = self.store.allocator();
+        const nym = self.nyms.get(slip.author) orelse nym: {
+            const fresh = try self.ship.nym(a, slip.author);
+            try self.nyms.put(a, try a.dupe(u8, slip.author), fresh);
+            break :nym fresh;
+        };
+        if (!config.trusted(drawer, std.mem.eql(u8, self.our, slip.author), nym)) return;
         const path = try a.dupe(u8, slip.path);
-        try self.set.put(a, path, .{ .slip = .{
+        try self.set.put(a, path, .{ .nym = nym, .slip = .{
             .path = path,
             .author = try a.dupe(u8, slip.author),
             .created = try a.dupe(u8, slip.created),
             .fqsp = try a.dupe(u8, slip.fqsp),
-            .wire = try a.dupe(u8, slip.wire),
             .text = try a.dupe(u8, slip.text),
         } });
     }
@@ -322,9 +334,11 @@ fn sync(gpa: std.mem.Allocator, arena: std.mem.Allocator, args: []const []const 
         }
     }
     const project = try projectDir(arena, project_flag);
-    // no config means this project does not use chorus
-    const cfg = (try config.load(arena, project)) orelse return 0;
     const log = Log{ .path = try std.fs.path.join(arena, &.{ project, config.dir_name, "log" }) };
+    // no config means this project does not use chorus. a config we
+    // cannot read, or one that names an author by urbit id, goes in
+    // the log, since nobody sees a daemon's stderr
+    const cfg = (config.load(arena, project) catch |err| return fail(gpa, log, err)) orelse return 0;
 
     // one daemon per project; a second session's daemon leaves the
     // first to work

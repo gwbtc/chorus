@@ -17,7 +17,6 @@ pub const Slip = struct {
     author: []const u8,
     created: []const u8,
     fqsp: []const u8,
-    wire: []const u8,
     text: []const u8,
 };
 
@@ -62,6 +61,15 @@ pub const Ship = struct {
         const body = try self.get(arena, url);
         const tree = std.json.parseFromSliceLeaky(std.json.Value, arena, body, .{}) catch return Error.BadResponse;
         try walk(arena, tree, trimmed, out);
+    }
+
+    // the nym the ship credits an author with: one-dot if the ship
+    // finds them under the %gw-btc domain, two-dot if not
+    pub fn nym(self: *Ship, arena: std.mem.Allocator, who: []const u8) ![]const u8 {
+        const url = try std.fmt.allocPrint(arena, "{s}/~/scry/chorus/nym/{s}.json", .{ self.url, who });
+        const body = try self.get(arena, url);
+        const value = std.json.parseFromSliceLeaky(std.json.Value, arena, body, .{}) catch return Error.BadResponse;
+        return str(value) orelse Error.BadResponse;
     }
 
     fn get(self: *Ship, arena: std.mem.Allocator, url: []const u8) ![]const u8 {
@@ -229,7 +237,6 @@ fn slipOf(value: std.json.Value, path: []const u8) ?Slip {
         .author = str(o.get("author")) orelse return null,
         .created = str(o.get("created")) orelse return null,
         .fqsp = str(o.get("fqsp")) orelse return null,
-        .wire = str(o.get("wire")) orelse return null,
         .text = str(o.get("text")) orelse return null,
     };
 }
