@@ -14,6 +14,8 @@ pub const Error = error{
 // one slip as the chorus json marks give it, at its cabinet tree path
 pub const Slip = struct {
     path: []const u8,
+    // the author's @p, which the json gives as "ship"; its "author" is
+    // the nym the wick carries, and we ask the ship for the nym instead
     author: []const u8,
     created: []const u8,
     fqsp: []const u8,
@@ -234,7 +236,7 @@ fn slipOf(value: std.json.Value, path: []const u8) ?Slip {
     const o = value.object;
     return .{
         .path = path,
-        .author = str(o.get("author")) orelse return null,
+        .author = str(o.get("ship")) orelse return null,
         .created = str(o.get("created")) orelse return null,
         .fqsp = str(o.get("fqsp")) orelse return null,
         .text = str(o.get("text")) orelse return null,

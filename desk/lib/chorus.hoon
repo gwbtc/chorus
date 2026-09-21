@@ -304,8 +304,13 @@
   ::
       %chorus-slip
     =/  pax=(unit path)  (slip-path sat wick.msg)
-    ?^  pax  [%chorus-slip u.pax slip.msg wire]
-    [%chorus-slip pax:(need (wick-fqsp:slp path.wick.msg)) slip.msg wire]
+    ?^  pax  [%chorus-slip u.pax nym.id.wick.msg slip.msg wire]
+    :*  %chorus-slip
+        pax:(need (wick-fqsp:slp path.wick.msg))
+        nym.id.wick.msg
+        slip.msg
+        wire
+    ==
   ==
 ::
 ::  replay some missives heard since .when as updates,
@@ -859,7 +864,8 @@
         =/  wok  (mole |.((wire-to-wook wire.val)))
         ?~  wok  ~
         s+(spat (slag 1 `path`path.u.wok))
-        ['author' s+(scot %p ship.slip.val)]
+        ['author' s+nym.val]
+        ['ship' s+(scot %p ship.slip.val)]
         ['created' s+(scot %da time.slip.val)]
         ['links' a+(turn (links:slp txt.slip.val) |=(l=@t s+l))]
         ['text' s+txt.slip.val]

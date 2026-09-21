@@ -76,6 +76,20 @@
     |=  pax=path
     !<(tool:mcp .^(vase %ca (welp s.pyk pax)))
   ::
+  ::  .^((list resource:mcp) %gx /=/chorus/=/mcp/resources/noun)
+      [%x %mcp %resources ~]
+    %-  some
+    %-  some
+    :-  %mcp-resources
+    !>  ^-  (list resource:mcp)
+    %+  turn
+      .^  (list path)
+          %ct
+          (welp s.pyk /fil/mcp/resources)
+      ==
+    |=  pax=path
+    !<(resource:mcp .^(vase %ca (welp s.pyk pax)))
+  ::
   ::  .^((list template:resource:mcp) %gx /=/chorus/=/mcp/templates/noun)
       [%x %mcp %templates ~]
     %-  some

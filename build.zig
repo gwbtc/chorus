@@ -22,6 +22,7 @@ const dependencies = [_]RepoImport{
         .commit = "9e116342f12731223157c8b6dbc1cde314532238",
         .prefix = "desk",
         .paths = &.{
+            "mar/mcp/resources.hoon",
             "mar/mcp/tools.hoon",
             "mar/mcp/templates.hoon",
             "sur/mcp.hoon",

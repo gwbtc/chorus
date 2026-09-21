@@ -161,13 +161,14 @@
     `'slip must not contain html'
   ~
 ::
-::  a slip as json, shared by the slip, cabinet and
-::  update marks
+::  a slip as json, shared by the slip and cabinet marks.
+::  the author is the nym its wick carries; the @p is .ship
 ++  enjs
   |=  [=slip:chorus =wick]
   ^-  json
   %-  pairs:enjs:format
-  :~  ['author' s+(scot %p ship.slip)]
+  :~  ['author' s+nym.id.wick]
+      ['ship' s+(scot %p ship.slip)]
       ['created' s+(scot %da time.slip)]
       ['fqsp' s+(spat (slag 1 `path`path.wick))]
       ['wire' s+(wick-to-wire wick)]

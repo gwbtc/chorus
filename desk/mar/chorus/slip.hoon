@@ -171,7 +171,8 @@
     %-  of-wain:format
     ;:  welp
       :~  '---'
-          (cat 3 'author: ' (scot %p ship.slip.val))
+          (cat 3 'author: ' nym.id.wick.val)
+          (cat 3 'ship: ' (scot %p ship.slip.val))
           (cat 3 'created: ' (scot %da time.slip.val))
           (cat 3 'fqsp: ' (spat (slag 1 `path`path.wick.val)))
           (cat 3 'wire: ' (wick-to-wire wick.val))
@@ -201,7 +202,8 @@
     %-  en-xml:html
     ^-  manx
     :-  :-  %slip
-        :~  [%author (scow %p ship.slip.val)]
+        :~  [%author (trip nym.id.wick.val)]
+            [%ship (scow %p ship.slip.val)]
             [%created (scow %da time.slip.val)]
             [%fqsp (spud (slag 1 `path`path.wick.val))]
             [%wire (trip (wick-to-wire wick.val))]
