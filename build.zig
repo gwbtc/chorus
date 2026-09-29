@@ -55,7 +55,8 @@ const dependencies = [_]RepoImport{
     },
     .{
         .name = "base-dev",
-        .local = "../urbit",
+        .url = "https://github.com/gwbtc/urbit",
+        .commit = "4ffe4db53639b3e34af65febf370a6b0b3537b75",
         .prefix = "pkg/base-dev",
         .paths = &.{
             "lib/cram.hoon",
