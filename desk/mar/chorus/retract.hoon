@@ -1,12 +1,12 @@
 /-  *chorus
-|_  val=action
+|_  act=retract
 ++  grad  %noun
 ++  grow
   |%
-  ++  noun  val
+  ++  noun  act
   --
 ++  grab
   |%
-  ++  noun  ,action
+  ++  noun  ,retract
   --
 --

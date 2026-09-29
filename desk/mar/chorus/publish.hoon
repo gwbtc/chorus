@@ -1,4 +1,5 @@
-|_  act=*
+/-  *chorus
+|_  act=publish
 ++  grad  %noun
 ++  grow
   |%
@@ -6,6 +7,6 @@
   --
 ++  grab
   |%
-  ++  noun  *
+  ++  noun  ,publish
   --
 --

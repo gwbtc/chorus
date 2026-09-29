@@ -1,9 +1,14 @@
 /-  mcp
 ^-  template:resource:mcp
-:*  'scry://gx/chorus/announcements{/ship}/json'
+:*  'scry://gx/chorus/chorus/announcements{/ship}/json'
     'chorus/announcements'
-    `'List Chorus announcements'
-    `'Read known Chorus announcements. The URI MAY contain a ship to search only announcements published by that ship.'
+    `'Read Chorus announcements'
+    %-  some
+    '''
+    Read the announcements of this ship and every ship it polls.
+    The URI MAY end with a ship, such as ~sampel-palnet,
+    to read only what that ship published.
+    '''
     `'application/json'
     ~
     `[~ ~ ~]

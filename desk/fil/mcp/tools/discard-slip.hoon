@@ -1,18 +1,18 @@
-/-  chorus, mcp, spider, *wick
-/+  io=strandio, *wick
+/-  chorus, mcp, spider
+/+  io=strandio
 ^-  tool:mcp
 :*  'chorus/discard-slip'
     '''
-    Remove a slip from this ship's cabinet. Takes the slip's
-    cabinet path. Peers that already heard the slip keep
-    their copies.
+    Remove one of our slips from this ship's cabinet. Takes
+    the slip's cabinet path. Peers drop their copies when
+    they next poll us.
     '''
     %-  my
     :~  :-  'path'
         :-  %string
         '''
         The cabinet path of the slip, beginning with a /,
-        e.g. /projects/chorus/wick-signing.
+        e.g. /projects/chorus/kademlia.
         '''
     ==
     ~['path']
@@ -38,13 +38,18 @@
       %-  pure:m
       !>  ^-  response:tool:mcp
       [%error (crip "no slip at {(trip p.u.pat)}") ~]
+    ?.  =(our ship.u.fil.cabinet)
+      %-  pure:m
+      !>  ^-  response:tool:mcp
+      :+  %error
+        (crip "the slip at {(trip p.u.pat)} belongs to {<ship.u.fil.cabinet>}")
+      ~
     ;<  ~  bind:m
       %-  send-raw-card:io
       :*  %pass   /discard-slip
           %agent  [our %chorus]
-          %poke   %chorus-action
-          !>  ^-  action:chorus
-          [%delete ship.slip.u.fil.cabinet wick.u.fil.cabinet]
+          %poke   %chorus-retract
+          !>(`retract:chorus`[%slip u.pax])
       ==
     ;<  ~  bind:m  (take-poke-ack:io /discard-slip)
     %-  pure:m

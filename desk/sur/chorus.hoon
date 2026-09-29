@@ -1,18 +1,23 @@
-/-  mcp, *wick, gossip
+/-  mcp, *content-routing
 |%
 ::
+::  a groundwire nym
++$  nym  @t
+::
+::  every listing names the ship that published it. a hearer
+::  drops a listing that names any ship but its publisher
 ++  bio
   |%
   +$  listing
     $+  chorus-bio-listing
-    [txt=cord =wick]
+    [=ship txt=cord]
   --
 ::
 ++  announcement
   |%
   +$  listing
     $+  chorus-announcement-listing
-    [=time txt=cord =wick]
+    [=ship =time txt=cord]
   --
 ::
 ++  desk
@@ -21,11 +26,15 @@
   +$  meta
     $+  chorus-desk-metadata
     [=^desk =desc]
+  ::
+  ::  .hash is clay's %z hash of the desk when it was listed
   +$  listing
     $+  chorus-desk-listing
-    [=^desk =desc =wick]
+    [=ship =^desk =desc hash=@uvI]
   --
 ::
+::  an mcp listing carries the digest of its source file,
+::  which its publisher serves through the content store
 ++  mcp
   |%
   ++  tool
@@ -40,7 +49,7 @@
     ::
     +$  listing
       $+  chorus-mcp-tool-listing
-      [=meta =wick]
+      [=ship =meta source=digest]
     --
   ::
   ++  prompt
@@ -54,7 +63,7 @@
       ==
     +$  listing
       $+  chorus-mcp-prompt-listing
-      [=meta =wick]
+      [=ship =meta source=digest]
     --
   ::
   ++  resource
@@ -68,7 +77,7 @@
       ==
     +$  listing
       $+  chorus-mcp-resource-listing
-      [=meta =wick]
+      [=ship =meta source=digest]
     ::
     ++  template
       |%
@@ -81,7 +90,7 @@
         ==
       +$  listing
         $+  chorus-mcp-resource-template-listing
-        [=meta =wick]
+        [=ship =meta source=digest]
       --
     --
   --
@@ -92,9 +101,10 @@
   =<  skill
   |%
   ::
+  ::  .skill is the digest of the %chorus-skill manifest
   +$  listing
     $+  chorus-agent-skill-listing
-    [=meta =wick]
+    [=ship =meta skill=digest]
   ::
   +$  meta
     $+  chorus-agent-skill-metadata
@@ -111,60 +121,97 @@
     ==
   ::
   ::  a skill is a directory of files,
-  ::  referenced by signed wicks
+  ::  referenced by their digests
   +$  skill
     $+  chorus-agent-skill
     $:  =frontmatter
-        body=wick
-        references=(list wick)
-        scripts=(list wick)
-        assets=(list wick)
+        body=digest
+        references=(list digest)
+        scripts=(list digest)
+        assets=(list digest)
     ==
   --
 ::
 ::  shared wiki
-+$  cabinet  (axal [=slip =wick])
++$  cabinet  (axal slip)
 +$  slip     [=ship =time txt=@t]
 ::
-::  state
+::  the reserved topics. under each a ship publishes one value,
+::  named by the topic in the %chorus namespace; chorus checks its
+::  type on the way out and on the way in. the types are those of
+::  one ship's share of each part of the old $state-0
++$  topic
+  $?  %desks
+      %rolodex
+      %announcements
+      %cabinet
+      %skills
+      %mcp-tools
+      %mcp-prompts
+      %mcp-resources
+      %mcp-resource-templates
+  ==
+::
++$  shelf
+  $%  [%desks p=(set listing:desk)]
+      [%rolodex p=(set listing:bio)]
+      [%announcements p=(set listing:announcement)]
+      [%cabinet p=cabinet]
+      [%skills p=(set listing:skill)]
+      [%mcp-tools p=(set listing:tool:mcp)]
+      [%mcp-prompts p=(set listing:prompt:mcp)]
+      [%mcp-resources p=(set listing:resource:mcp)]
+      [%mcp-resource-templates p=(set listing:template:resource:mcp)]
+  ==
+::
+::  state: the ships we seed kademlia with and poll for their
+::  shelves. everything heard lives in the content store
 +$  versioned-state
   $%  state-0
   ==
 ::
 +$  state-0
-  $:  %0
-      :: agent descriptions
-      rolodex=(map ship listing:bio)
-      ::  heard messages
-      announcements=(map ship (set listing:announcement))
-      ::  known desk listings
-      desks=(map ship (set listing:desk))
-      ::  mcp features
-      mcp-tools=(map ship (set listing:tool:mcp))
-      mcp-prompts=(map ship (set listing:prompt:mcp))
-      mcp-resources=(map ship (set listing:resource:mcp))
-      mcp-resource-templates=(map ship (set listing:template:resource:mcp))
-      ::  agent skills
-      skills=(map ship (set listing:skill))
-      ::  wiki
-      =cabinet
-      ::
-      ::  signatures for old bullas, lets us replay
-      ::  messages to heard subscribers, and when we
-      ::  heard each, for the since scry
-      sigs=(map wick [=ship sig=@ux when=@da])
+  [%0 polled=(set ship)]
+::
+::  client-to-ship pokes, one mark each
+::
+::  %chorus-list: add or remove a ship we poll
++$  list-action
+  $+  chorus-list
+  [?(%add %remove) who=$@(ship [%nym =nym])]
+::
+::  %chorus-publish: list a resource, to everyone or to nobody
++$  publish
+  $+  chorus-publish
+  [public=? =resource]
+::
+::  %chorus-retract: take one of our listings back
++$  retract
+  $+  chorus-retract
+  $%  [%bio ~]
+      [%announcement =time]
+      [%desk =^desk]
+      [%mcp-tool name=@t]
+      [%mcp-prompt name=@t]
+      [%mcp-resource uri=@t]
+      [%mcp-resource-template uri-template=@t]
+      [%agent-skill name=@t]
+      [%slip =path]
   ==
 ::
-::  client-to-ship pokes
-+$  action
-  $+  chorus-action
-  $%  [%publish crowd=(unit crowd:gossip) =body]
-      [%delete target=$@(ship [=ship =wick])]
-      ::  XX %tombstone =path
-  ==
+::  %chorus-hearsay: untyped gossip at a topic of the caller's
+::  choosing, outside the reserved topics
++$  hearsay
+  $+  chorus-hearsay
+  [public=? topic=path cask=(cask)]
 ::
-+$  body
-  $+  chorus-action-body
+::  %chorus-seek: fetch what a ship published at any topic
++$  seek
+  $+  chorus-seek
+  [who=ship topic=path]
+::
++$  resource
+  $+  chorus-resource
   $%  [%bio bio=@t]
       [%announcement announcement=@t]
       [%desk =^desk desc=@t]
@@ -176,47 +223,20 @@
       [%slip =path =slip]
   ==
 ::
-::  ship-to-ship gossip
-::
-::  signed container for a missive
-+$  bulla
-  $+  chorus-bulla
-  $:  %chorus-bulla
-      =ship
-      sig=@ux
-      msg=missive
-  ==
-::
-::  contents of a bulla: metadata for some content,
-::  and a wick we can call to find out more
-+$  missive
-  $+  chorus-missive
-  $%  [%chorus-bio txt=cord =wick]
-      ::  [%chorus-disavow =missive]  ::  XX not implemented
-      [%chorus-slip =slip =wick]
-      [%chorus-announcement txt=cord =wick]
-      [%chorus-desk =meta:desk =wick]
-      [%mcp-tool =meta:tool:mcp =wick]
-      [%mcp-resource =meta:resource:mcp =wick]
-      [%mcp-resource-template =meta:template:resource:mcp =wick]
-      [%mcp-prompt =meta:prompt:mcp =wick]
-      [%agent-skill =meta:skill =wick]
-      ::  XX %a2a-agent-card =meta:card:a2a =wick
-      ::  XX %a2a-agent-skill =meta:skill:a2a =wick
-  ==
-::
 ::  ship-to-client facts
 +$  update
   $+  chorus-update
-  $%  [%chorus-bio-updated txt=cord wire=@t]
-      [%chorus-announcement =time txt=cord wire=@t]
-      [%chorus-desk-published =^desk =desc:desk wire=@t]
-      [%mcp-tool-listed =meta:tool:mcp wire=@t]
-      [%mcp-prompt-listed =meta:prompt:mcp wire=@t]
-      [%mcp-resource-listed =meta:resource:mcp wire=@t]
-      [%mcp-resource-template-listed =meta:template:resource:mcp wire=@t]
-      [%agent-skill-listed =meta:skill wire=@t]
-      [%chorus-slip =path =nym =slip wire=@t]
-      [%chorus-slip-discarded =path wire=@t]
+  $%  [%chorus-bio-updated =ship txt=cord]
+      [%chorus-announcement =ship =time txt=cord]
+      [%chorus-desk-published =ship =^desk =desc:desk hash=@uvI]
+      [%mcp-tool-listed =ship =meta:tool:mcp source=digest]
+      [%mcp-prompt-listed =ship =meta:prompt:mcp source=digest]
+      [%mcp-resource-listed =ship =meta:resource:mcp source=digest]
+      [%mcp-resource-template-listed =ship =meta:template:resource:mcp source=digest]
+      [%agent-skill-listed =ship =meta:skill skill=digest]
+      [%chorus-slip =path =slip]
+      [%chorus-slip-discarded =path]
+      ::  our publish at a topic reached its replicas, or failed to
+      [%chorus-published topic=path done=?]
   ==
 --

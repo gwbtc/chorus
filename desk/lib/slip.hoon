@@ -1,52 +1,44 @@
 ::
 ::  slip: pure helpers for cabinet slips, shared by the
 ::  agent, lib/chorus, the marks and the tests
-/-  chorus, *wick, mds=markdown
-/+  *wick, mdl=markdown
+/-  chorus, mds=markdown
+/+  mdl=markdown
 |%
 ::
 ::  the most characters a slip may hold
 ++  max-chars  2.048
 ::
-::  the fully qualified slip path: the grow path of one
-::  revision of a slip, as a peer would request it, e.g.
-::  /~zod/g/x/3/chorus//1/cabinet/notes/foo. a wick over
-::  it carries the /fine tag in front; see +wick-fqsp
-++  fqsp
-  |=  [host=ship rev=@ud pax=path]
+::  the address of a slip: its author, then the path its
+::  author keeps it at, e.g. /~zod/notes/foo. slips link to
+::  each other by address
+++  address
+  |=  [host=ship pax=path]
   ^-  path
-  %+  welp
-    /(scot %p host)/g/x/(scot %ud rev)/chorus//1/cabinet
-  pax
+  [(scot %p host) pax]
 ::
-++  parse-fqsp
+++  parse-address
   |=  pax=path
-  ^-  (unit [host=ship rev=@ud pax=path])
-  ?.  ?=([@ %g %x @ %chorus %$ @ %cabinet ^] pax)
-    ~
-  =/  segs=path  pax
-  ?.  =('1' (snag 6 segs))
-    ~
-  =/  host=(unit @p)   (slaw %p (snag 0 segs))
-  =/  rev=(unit @ud)   (slaw %ud (snag 3 segs))
-  ?:  |(?=(~ host) ?=(~ rev))
-    ~
-  `[u.host u.rev (slag 8 segs)]
+  ^-  (unit [host=ship pax=path])
+  ?.  ?=([@ ^] pax)  ~
+  =/  host=(unit @p)  (slaw %p i.pax)
+  ?~  host  ~
+  ?^  (vet-path t.pax)  ~
+  `[u.host t.pax]
 ::
-::  the fqsp a wick signs, if its path is a /fine tag
-::  over one
-++  wick-fqsp
-  |=  pax=path
-  ^-  (unit [host=ship rev=@ud pax=path])
-  ?.  ?=([%fine ^] pax)  ~
-  (parse-fqsp t.pax)
+::  the path a slip's author keeps it at, given the path it
+::  sits at in a merged cabinet; see +shuffle in lib/chorus
+++  home
+  |=  [pax=path =slip:chorus]
+  ^-  path
+  ?~  pax  pax
+  ?.  =((rear pax) (scot %p ship.slip))
+    pax
+  (snip `path`pax)
 ::
 ::  a cabinet path: non-empty segments of lowercase
-::  letters, numbers and hyphens, short enough that a
-::  wick over the fqsp fits its 256 bytes for this host
-::  at any revision we will ever grow to
+::  letters, numbers and hyphens, at most 256 bytes long
 ++  vet-path
-  |=  [host=ship pax=path]
+  |=  pax=path
   ^-  (unit @t)
   ?~  pax
     `'path must not be empty'
@@ -61,11 +53,11 @@
           =('-' c)
       ==
     `'path segments may only contain lowercase letters, numbers, and hyphens'
-  ?.  (lte (met 3 (spat [%fine (fqsp host 999.999.999 pax)])) 256)
+  ?.  (lte (met 3 (spat pax)) 256)
     `'path is too long'
   ~
 ::
-::  every [[...]] target in the text that is an fqsp
+::  every [[...]] target in the text that is a slip address
 ++  links
   |=  txt=@t
   ^-  (list @t)
@@ -83,7 +75,7 @@
   =/  ok=?
     =/  pax=(unit path)  (rush tar stap)
     ?~  pax  |
-    ?=(^ (parse-fqsp u.pax))
+    ?=(^ (parse-address u.pax))
   %=  $
     tap  (slag (add 2 u.clo) rest)
     out  ?.(ok out [tar out])
@@ -145,9 +137,9 @@
 ::  its size, that it parses as markdown, and that it
 ::  carries no html
 ++  vet-slip
-  |=  [host=ship pax=path txt=@t]
+  |=  [pax=path txt=@t]
   ^-  (unit @t)
-  =/  bad  (vet-path host pax)
+  =/  bad  (vet-path pax)
   ?^  bad  bad
   =/  len  (lent (tuba (trip txt)))
   ?:  =(0 len)
@@ -161,18 +153,20 @@
     `'slip must not contain html'
   ~
 ::
-::  a slip as json, shared by the slip and cabinet marks.
-::  the author is the nym its wick carries; the @p is .ship
-++  enjs
-  |=  [=slip:chorus =wick]
-  ^-  json
-  %-  pairs:enjs:format
-  :~  ['author' s+nym.id.wick]
-      ['ship' s+(scot %p ship.slip)]
+::  a slip as json pairs, shared by the slip and cabinet marks
+::  and by updates. .pax is where the slip sits in a cabinet
+++  slip-pairs
+  |=  [pax=path =slip:chorus]
+  ^-  (list [@t json])
+  :~  ['ship' s+(scot %p ship.slip)]
       ['created' s+(scot %da time.slip)]
-      ['fqsp' s+(spat (slag 1 `path`path.wick))]
-      ['wire' s+(wick-to-wire wick)]
+      ['address' s+(spat (address ship.slip (home pax slip)))]
       ['links' a+(turn (links txt.slip) |=(l=@t s+l))]
       ['text' s+txt.slip]
   ==
+::
+++  enjs
+  |=  [pax=path =slip:chorus]
+  ^-  json
+  (pairs:enjs:format (slip-pairs pax slip))
 --
