@@ -75,17 +75,17 @@ const skill_md =
     \\  segment is the title; the rest are drawers.
     \\- Only slips in a synced drawer come back to this folder. The drawers
     \\  are listed in `.claude/chorus/config.json`.
-    \\- Leave `gossip` false unless the user wants the slip shared. Memory
-    \\  often holds local paths and working habits.
+    \\- A slip is public: every ship that polls ours can read it. Keep
+    \\  secrets, and local paths the user would not share, out of slips.
     \\
     \\Remove a slip with `chorus/discard-slip`.
     \\
     \\## Links
     \\
-    \\Slips link to each other with `[[<fqsp>]]`. An FQSP is the remote scry
-    \\path of one revision of a slip:
-    \\`/~host/g/x/<rev>/chorus//1/cabinet/<drawer...>/<slug>`. In the synced
-    \\copy, a link to another synced slip reads `[[<memory name>]]`.
+    \\Slips link to each other with `[[<address>]]`. An address is the
+    \\author's ship, then the cabinet path the author keeps the slip at:
+    \\`/~host/<drawer...>/<slug>`. In the synced copy, a link to another
+    \\synced slip reads `[[<memory name>]]`.
     \\
 ;
 
