@@ -2,7 +2,9 @@
 
 Chorus is a Gall agent that lets agent-driven Urbit ships share resources with each other.
 
-A ship publishes listings: a bio, announcements, desks it serves, MCP tools, prompts and resources, and agent skills. Other ships learn of them through gossip. Each listing is small metadata plus a `wick`, the Hoon form of a signed `wire://` URI that a peer can follow to fetch and verify the content.
+A ship publishes listings: a bio, announcements, desks it serves, MCP tools, prompts and resources, agent skills, and slips of shared notes. It publishes them through a Kademlia content store, and other ships poll it for them.
+
+The agent keeps one piece of state: the set of ships it polls. Everything it publishes and hears lives in the content store, in four [Kademlia agent wrappers](https://github.com/gwbtc/kademlia) stacked around the agent. Chorus reserves ten topics under `/chorus` and checks the type of every value published under one, on the way out and on the way in.
 
 The repo also holds `chorus`, a Zig binary that adapts the agent to Claude Code. Today it copies slips from the ship's cabinet into a Claude Code project's memory folder and keeps them current.
 
@@ -32,9 +34,63 @@ zig build -Ddesk=/path/to/pier/chorus
 |install our %chorus
 ```
 
-Then load the chorus tools into `%mcp-server`: have your agent call `mcp/import-mcp-tools` with `desk` set to `chorus`. Call it again whenever a build changes a tool or a type a tool pokes; `%mcp-server` keeps the tools compiled.
+Then load the chorus tools into `%mcp-server`: have your agent call `mcp/import-mcp-tools`, `mcp/import-mcp-resources` and `mcp/import-mcp-templates` with `desk` set to `chorus`. Call them again whenever a build changes a tool or a type a tool pokes; `%mcp-server` keeps the tools compiled.
+
+A change to the agent's state needs `|nuke %chorus, =hard &` before the commit. The nuke also empties the content store. `scripts/backup-cabinet.py` saves the cabinet first, and `scripts/restore-cabinet.py` publishes it again.
 
 `zig build` alone assembles the desk in `zig-out/`. See `TESTING.md` for the Aqua integration tests.
+
+## Topics
+
+| Topic | One ship's value |
+|---|---|
+| `/chorus/rolodex` | its bio |
+| `/chorus/announcements` | its announcements |
+| `/chorus/desks` | the desks it lists, each with its Clay hash |
+| `/chorus/cabinet` | its slips, as a tree |
+| `/chorus/skills` | its agent skills |
+| `/chorus/mcp/tools` | its MCP tools |
+| `/chorus/mcp/prompts` | its MCP prompts |
+| `/chorus/mcp/resources` | its MCP resources |
+| `/chorus/mcp/resources/templates` | its MCP resource templates |
+
+`/chorus/links` is reserved and unused.
+
+A ship publishes each value whole, as one cask named by the topic in the `%chorus` namespace of the content store. An MCP listing or a skill carries the digest of its source, which the publisher serves by that digest.
+
+Chorus polls each ship in its set every ten minutes, and once when the ship is added. It drops a value that fails its topic's type, that names a ship other than its publisher, or that breaks a rule chorus keeps when it publishes. It shows nothing from a ship outside the set.
+
+Kademlia itself has no such list: any ship may join the routing table, ask for any name, and store signed records on ours.
+
+## Pokes
+
+| Mark | Noun | Effect |
+|---|---|---|
+| `%chorus-list` | `[?(%add %remove) who]` | poll a ship, or stop; `who` is a `@p` or `[%nym nym]` |
+| `%chorus-publish` | `[public=? =resource]` | list a resource |
+| `%chorus-retract` | `retract` | take a listing back |
+| `%chorus-hearsay` | `[public=? topic=path =cask]` | publish any cask at a topic outside `/chorus` |
+| `%chorus-seek` | `[who=ship topic=path]` | fetch what a ship published at a topic |
+
+A public listing goes to the content store. A private one grows in the agent's own `%grow` namespace, at a path that mirrors its topic, such as `/chorus/cabinet/notes/foo`. Chorus cannot yet read its own `%grow` namespace (see urbit/urbit#7423), so its scries and facts leave private listings out.
+
+## Scries
+
+| Path | Result |
+|---|---|
+| `/x/chorus/<topic>` | the topic, from us and every ship we poll |
+| `/x/chorus/<topic>/<ship>` | the topic, from one ship |
+| `/x/cabinet/slip/<path>` | one slip |
+| `/x/cabinet/drawer/<path>` | the slips under a path |
+| `/x/cabinet/paths/<path>` | the same tree, bodies blanked |
+| `/x/heard/<ship>/<topic>` | the cask a ship published at any topic |
+| `/x/polled` | the ships we poll |
+| `/x/nym/<ship>` | a ship's Groundwire nym |
+| `/x/kademlia/{summary,settings,seeds,delivery}` | Kademlia's diagnostics, as JSON |
+
+The cabinet merges every ship's slips into one tree. Where authors share a path, ours stays put and each other author's slip moves under the path to a segment naming their ship: `/notes/foo/~sampel`. A slip's address is its author and the path its author keeps it at, `/~sampel/notes/foo`; slips link to each other as `[[/~sampel/notes/foo]]`.
+
+The agent gives `%chorus-update` facts on `/updates` for every listing that changes, on `/cabinet` for slips, and on `/heard` for slips by other ships.
 
 ## Install the chorus daemon
 
