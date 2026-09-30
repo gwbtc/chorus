@@ -1,25 +1,23 @@
-/-  chorus
-/+  *wick
-|_  val=(set listing:desk:chorus)
+/-  *chorus
+|_  val=(set listing:desk)
 ++  grad  %noun
 ++  grow
   |%
   ++  noun  val
-  ::  json gives the wick as a wire, which a client can hand
-  ::  back to chorus/verify-wire, and the desk and description
   ++  json
     ^-  ^json
     :-  %a
     %+  turn  ~(tap in val)
-    |=  lit=listing:desk:chorus
+    |=  lit=listing:desk
     %-  pairs:enjs:format
-    :~  ['desk' s+desk.lit]
+    :~  ['ship' s+(scot %p ship.lit)]
+        ['desk' s+desk.lit]
         ['desc' s+desc.lit]
-        ['wire' s+(wick-to-wire wick.lit)]
+        ['hash' s+(scot %uv hash.lit)]
     ==
   --
 ++  grab
   |%
-  ++  noun  ,(set listing:desk:chorus)
+  ++  noun  ,(set listing:desk)
   --
 --

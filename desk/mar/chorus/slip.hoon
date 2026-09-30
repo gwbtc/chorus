@@ -1,8 +1,8 @@
 ::
-::  a slip and the wick that signed it, with renderers
+::  a slip and the cabinet path it sits at, with renderers
 ::  for the formats a client might want it in
-/-  chorus, *wick, mds=markdown
-/+  *wick, mdl=markdown, slp=slip
+/-  chorus, mds=markdown
+/+  mdl=markdown, slp=slip
 =>
 |%
 ::
@@ -158,12 +158,12 @@
   ?~  i.back  $(back t.back)
   (flop `(list tape)`back)
 --
-|_  val=[=slip:chorus =wick]
+|_  val=[=path =slip:chorus]
 ++  grad  %noun
 ++  grow
   |%
   ++  noun  val
-  ++  json  (enjs:slp val)
+  ++  json  (enjs:slp slip.val)
   ::
   ::  the body under yaml frontmatter
   ++  md
@@ -171,11 +171,9 @@
     %-  of-wain:format
     ;:  welp
       :~  '---'
-          (cat 3 'author: ' nym.id.wick.val)
           (cat 3 'ship: ' (scot %p ship.slip.val))
           (cat 3 'created: ' (scot %da time.slip.val))
-          (cat 3 'fqsp: ' (spat (slag 1 `path`path.wick.val)))
-          (cat 3 'wire: ' (wick-to-wire wick.val))
+          (cat 3 'fqsp: ' (spat fqsp.slip.val))
       ==
     ::
       =/  links  (links:slp txt.slip.val)
@@ -202,11 +200,9 @@
     %-  en-xml:html
     ^-  manx
     :-  :-  %slip
-        :~  [%author (trip nym.id.wick.val)]
-            [%ship (scow %p ship.slip.val)]
+        :~  [%ship (scow %p ship.slip.val)]
             [%created (scow %da time.slip.val)]
-            [%fqsp (spud (slag 1 `path`path.wick.val))]
-            [%wire (trip (wick-to-wire wick.val))]
+            [%fqsp (spud fqsp.slip.val)]
         ==
     :~  :-  [%links ~]
         %+  turn  (links:slp txt.slip.val)
@@ -223,6 +219,6 @@
   --
 ++  grab
   |%
-  ++  noun  ,[=slip:chorus =wick]
+  ++  noun  ,[=path =slip:chorus]
   --
 --

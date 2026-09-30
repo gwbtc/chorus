@@ -1,6 +1,6 @@
-/-  mcp, *chorus
-/+  *wick
-|_  val=(set listing:prompt:mcp)
+/-  chorus
+/+  cho=chorus
+|_  val=(set listing:prompt:mcp:chorus)
 ++  grad  %noun
 ++  grow
   |%
@@ -9,27 +9,15 @@
     ^-  ^json
     :-  %a
     %+  turn  ~(tap in val)
-    |=  p=listing:prompt:mcp
-    =*  info  meta.p
+    |=  lit=listing:prompt:mcp:chorus
     %-  pairs:enjs:format
-    :~  ['name' s+name.info]
-        ['title' s+title.info]
-        ['description' s+desc.info]
-        :-  'arguments'
-        :-  %a
-        %+  turn
-          arguments.info
-        |=  arg=argument:prompt:^mcp
-        %-  pairs:enjs:format
-        :~  ['name' s+name.arg]
-            ['description' s+desc.arg]
-            ['required' b+required.arg]
-        ==
-        ['wire' s+(wick-to-wire wick.p)]
+    :*  ['ship' s+(scot %p ship.lit)]
+        ['source' s+(scot %uv hax.lit)]
+        (prompt-pairs:cho meta.lit)
     ==
   --
 ++  grab
   |%
-  ++  noun  ,(set listing:prompt:mcp)
+  ++  noun  ,(set listing:prompt:mcp:chorus)
   --
 --

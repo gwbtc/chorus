@@ -1,8 +1,8 @@
 ::
 ::  slip: pure helpers for cabinet slips, shared by the
 ::  agent, lib/chorus, the marks and the tests
-/-  chorus, *wick, mds=markdown
-/+  *wick, mdl=markdown
+/-  chorus, mds=markdown
+/+  mdl=markdown
 |%
 ::
 ::  the most characters a slip may hold
@@ -10,43 +10,30 @@
 ::
 ::  the fully qualified slip path: the grow path of one
 ::  revision of a slip, as a peer would request it, e.g.
-::  /~zod/g/x/3/chorus//1/cabinet/notes/foo. a wick over
-::  it carries the /fine tag in front; see +wick-fqsp
+::  /~zod/g/x/3/chorus//1/chorus/cabinet/notes/foo. slips
+::  link to each other by fqsp
 ++  fqsp
   |=  [host=ship rev=@ud pax=path]
   ^-  path
   %+  welp
-    /(scot %p host)/g/x/(scot %ud rev)/chorus//1/cabinet
+    /(scot %p host)/g/x/(scot %ud rev)/chorus//1/chorus/cabinet
   pax
 ::
 ++  parse-fqsp
   |=  pax=path
   ^-  (unit [host=ship rev=@ud pax=path])
-  ?.  ?=([@ %g %x @ %chorus %$ @ %cabinet ^] pax)
+  ?.  ?=([@ %g %x @ %chorus %$ %'1' %chorus %cabinet ^] pax)
     ~
-  =/  segs=path  pax
-  ?.  =('1' (snag 6 segs))
-    ~
-  =/  host=(unit @p)   (slaw %p (snag 0 segs))
-  =/  rev=(unit @ud)   (slaw %ud (snag 3 segs))
+  =/  host=(unit @p)  (slaw %p i.pax)
+  =/  rev=(unit @ud)  (slaw %ud i.t.t.t.pax)
   ?:  |(?=(~ host) ?=(~ rev))
     ~
-  `[u.host u.rev (slag 8 segs)]
-::
-::  the fqsp a wick signs, if its path is a /fine tag
-::  over one
-++  wick-fqsp
-  |=  pax=path
-  ^-  (unit [host=ship rev=@ud pax=path])
-  ?.  ?=([%fine ^] pax)  ~
-  (parse-fqsp t.pax)
+  `[u.host u.rev (slag 9 `path`pax)]
 ::
 ::  a cabinet path: non-empty segments of lowercase
-::  letters, numbers and hyphens, short enough that a
-::  wick over the fqsp fits its 256 bytes for this host
-::  at any revision we will ever grow to
+::  letters, numbers and hyphens, at most 256 bytes long
 ++  vet-path
-  |=  [host=ship pax=path]
+  |=  pax=path
   ^-  (unit @t)
   ?~  pax
     `'path must not be empty'
@@ -61,7 +48,7 @@
           =('-' c)
       ==
     `'path segments may only contain lowercase letters, numbers, and hyphens'
-  ?.  (lte (met 3 (spat [%fine (fqsp host 999.999.999 pax)])) 256)
+  ?.  (lte (met 3 (spat pax)) 256)
     `'path is too long'
   ~
 ::
@@ -145,9 +132,9 @@
 ::  its size, that it parses as markdown, and that it
 ::  carries no html
 ++  vet-slip
-  |=  [host=ship pax=path txt=@t]
+  |=  [pax=path txt=@t]
   ^-  (unit @t)
-  =/  bad  (vet-path host pax)
+  =/  bad  (vet-path pax)
   ?^  bad  bad
   =/  len  (lent (tuba (trip txt)))
   ?:  =(0 len)
@@ -161,18 +148,20 @@
     `'slip must not contain html'
   ~
 ::
-::  a slip as json, shared by the slip and cabinet marks.
-::  the author is the nym its wick carries; the @p is .ship
-++  enjs
-  |=  [=slip:chorus =wick]
-  ^-  json
-  %-  pairs:enjs:format
-  :~  ['author' s+nym.id.wick]
-      ['ship' s+(scot %p ship.slip)]
+::  a slip as json pairs, shared by the slip and cabinet marks
+::  and by updates
+++  slip-pairs
+  |=  =slip:chorus
+  ^-  (list [@t json])
+  :~  ['ship' s+(scot %p ship.slip)]
       ['created' s+(scot %da time.slip)]
-      ['fqsp' s+(spat (slag 1 `path`path.wick))]
-      ['wire' s+(wick-to-wire wick)]
+      ['fqsp' s+(spat fqsp.slip)]
       ['links' a+(turn (links txt.slip) |=(l=@t s+l))]
       ['text' s+txt.slip]
   ==
+::
+++  enjs
+  |=  =slip:chorus
+  ^-  json
+  (pairs:enjs:format (slip-pairs slip))
 --

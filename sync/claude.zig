@@ -214,8 +214,7 @@ fn resolve(arena: std.mem.Allocator, target: []const u8, entries: []const Entry)
 
 const Fqsp = struct { host: []const u8, path: []const u8 };
 
-// /~host/g/x/<rev>/chorus//1/cabinet/<path>. an fqsp has no tag; a
-// wire is not a link
+// /~host/g/x/<rev>/chorus//1/chorus/cabinet/<path>
 fn parseFqsp(path: []const u8) ?Fqsp {
     if (path.len < 2 or path[0] != '/') return null;
     const host_end = std.mem.indexOfScalarPos(u8, path, 1, '/') orelse return null;
@@ -225,7 +224,7 @@ fn parseFqsp(path: []const u8) ?Fqsp {
     if (!std.mem.startsWith(u8, after, "/g/x/")) return null;
     const rev_end = std.mem.indexOfScalarPos(u8, after, 5, '/') orelse return null;
     const tail = after[rev_end..];
-    const marker = "/chorus//1/cabinet";
+    const marker = "/chorus//1/chorus/cabinet";
     if (!std.mem.startsWith(u8, tail, marker)) return null;
     const rest = tail[marker.len..];
     if (rest.len < 2 or rest[0] != '/') return null;
@@ -427,11 +426,11 @@ test "descriptions strip markup and stop at the first sentence" {
     try testing.expectEqualStrings("word " ** 29 ++ "word", words);
 }
 
-test "frontmatter runs type, author, created, fqsp and names no wire" {
+test "frontmatter runs type, author, created and fqsp" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     var entry = testEntry("/notes/bar", "~zod", "");
-    entry.slip.fqsp = "/~zod/g/x/1/chorus//1/cabinet/notes/bar";
+    entry.slip.fqsp = "/~zod/g/x/1/chorus//1/chorus/cabinet/notes/bar";
     try testing.expectEqualStrings(
         \\---
         \\name: notes.bar
@@ -440,7 +439,7 @@ test "frontmatter runs type, author, created, fqsp and names no wire" {
         \\  type: reference
         \\  author: ..abet.baboon
         \\  created: ~2026.9.17
-        \\  fqsp: /~zod/g/x/1/chorus//1/cabinet/notes/bar
+        \\  fqsp: /~zod/g/x/1/chorus//1/chorus/cabinet/notes/bar
         \\---
         \\
         \\body
@@ -457,17 +456,17 @@ test "links to synced slips take memory names; others stay" {
         testEntry("/notes/baz/~sampel", "~sampel", ""),
     };
     const text =
-        "a [[/~zod/g/x/4/chorus//1/cabinet/notes/bar]] " ++
-        "b [[/~sampel/g/x/1/chorus//1/cabinet/notes/baz]] " ++
-        "c [[/~zod/g/x/1/chorus//1/cabinet/notes/nope]] " ++
-        "d [[wire://some.nym/fine/~zod/g/x/1/chorus//1/cabinet/notes/bar]] " ++
-        "e [[/fine/~zod/g/x/4/chorus//1/cabinet/notes/bar]] " ++
+        "a [[/~zod/g/x/4/chorus//1/chorus/cabinet/notes/bar]] " ++
+        "b [[/~sampel/g/x/1/chorus//1/chorus/cabinet/notes/baz]] " ++
+        "c [[/~zod/g/x/1/chorus//1/chorus/cabinet/notes/nope]] " ++
+        "d [[/~zod/notes/bar]] " ++
+        "e [[/fine/~zod/g/x/4/chorus//1/chorus/cabinet/notes/bar]] " ++
         "f [[plain words]]";
     try testing.expectEqualStrings(
         "a [[notes.bar]] b [[notes.baz.~sampel]] " ++
-            "c [[/~zod/g/x/1/chorus//1/cabinet/notes/nope]] " ++
-            "d [[wire://some.nym/fine/~zod/g/x/1/chorus//1/cabinet/notes/bar]] " ++
-            "e [[/fine/~zod/g/x/4/chorus//1/cabinet/notes/bar]] " ++
+            "c [[/~zod/g/x/1/chorus//1/chorus/cabinet/notes/nope]] " ++
+            "d [[/~zod/notes/bar]] " ++
+            "e [[/fine/~zod/g/x/4/chorus//1/chorus/cabinet/notes/bar]] " ++
             "f [[plain words]]",
         try rewriteLinks(a, text, &entries),
     );

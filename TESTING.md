@@ -45,24 +45,64 @@ Commit the mounted files from the Dojo:
 |commit %chorus
 ```
 
-## Build the Aqua pill and snapshots
+## Match the kernel
 
-Start `%aqua` and give it a pill containing `%base` and `%chorus`:
+Aqua loads the Ames vane into each guest from the host thread's desk, and
+compiles it against the host ship's kernel. The aqua files in the test build
+must therefore match the kernel the host ship runs. When they do not, guests
+boot and answer scries, and `|hi` between them never completes.
+
+Three files carry the difference: `sys/vane/ames.hoon`, `ted/aqua/ames.hoon`
+and `lib/aqua-azimuth.hoon`. Point `-Dgroundwire` at a checkout of the commit
+the ship's kernel was built from. To check, compare the three files in the
+built desk with those in a `|merge` of the ship's committed `%base`, such as
+the `%aqua-base` desk below. Do not compare with a mounted `base/` folder; a
+mount can be stale.
+
+## Build the Aqua pill
+
+Start `%aqua`. Make a base desk for the pill: a copy of `%base` with a minimal
+bill, so that no guest runs background agents whose timers and traffic swamp
+the test:
 
 ```hoon
 |start %aqua
-:aqua &pill +pill/solid %base %chorus
+|merge %aqua-base our %base
+|mount %aqua-base
 ```
 
-Rebuild the fleet snapshots whenever code included in the virtual ships
-changes:
+The build writes that bill. `-Daqua-base` takes the mounted desk and copies
+`desk.bill` into it from the pinned `gwbtc/kademlia` import:
+
+```console
+zig build -Dtests -Dgroundwire=/path/to/gw-urbit -Ddesk=/path/to/pier/chorus -Daqua-base=/path/to/pier/aqua-base
+```
+
+Commit both desks and give `%aqua` a pill:
 
 ```hoon
--chorus!ph-fleet
+|commit %aqua-base
+|commit %chorus
+:aqua &pill +pill/brass %aqua-base %chorus, =prime .y, =cache .y
 ```
 
-This creates `%chorus-message`, a two-ship snapshot for message tests, and
-`%chorus-gossip`, a four-ship Groundwire topology for gossip and crowd tests.
+Rebuild the pill whenever code included in the virtual ships changes.
+
+The runner boots a fresh fleet for each test: two fake galaxies, `~bud` and
+`~wes`. Fake ships suit these tests, which need delivery and test no PKI
+decision. Nothing in them covers Groundwire keys or nyms.
+
+A poll asks a ship for nine topics through one poke gate per peer. Between
+aqua ships that takes about thirty seconds, so each test polls no more than
+it must.
+
+A test does not wait out the ten-minute poll. Chorus polls a ship when it is
+added to the set, so a test adds the publisher again to poll it again.
+
+A test waits for a publish to settle before it polls. A ship that holds a
+replica of the publisher's last pointer answers a poll from it, so a poll
+that races a publish hears the old value. The harness watches the
+publisher's `/published` path for the `%chorus-published` fact.
 
 ## Run tests
 
@@ -76,11 +116,11 @@ Run a directory or a matching test-arm prefix:
 
 ```hoon
 -chorus!ph-test [~ /ted/ph/message] ~
--chorus!ph-test [~ /ted/ph/gossip/ph-test-tell] ~
+-chorus!ph-test [~ /ted/ph/message/ph-test-message-slip] ~
 ```
 
 Run one test arm:
 
 ```hoon
--chorus!ph-test [~ /ted/ph/crowd/ph-test-crowd-kids] ~
+-chorus!ph-test [~ /ted/ph/message/ph-test-message-unlisted] ~
 ```

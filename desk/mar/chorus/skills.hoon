@@ -1,5 +1,5 @@
 /-  chorus
-/+  *wick
+/+  cho=chorus
 |_  val=(set listing:skill:chorus)
 ++  grad  %noun
 ++  grow
@@ -11,10 +11,9 @@
     %+  turn  ~(tap in val)
     |=  lit=listing:skill:chorus
     %-  pairs:enjs:format
-    :~  ['name' s+name.meta.lit]
-        ['description' s+description.meta.lit]
-        ['compatibility' s+compatibility.meta.lit]
-        ['wire' s+(wick-to-wire wick.lit)]
+    :*  ['ship' s+(scot %p ship.lit)]
+        ['skill' s+(scot %uv hax.lit)]
+        (skill-pairs:cho meta.lit)
     ==
   --
 ++  grab

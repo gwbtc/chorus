@@ -1,5 +1,5 @@
 /-  chorus, mcp, spider
-/+  io=strandio, gossip
+/+  io=strandio
 ^-  tool:mcp
 :*  'chorus/publish-resource'
     '''
@@ -8,14 +8,12 @@
     %-  my
     :~  ['desk' [%string 'The desk containing the MCP resource file.']]
         ['path' [%string 'The Clay path to the MCP resource noun. Must begin with a /.']]
-        :-  'crowd'
-        :-  %array
+        :-  'public'
+        :-  %boolean
         '''
-        Optional audience, an array of strings: ['local'] keeps
-        it on this ship; a single class like ['kids'], ['fief'],
-        ['sein'], or ['city'] sends it straight to those ships;
-        ship names like ['~sampel', '~palnet'] send it to the
-        listed ships. Leave out to gossip to our subscribers.
+        Publish to every ship that polls us. Defaults to false,
+        which lists it on this ship alone: our own scries show
+        it, and no ship that polls us hears of it.
         '''
     ==
     ~['desk' 'path']
@@ -34,28 +32,14 @@
       ?:  =('/' (snag 0 (trip p.u.pax)))
         (stab p.u.pax)
       (stab (crip (slag 1 (trip p.u.pax))))
-    ::  sanitise the crowd argument: absent defers to the
-    ::  standing gossip config
-    =/  crowd=(unit crowd:gossip)
-      =/  arg  (~(get by args) 'crowd')
-      ?.  ?=([~ %array *] arg)  ~
-      =/  txts=(list @t)
-        %+  turn  p.u.arg
-        |=  a=argument:tool:mcp
-        ?>(?=([%string @t] a) p.a)
-      ?:  =(~['local'] txts)  `~
-      =/  who=(unit whos:gossip)
-        ?.  ?=([@ ~] txts)  ~
-        ((soft whos:gossip) i.txts)
-      ?^  who  `[%whos u.who]
-      `[%ships (turn txts |=(t=@t (slav %p t)))]
+    =/  public=?  =([~ %boolean &] (~(get by args) 'public'))
     ;<  our=ship  bind:m  get-our:io
     ;<  ~  bind:m
       %-  send-raw-card:io
       :*  %pass   /publish-resource
           %agent  [our %chorus]
-          %poke   %chorus-action
-          !>(`action:chorus`[%publish crowd %mcp-resource `@tas`p.u.dek path])
+          %poke   %chorus-publish
+          !>(`publish:chorus`[public %mcp-resource `@tas`p.u.dek path])
       ==
     ;<  ~  bind:m  (take-poke-ack:io /publish-resource)
     %-  pure:m

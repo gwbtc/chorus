@@ -1,6 +1,6 @@
-/-  *chorus
-/+  *wick
-|_  val=(set listing:template:resource:mcp)
+/-  chorus
+/+  cho=chorus
+|_  val=(set listing:template:resource:mcp:chorus)
 ++  grad  %noun
 ++  grow
   |%
@@ -9,28 +9,15 @@
     ^-  ^json
     :-  %a
     %+  turn  ~(tap in val)
-    |=  r=listing:template:resource:mcp
-    =*  info  meta.r
+    |=  lit=listing:template:resource:mcp:chorus
     %-  pairs:enjs:format
-    %+  welp
-      :~  ['uriTemplate' s+uri-template.info]
-          ['name' s+name.info]
-      ==
-    %+  welp
-      ?~  title.info
-        ~
-      :~  ['title' s+u.title.info]
-      ==
-    %+  welp
-      ?~  desc.info
-        ~
-      :~  ['description' s+u.desc.info]
-      ==
-    :~  ['wire' s+(wick-to-wire wick.r)]
+    :*  ['ship' s+(scot %p ship.lit)]
+        ['source' s+(scot %uv hax.lit)]
+        (template-pairs:cho meta.lit)
     ==
   --
 ++  grab
   |%
-  ++  noun  ,(set listing:template:resource:mcp)
+  ++  noun  ,(set listing:template:resource:mcp:chorus)
   --
 --

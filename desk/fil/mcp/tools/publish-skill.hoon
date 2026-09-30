@@ -1,16 +1,15 @@
-/-  chorus, mcp, spider, *wick
-/+  io=strandio, gossip, cho=chorus, *wick
+/-  chorus, mcp, spider, *content-routing, *content-store
+/+  io=strandio, cho=chorus, cr=content-routing
+/+  client=content-store-client
 =>
 |%
 ::
-::  sign a contentful wick for each extra skill file: a
-::  path into the given clay desk, or a fully-qualified
-::  /fine path we serve ourselves
-::  XX sign /https and other protocols here
-++  aux-wicks
+::  read each extra skill file, a path into the given clay
+::  desk, as a cask of its text
+++  aux-casks
   |=  [our=ship now=@da dek=@tas args=(list argument:tool:mcp)]
-  ^-  (each (list wick) @t)
-  =|  out=(list wick)
+  ^-  (each (list (cask)) @t)
+  =|  out=(list (cask))
   |-
   ?~  args
     [%& (flop out)]
@@ -20,31 +19,17 @@
   ?:  =('https://' (end [3 8] txt))
     [%| 'https skill files are not yet supported']
   =/  pax=(unit path)  (rush txt stap)
-  ?~  pax
+  ?:  |(?=(~ pax) ?=(~ u.pax))
     [%| (crip "could not parse the path {(trip txt)}")]
-  ?:  ?=([%fine @ *] u.pax)
-    ?.  =((scot %p our) i.t.u.pax)
-      [%| (crip "{(trip txt)} is not served by our ship")]
-    =/  wik=(unit wick)  (mole |.((make-fine-wick:cho our now u.pax)))
-    ?~  wik
-      [%| (crip "could not sign the content at {(trip txt)}")]
-    $(args t.args, out [u.wik out])
-  ?.  .^(? %cu (welp /(scot %p our)/[dek]/(scot %da now) u.pax))
-    [%| (crip "no file at {(trip txt)} on desk %{(trip dek)}")]
-  $(args t.args, out [(make-clay-wick:cho our now dek u.pax) out])
+  =/  got=(unit @t)  (read-text our now dek u.pax)
+  ?~  got
+    [%| (crip "no readable file at {(trip txt)} on desk %{(trip dek)}")]
+  $(args t.args, out [[(rear u.pax) u.got] out])
 ::
-::  read the text a skill file path serves: a clay path on
-::  the given desk, or a /fine path we serve ourselves
+::  read the text at a clay path on the given desk
 ++  read-text
   |=  [our=ship now=@da dek=@tas pax=path]
   ^-  (unit @t)
-  ?:  ?=([%fine @ *] pax)
-    ?.  =((scot %p our) i.t.pax)
-      ~
-    %-  mole
-    |.
-    =/  sag  (our-sage:cho our pax)
-    ;;(@t q:;;(page q.sag))
   ?.  .^(? %cu (welp /(scot %p our)/[dek]/(scot %da now) pax))
     ~
   (mole |.(;;(@t .^(* %cx (welp /(scot %p our)/[dek]/(scot %da now) pax)))))
@@ -55,9 +40,9 @@
     Publish an agent skill, per the agentskills.io specification,
     to the Chorus network. Takes a Clay path to the SKILL.md file
     and optional lists of paths to its references, scripts, and
-    assets files. Checks the skill against the spec, signs a wick
-    for every file, and gossips a signed listing. Returns an error
-    explaining any spec violation.
+    assets files. Checks the skill against the spec, stores every
+    file in the content store, and lists the skill with the
+    digest of each. Returns an error explaining any spec violation.
     '''
     %-  my
     :~  :-  'desk'
@@ -68,17 +53,15 @@
         '''
         The path to the SKILL.md file: a Clay path on the desk,
         beginning with a / and ending with its mark, e.g.
-        /fil/skills/my-skill/skill/md, or a fully-qualified /fine
-        remote scry path this ship serves.
+        /fil/skills/my-skill/skill/md.
         '''
         :-  'references'
         :-  %array
         '''
         Optional paths to the files in the skill's references
         directory, as an array of strings. Each is a Clay path on
-        the same desk, or a fully-qualified /fine remote scry path
-        this ship serves. The published skill carries a signed
-        wire for each file.
+        the same desk. The published skill carries the digest of
+        each file.
         '''
         :-  'scripts'
         :-  %array
@@ -86,14 +69,12 @@
         :-  'assets'
         :-  %array
         'Like references, for the assets directory.'
-        :-  'crowd'
-        :-  %array
+        :-  'public'
+        :-  %boolean
         '''
-        Optional audience, an array of strings: ['local'] keeps
-        it on this ship; a single class like ['kids'], ['fief'],
-        ['sein'], or ['city'] sends it straight to those ships;
-        ship names like ['~sampel', '~palnet'] send it to the
-        listed ships. Leave out to gossip to our subscribers.
+        Publish to every ship that polls us. Defaults to false,
+        which lists it on this ship alone: our own scries show
+        it, and no ship that polls us hears of it.
         '''
     ==
     ~['desk' 'skill']
@@ -109,21 +90,7 @@
     ?>  ?=([%string @t] u.dek)
     ?>  ?=([%string @t] u.pat)
     =/  dsk  `@tas`p.u.dek
-    ::  sanitise the crowd argument: absent defers to the
-    ::  standing gossip config
-    =/  crowd=(unit crowd:gossip)
-      =/  arg  (~(get by args) 'crowd')
-      ?.  ?=([~ %array *] arg)  ~
-      =/  txts=(list @t)
-        %+  turn  p.u.arg
-        |=  a=argument:tool:mcp
-        ?>(?=([%string @t] a) p.a)
-      ?:  =(~['local'] txts)  `~
-      =/  who=(unit whos:gossip)
-        ?.  ?=([@ ~] txts)  ~
-        ((soft whos:gossip) i.txts)
-      ?^  who  `[%whos u.who]
-      `[%ships (turn txts |=(t=@t (slav %p t)))]
+    =/  public=?  =([~ %boolean &] (~(get by args) 'public'))
     ;<  =bowl:spider  bind:m  get-bowl:io
     =*  our  our.bowl
     =*  now  now.bowl
@@ -151,7 +118,7 @@
       %-  pure:m
       !>  ^-  response:tool:mcp
       [%error u.err ~]
-    ::  sign contentful wicks for the extra skill files
+    ::  read the extra skill files
     =/  ref-args=(list argument:tool:mcp)
       =/  a  (~(get by args) 'references')
       ?.(?=([~ %array *] a) ~ p.u.a)
@@ -161,39 +128,53 @@
     =/  ass-args=(list argument:tool:mcp)
       =/  a  (~(get by args) 'assets')
       ?.(?=([~ %array *] a) ~ p.u.a)
-    =/  refs  (aux-wicks our now dsk ref-args)
+    =/  refs  (aux-casks our now dsk ref-args)
     ?:  ?=(%| -.refs)
       %-  pure:m
       !>  ^-  response:tool:mcp
       [%error p.refs ~]
-    =/  scrs  (aux-wicks our now dsk scr-args)
+    =/  scrs  (aux-casks our now dsk scr-args)
     ?:  ?=(%| -.scrs)
       %-  pure:m
       !>  ^-  response:tool:mcp
       [%error p.scrs ~]
-    =/  asts  (aux-wicks our now dsk ass-args)
+    =/  asts  (aux-casks our now dsk ass-args)
     ?:  ?=(%| -.asts)
       %-  pure:m
       !>  ^-  response:tool:mcp
       [%error p.asts ~]
-    ::  the body wick signs the SKILL.md file itself
-    =/  bod  (aux-wicks our now dsk ~[[%string p.u.pat]])
-    ?:  ?=(%| -.bod)
-      %-  pure:m
-      !>  ^-  response:tool:mcp
-      [%error p.bod ~]
-    ?~  p.bod
-      %-  pure:m
-      !>  ^-  response:tool:mcp
-      [%error 'could not sign the skill file' ~]
+    =/  bod=(cask)  [%md u.txt]
     =/  ski=skill:chorus
-      [p.red i.p.bod p.refs p.scrs p.asts]
+      :*  p.red
+          (digest-cask:cr bod)
+          (turn p.refs digest-cask:cr)
+          (turn p.scrs digest-cask:cr)
+          (turn p.asts digest-cask:cr)
+      ==
+    ::  a public skill's files go in the content store, where
+    ::  a peer fetches each by its digest
+    ;<  ~  bind:m
+      ?.  public  (pure:(strand:spider ,~) ~)
+      %-  send-raw-cards:io
+      %-  zing
+      %+  turn  [bod :(weld p.refs p.scrs p.asts)]
+      |=  file=(cask)
+      ::  chorus forgets the operation when it hears the result
+      =/  id=content-store-id  (end 6 (shax (jam [now file])))
+      %:  start:client
+        our
+        %chorus
+        id
+        %chorus
+        /stow/(scot %uv id)
+        (put:client id file unnamed:client ~)
+      ==
     ;<  ~  bind:m
       %-  send-raw-card:io
       :*  %pass   /publish-skill
           %agent  [our %chorus]
-          %poke   %chorus-action
-          !>(`action:chorus`[%publish crowd %agent-skill ski])
+          %poke   %chorus-publish
+          !>(`publish:chorus`[public %agent-skill ski])
       ==
     ;<  ~  bind:m  (take-poke-ack:io /publish-skill)
     %-  pure:m

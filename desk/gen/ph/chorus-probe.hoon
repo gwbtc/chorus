@@ -7,8 +7,17 @@
 |=  $:  [now=@da eny=@uvJ bec=beak]
         $:  id=@uv
             from=ship
-            kind=?(%bio %announcement %mcp-tool %mcp-prompt %mcp-resource %mcp-resource-template)
+            $=  kind
+            $?  %bio
+                %announcement
+                %mcp-tool
+                %mcp-prompt
+                %mcp-resource
+                %mcp-resource-template
+                %slip
+            ==
             value=@t
+            pax=path
             ~
         ==
         ~
@@ -17,28 +26,42 @@
 =/  ok=?
   ?-  kind
     %bio
-      =/  listings=(set listing:bio)
-        .^((set listing:bio) %gx (weld pre /rolodex/noun))
-      (~(any in listings) |=(lit=listing:bio &(=(from ship.id.wick.lit) =(value txt.lit))))
+      %-  ~(any in .^((set listing:bio) %gx (weld pre /topic/rolodex/noun)))
+      |=(lit=listing:bio &(=(from ship.lit) =(value txt.lit)))
     %announcement
-      =/  listings=(set listing:announcement)
-        .^((set listing:announcement) %gx (weld pre /announcements/noun))
-      (~(any in listings) |=(lit=listing:announcement &(=(from ship.id.wick.lit) =(value txt.lit))))
+      %-  %~  any  in
+          .^  (set listing:announcement)
+              %gx
+              (weld pre /topic/announcements/noun)
+          ==
+      |=(lit=listing:announcement &(=(from ship.lit) =(value txt.lit)))
     %mcp-tool
-      =/  listings=(set listing:tool:mcp)
-        .^((set listing:tool:mcp) %gx (weld pre /mcp-tools/noun))
-      (~(any in listings) |=(lit=listing:tool:mcp &(=(from ship.id.wick.lit) =(value name.meta.lit))))
+      %-  %~  any  in
+          .^((set listing:tool:mcp) %gx (weld pre /topic/mcp/tools/noun))
+      |=(lit=listing:tool:mcp &(=(from ship.lit) =(value name.meta.lit)))
     %mcp-prompt
-      =/  listings=(set listing:prompt:mcp)
-        .^((set listing:prompt:mcp) %gx (weld pre /mcp-prompts/noun))
-      (~(any in listings) |=(lit=listing:prompt:mcp &(=(from ship.id.wick.lit) =(value name.meta.lit))))
+      %-  %~  any  in
+          .^((set listing:prompt:mcp) %gx (weld pre /topic/mcp/prompts/noun))
+      |=(lit=listing:prompt:mcp &(=(from ship.lit) =(value name.meta.lit)))
     %mcp-resource
-      =/  listings=(set listing:resource:mcp)
-        .^((set listing:resource:mcp) %gx (weld pre /mcp-resources/noun))
-      (~(any in listings) |=(lit=listing:resource:mcp &(=(from ship.id.wick.lit) =(value name.meta.lit))))
+      %-  %~  any  in
+          .^  (set listing:resource:mcp)
+              %gx
+              (weld pre /topic/mcp/resources/noun)
+          ==
+      |=(lit=listing:resource:mcp &(=(from ship.lit) =(value name.meta.lit)))
     %mcp-resource-template
-      =/  listings=(set listing:template:resource:mcp)
-        .^((set listing:template:resource:mcp) %gx (weld pre /mcp-resource-templates/noun))
-      (~(any in listings) |=(lit=listing:template:resource:mcp &(=(from ship.id.wick.lit) =(value name.meta.lit))))
+      %-  %~  any  in
+          .^  (set listing:template:resource:mcp)
+              %gx
+              (weld pre /topic/mcp/resources/templates/noun)
+          ==
+      |=  lit=listing:template:resource:mcp
+      &(=(from ship.lit) =(value name.meta.lit))
+    %slip
+      =/  got=(unit slip)
+        (~(get of .^(cabinet %gx (weld pre /cabinet/drawer/noun))) pax)
+      ?~  got  |
+      &(=(from ship.u.got) =(value txt.u.got))
   ==
 [%noun [id ok]]

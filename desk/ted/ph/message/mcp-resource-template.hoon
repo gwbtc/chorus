@@ -1,4 +1,4 @@
-::  MCP resource-template metadata delivery over %chorus-message.
+::  MCP resource-template listing delivery.
 /-  spider
 /+  *ph-io, *ph-chorus
 =,  strand=strand:spider
@@ -6,14 +6,10 @@
 ++  ph-test-message-mcp-resource-template
   =/  m  (strand ,~)
   ^-  form:m
-  ;<  ~  bind:m  (prepare-pair %message-mcp-resource-template)
-  ;<  ~  bind:m  (expect-bulla ship-b 0v50)
+  ;<  ~  bind:m  prepare-pair
   ;<  ~  bind:m
-    %:  publish-mcp
-        ship-a
-        %resource-template
-        %chorus
-        /fil/mcp/templates/rolodex/hoon
-    ==
-  (await-bulla ship-b 0v50 ship-a [%mcp-resource-template 'chorus/rolodex'])
+    (publish-mcp ship-a %resource-template %chorus /fil/mcp/templates/rolodex/hoon)
+  ;<  ~  bind:m  (expect-update ship-b 0v43)
+  ;<  ~  bind:m  (poll ship-b ship-a)
+  (await-update ship-b 0v43 ship-a [%mcp-resource-template 'chorus/rolodex'])
 --

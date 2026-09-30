@@ -1,14 +1,12 @@
-/-  chorus, *wick
-/+  *wick
+/-  chorus, *content-routing
 |_  val=skill:chorus
 ++  grad  %noun
 ++  grow
   |%
   ++  noun  val
   ::
-  ::  json gives the frontmatter fields and the wires for
-  ::  every skill file, each of which a client can hand
-  ::  back to chorus/fetch-wire
+  ::  json gives the frontmatter fields and the digest of
+  ::  every skill file
   ++  json
     ^-  ^json
     =*  fm  frontmatter.val
@@ -17,14 +15,14 @@
         ['description' s+description.fm]
         :-  'compatibility'
         ?~(compatibility.fm ~ s+u.compatibility.fm)
-        ['skill' s+(wick-to-wire body.val)]
-        ['references' a+(turn references.val |=(w=wick s+(wick-to-wire w)))]
-        ['scripts' a+(turn scripts.val |=(w=wick s+(wick-to-wire w)))]
-        ['assets' a+(turn assets.val |=(w=wick s+(wick-to-wire w)))]
+        ['skill' s+(scot %uv body.val)]
+        ['references' a+(turn references.val |=(d=digest s+(scot %uv d)))]
+        ['scripts' a+(turn scripts.val |=(d=digest s+(scot %uv d)))]
+        ['assets' a+(turn assets.val |=(d=digest s+(scot %uv d)))]
     ==
   ::
   ::  mime gives the manifest as a yaml file: the
-  ::  frontmatter, and a wire for every skill file
+  ::  frontmatter, and a digest for every skill file
   ++  mime
     ^-  ^mime
     :-  /text/yaml
@@ -50,22 +48,22 @@
       ?~  allowed-tools.fm  ~
       [(cat 3 'allowed-tools: ' u.allowed-tools.fm)]~
     ::
-      [(cat 3 'skill: ' (wick-to-wire body.val))]~
+      [(cat 3 'skill: ' (scot %uv body.val))]~
     ::
       ?:  =(~ references.val)  ~
       :-  'references:'
       %+  turn  references.val
-      |=(w=wick (cat 3 '  - ' (wick-to-wire w)))
+      |=(d=digest (cat 3 '  - ' (scot %uv d)))
     ::
       ?:  =(~ scripts.val)  ~
       :-  'scripts:'
       %+  turn  scripts.val
-      |=(w=wick (cat 3 '  - ' (wick-to-wire w)))
+      |=(d=digest (cat 3 '  - ' (scot %uv d)))
     ::
       ?:  =(~ assets.val)  ~
       :-  'assets:'
       %+  turn  assets.val
-      |=(w=wick (cat 3 '  - ' (wick-to-wire w)))
+      |=(d=digest (cat 3 '  - ' (scot %uv d)))
     ==
   --
 ++  grab

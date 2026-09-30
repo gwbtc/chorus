@@ -1,13 +1,11 @@
 ::
-::  Run Chorus Aqua tests against the topology-specific snapshots
-::  built by -chorus!ph-fleet. Discovers ++ph-test-* arms in cores
-::  under .pax, starts the Aqua vanes once, then restores the right
-::  snapshot and runs each test arm as a timed sub-thread. Pauses
-::  the selected fleet after each test and stops the vanes at the end.
+::  Run Chorus Aqua tests. Discovers ++ph-test-* arms in cores
+::  under .pax, and runs each test arm as a timed sub-thread that
+::  starts its own Aqua vanes and boots a fresh fleet. Pauses the
+::  fleet after each test.
 ::
 ::  args: (unit [pax=(unit path) snap=(unit term)])
-::  With no snapshot override, tests below /ted/ph/message restore
-::  %chorus-message; all other tests restore %chorus-gossip.
+::  .snap is ignored; it remains so old invocations still parse.
 ::
 ::  returns & if all tests passed, | otherwise.
 ::
@@ -99,14 +97,19 @@
   =/  test-thread=shed:khan
     =/  n  (strand ,vase)
     ^-  form:n
-    ;<  ~  bind:n  ph-test-init:ph-test
+    ::  each test owns its vane helpers. a helper keeps what it
+    ::  learned of a fleet, and one that outlives its fleet loses
+    ::  the next fleet's packets; spider stops these helpers when
+    ::  this thread ends
+    ;<  ~  bind:n  start-simple:ph-io
     ;<  ~  bind:n
       %:  (set-timeout-err:ph-test ,~)
         test-timeout
         ~[leaf+"test timed out after {<test-timeout>}"]
+        ;<  ~  bind:(strand ,~)  setup-message-fleet:ph-chorus
         test-strand
       ==
-    ;<  ~  bind:n  ph-test-shut:ph-test
+    ;<  ~  bind:n  end:ph-io
     (pure:n !>(~))
   =/  =inline-args:spider
     :*  `tid.bowl
@@ -168,10 +171,6 @@
   (pure:m !>(|))
 ~>  %slog.1^leaf+"{<num>} test {?:((gth num 1) "threads" "thread")} built"
 ~>  %slog.1^'Running tests...'
-::  Keep one Aqua vane set for the whole group. In this Arvo revision
-::  +stop-threads is a stub, but Spider cleans up these child threads when
-::  this parent finishes. Restarting them per test would multiply effects.
-;<  ~  bind:m  start-simple:ph-io
 =/  n  (strand (list (pair path thread-result)))
 ;<  results=(list (pair path thread-result))  bind:m
   ^-  form:n
@@ -180,23 +179,13 @@
   ?~  tests  (pure:n (flop results))
   =*  test  i.tests
   =*  name  (rear path.test)
-  =/  message=?  ?=([%ted %ph %message *] path.test)
-  =/  fleet=(list ship)
-    ?:  message  message-fleet:ph-chorus
-    chorus-fleet:ph-chorus
-  =/  snap=term
-    (fall snap-override ?:(message %chorus-message %chorus-gossip))
-  ;<  ~  bind:n  (send-events:ph-io [%restore-snap snap]~)
-  ;<  ~  bind:n  (await-restored:ph-chorus fleet)
-  ;<  ~  bind:n
-    ?:  message  (pure:(strand ,~) ~)
-    check-groundwire:ph-chorus
+  =/  fleet=(list ship)  message-fleet:ph-chorus
   ~>  %slog.1^leaf+"Testing {<name>}"
   ;<  now-1=@da  bind:n  get-time
   ;<  =thread-result  bind:n  (await-test-thread test)
   ;<  now-2=@da  bind:n  get-time
   ::  pause the fleet so this epoch cannot send packets into the
-  ::  next test's restored ships (restore crashes on stale bones)
+  ::  next test's fleet
   ::
   ;<  ~  bind:n
     %-  send-events:ph-io
@@ -204,7 +193,7 @@
     |=(s=ship [%pause-events s])
   ::  Aqua vane helpers forward guest effects after a zero-second Behn
   ::  wake.  Give that known deferred work one grace interval while the
-  ::  old fleet is paused, before the next snapshot replaces its Ames flows.
+  ::  old fleet is paused, before the next fleet replaces its Ames flows.
   ;<  ~  bind:n  (sleep ~s1)
   =/  [took-s=@ud took-ms=@ud]
     =*  s  ~s1
@@ -213,7 +202,6 @@
     [(div diff s) (div (mod diff s) ms)]
   ~>  %slog.1^leaf+"{(trip name)} took {<took-s>}.{((d-co:co 3) took-ms)}s"
   $(tests t.tests, results [[path.test thread-result] results])
-;<  ~  bind:m  end:ph-io
 =+  ok=?=(~ failed-builds)
 |-
 ?~  results  (pure:m !>(ok))

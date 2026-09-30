@@ -65,8 +65,8 @@ const skill_md =
     \\## Writing a slip
     \\
     \\Call the `chorus/publish-slip` MCP tool on the ship with a `path` and
-    \\the `text`. Publishing to a path that holds our slip replaces it. The
-    \\file appears in the memory folder a moment later.
+    \\the `text`. Publishing to a path that holds our slip replaces it with
+    \\a new revision. The file appears in the memory folder a moment later.
     \\
     \\- A slip is at most 2,048 characters of GitHub-flavoured Markdown,
     \\  with no HTML and no frontmatter.
@@ -75,7 +75,7 @@ const skill_md =
     \\  segment is the title; the rest are drawers.
     \\- Only slips in a synced drawer come back to this folder. The drawers
     \\  are listed in `.claude/chorus/config.json`.
-    \\- Leave `gossip` false unless the user wants the slip shared. Memory
+    \\- Leave `public` false unless the user wants the slip shared. Memory
     \\  often holds local paths and working habits.
     \\
     \\Remove a slip with `chorus/discard-slip`.
@@ -84,8 +84,10 @@ const skill_md =
     \\
     \\Slips link to each other with `[[<fqsp>]]`. An FQSP is the remote scry
     \\path of one revision of a slip:
-    \\`/~host/g/x/<rev>/chorus//1/cabinet/<drawer...>/<slug>`. In the synced
-    \\copy, a link to another synced slip reads `[[<memory name>]]`.
+    \\`/~host/g/x/<rev>/chorus//1/chorus/cabinet/<drawer...>/<slug>`. A
+    \\slip's frontmatter gives its own. `chorus/fetch-slip` reads the
+    \\revision an FQSP names. In the synced copy, a link to another synced
+    \\slip reads `[[<memory name>]]`.
     \\
 ;
 

@@ -1,5 +1,5 @@
-/-  chorus, mcp, spider, *wick
-/+  io=strandio, slp=slip, *wick
+/-  chorus, mcp, spider
+/+  io=strandio, slp=slip
 ^-  tool:mcp
 :*  'chorus/publish-slip'
     '''
@@ -10,8 +10,8 @@
     a one-line summary; clients show that line in their indexes.
     Link to other slips with [[<fqsp>]], where the FQSP is the
     remote scry path of a slip revision, e.g.
-    /~host/g/x/{revision-number}/chorus//1/cabinet/{+path}/<slug>.
-    Returns the slip's FQSP and wire, or an error explaining
+    /~host/g/x/{revision-number}/chorus//1/chorus/cabinet/{+path}.
+    Returns the slip's path and FQSP, or an error explaining
     why the slip was refused.
     '''
     %-  my
@@ -19,17 +19,18 @@
         :-  %string
         '''
         The cabinet path, beginning with a /, e.g.
-        /projects/chorus/wick-signing. Must be a valid Hoon path / (list knot).
+        /projects/chorus/kademlia. Must be a valid Hoon path / (list knot).
         The last path segment is the slip's title; the rest are nested drawers.
         '''
         :-  'text'
         :-  %string
         'The Markdown body of the slip.'
-        :-  'gossip'
+        :-  'public'
         :-  %boolean
         '''
-        Share the slip with our gossip subscribers. Defaults to
-        false, which keeps the slip on this ship.
+        Publish to every ship that polls us. Defaults to false,
+        which keeps the slip on this ship alone: our own cabinet
+        shows it, and no ship that polls us hears of it.
         '''
     ==
     ~['path' 'text']
@@ -46,8 +47,8 @@
       (pure:m !>([%error %missing-text ~]))
     ?>  ?=([%string @t] u.pat)
     ?>  ?=([%string @t] u.txt)
-    ;<  =bowl:spider  bind:m  get-bowl:io
-    =*  our  our.bowl
+    =/  public=?  =([~ %boolean &] (~(get by args) 'public'))
+    ;<  our=ship  bind:m  get-our:io
     ::  vet the slip here, so a bad one comes back as a
     ::  helpful error rather than a failed poke
     =/  pax=(unit path)  (rush p.u.pat stap)
@@ -60,7 +61,7 @@
         in lowercase letters, numbers, and hyphens
         '''
       ~
-    =/  err  (vet-slip:slp our u.pax p.u.txt)
+    =/  err  (vet-slip:slp u.pax p.u.txt)
     ?^  err
       %-  pure:m
       !>  ^-  response:tool:mcp
@@ -69,22 +70,21 @@
       %-  send-raw-card:io
       :*  %pass   /publish-slip
           %agent  [our %chorus]
-          %poke   %chorus-action
-          !>  ^-  action:chorus
-          :+  %publish
-            ?:(=([~ %boolean &] (~(get by args) 'gossip')) ~ `~)
-          [%slip u.pax our now.bowl p.u.txt]
+          %poke   %chorus-publish
+          !>  ^-  publish:chorus
+          [public %slip u.pax p.u.txt]
       ==
     ;<  ~  bind:m  (take-poke-ack:io /publish-slip)
-    ;<  [* =wick]  bind:m
-      %+  scry:io  ,[slip:chorus wick]
+    ::  the agent stamps the slip, so read its fqsp back
+    ;<  [* =slip:chorus]  bind:m
+      %+  scry:io  ,[path slip:chorus]
       (weld /gx/chorus/cabinet/slip (snoc u.pax %noun))
     %-  pure:m
     !>  ^-  response:tool:mcp
     :-  %result
     :-  %structured
     %-  pairs:enjs:format
-    :~  ['fqsp' s+(spat (slag 1 `path`path.wick))]
-        ['wire' s+(wick-to-wire wick)]
+    :~  ['path' s+(spat u.pax)]
+        ['fqsp' s+(spat fqsp.slip)]
     ==
 ==
