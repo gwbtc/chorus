@@ -100,7 +100,7 @@ fn render(arena: std.mem.Allocator, entry: Entry, description: []const u8, body:
         \\  type: {s}
         \\  author: {s}
         \\  created: {s}
-        \\  address: {s}
+        \\  fqsp: {s}
         \\---
         \\
         \\{s}
@@ -111,7 +111,7 @@ fn render(arena: std.mem.Allocator, entry: Entry, description: []const u8, body:
         memory_type,
         entry.nym,
         slip.created,
-        slip.address,
+        slip.fqsp,
         std.mem.trimRight(u8, body, "\n"),
     });
 }
@@ -198,31 +198,37 @@ pub fn rewriteLinks(arena: std.mem.Allocator, text: []const u8, entries: []const
     return out.items;
 }
 
-// the tree path of the synced slip an address names, if any. the
-// slip sits at the cabinet path its address names, or under that path
-// at a segment naming its author when the path is split
+// the tree path of the synced slip an fqsp names, if any. the slip
+// sits at the cabinet path its fqsp names, or under that path at a
+// segment naming its author when the path is split
 fn resolve(arena: std.mem.Allocator, target: []const u8, entries: []const Entry) !?[]const u8 {
-    const address = parseAddress(target) orelse return null;
-    const split = try std.fmt.allocPrint(arena, "{s}/{s}", .{ address.path, address.host });
+    const fqsp = parseFqsp(target) orelse return null;
+    const split = try std.fmt.allocPrint(arena, "{s}/{s}", .{ fqsp.path, fqsp.host });
     for (entries) |entry| {
-        if (!std.mem.eql(u8, entry.slip.author, address.host)) continue;
-        if (std.mem.eql(u8, entry.slip.path, address.path)) return entry.slip.path;
+        if (!std.mem.eql(u8, entry.slip.author, fqsp.host)) continue;
+        if (std.mem.eql(u8, entry.slip.path, fqsp.path)) return entry.slip.path;
         if (std.mem.eql(u8, entry.slip.path, split)) return entry.slip.path;
     }
     return null;
 }
 
-const Address = struct { host: []const u8, path: []const u8 };
+const Fqsp = struct { host: []const u8, path: []const u8 };
 
-// /~host/<path>: the author's ship, then the cabinet path the author
-// keeps the slip at
-fn parseAddress(path: []const u8) ?Address {
-    if (path.len < 2 or path[0] != '/' or path[1] != '~') return null;
+// /~host/g/x/<rev>/chorus//1/chorus/cabinet/<path>
+fn parseFqsp(path: []const u8) ?Fqsp {
+    if (path.len < 2 or path[0] != '/') return null;
     const host_end = std.mem.indexOfScalarPos(u8, path, 1, '/') orelse return null;
-    const rest = path[host_end..];
-    if (rest.len < 2) return null;
-    if (std.mem.indexOf(u8, rest, "//") != null) return null;
-    return .{ .host = path[1..host_end], .path = rest };
+    const host = path[1..host_end];
+    if (host[0] != '~') return null;
+    const after = path[host_end..];
+    if (!std.mem.startsWith(u8, after, "/g/x/")) return null;
+    const rev_end = std.mem.indexOfScalarPos(u8, after, 5, '/') orelse return null;
+    const tail = after[rev_end..];
+    const marker = "/chorus//1/chorus/cabinet";
+    if (!std.mem.startsWith(u8, tail, marker)) return null;
+    const rest = tail[marker.len..];
+    if (rest.len < 2 or rest[0] != '/') return null;
+    return .{ .host = host, .path = rest };
 }
 
 // the chorus section of MEMORY.md: one line per slip, or past 80
@@ -283,7 +289,7 @@ fn reconcile(
         const path = slipPath(rel) orelse continue;
         if (old) |bytes| {
             // a file rewritten for its links alone is not news
-            if (std.mem.eql(u8, createdLine(bytes), createdLine(file.value_ptr.*))) continue;
+            if (std.mem.eql(u8, fqspLine(bytes), fqspLine(file.value_ptr.*))) continue;
             try out.print("chorus: {s} updated\n", .{path});
         } else {
             try out.print("chorus: {s} added\n", .{path});
@@ -319,10 +325,10 @@ fn reconcile(
     }
 }
 
-// the frontmatter line naming the time a slip was published, which
-// changes each time its author replaces it
-fn createdLine(file: []const u8) []const u8 {
-    const key = "\n  created: ";
+// the frontmatter line naming the fqsp, which holds the revision and
+// so changes with every revision of a slip
+fn fqspLine(file: []const u8) []const u8 {
+    const key = "\n  fqsp: ";
     const start = std.mem.indexOf(u8, file, key) orelse return "";
     const end = std.mem.indexOfScalarPos(u8, file, start + 1, '\n') orelse file.len;
     return file[start + 1 .. end];
@@ -394,7 +400,7 @@ fn testEntry(path: []const u8, author: []const u8, text: []const u8) Entry {
         .path = path,
         .author = author,
         .created = "~2026.9.17",
-        .address = "",
+        .fqsp = "",
         .text = text,
     } };
 }
@@ -420,11 +426,11 @@ test "descriptions strip markup and stop at the first sentence" {
     try testing.expectEqualStrings("word " ** 29 ++ "word", words);
 }
 
-test "frontmatter runs type, author, created and address" {
+test "frontmatter runs type, author, created and fqsp" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     var entry = testEntry("/notes/bar", "~zod", "");
-    entry.slip.address = "/~zod/notes/bar";
+    entry.slip.fqsp = "/~zod/g/x/1/chorus//1/chorus/cabinet/notes/bar";
     try testing.expectEqualStrings(
         \\---
         \\name: notes.bar
@@ -433,7 +439,7 @@ test "frontmatter runs type, author, created and address" {
         \\  type: reference
         \\  author: ..abet.baboon
         \\  created: ~2026.9.17
-        \\  address: /~zod/notes/bar
+        \\  fqsp: /~zod/g/x/1/chorus//1/chorus/cabinet/notes/bar
         \\---
         \\
         \\body
@@ -450,17 +456,17 @@ test "links to synced slips take memory names; others stay" {
         testEntry("/notes/baz/~sampel", "~sampel", ""),
     };
     const text =
-        "a [[/~zod/notes/bar]] " ++
-        "b [[/~sampel/notes/baz]] " ++
-        "c [[/~zod/notes/nope]] " ++
-        "d [[/~zod/g/x/4/chorus//1/cabinet/notes/bar]] " ++
-        "e [[/notes/bar]] " ++
+        "a [[/~zod/g/x/4/chorus//1/chorus/cabinet/notes/bar]] " ++
+        "b [[/~sampel/g/x/1/chorus//1/chorus/cabinet/notes/baz]] " ++
+        "c [[/~zod/g/x/1/chorus//1/chorus/cabinet/notes/nope]] " ++
+        "d [[/~zod/notes/bar]] " ++
+        "e [[/fine/~zod/g/x/4/chorus//1/chorus/cabinet/notes/bar]] " ++
         "f [[plain words]]";
     try testing.expectEqualStrings(
         "a [[notes.bar]] b [[notes.baz.~sampel]] " ++
-            "c [[/~zod/notes/nope]] " ++
-            "d [[/~zod/g/x/4/chorus//1/cabinet/notes/bar]] " ++
-            "e [[/notes/bar]] " ++
+            "c [[/~zod/g/x/1/chorus//1/chorus/cabinet/notes/nope]] " ++
+            "d [[/~zod/notes/bar]] " ++
+            "e [[/fine/~zod/g/x/4/chorus//1/chorus/cabinet/notes/bar]] " ++
             "f [[plain words]]",
         try rewriteLinks(a, text, &entries),
     );

@@ -278,7 +278,7 @@ const Sync = struct {
             .path = path,
             .author = try a.dupe(u8, slip.author),
             .created = try a.dupe(u8, slip.created),
-            .address = try a.dupe(u8, slip.address),
+            .fqsp = try a.dupe(u8, slip.fqsp),
             .text = try a.dupe(u8, slip.text),
         } });
     }

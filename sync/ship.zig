@@ -18,7 +18,7 @@ pub const Slip = struct {
     // the nym the wick carries, and we ask the ship for the nym instead
     author: []const u8,
     created: []const u8,
-    address: []const u8,
+    fqsp: []const u8,
     text: []const u8,
 };
 
@@ -238,7 +238,7 @@ fn slipOf(value: std.json.Value, path: []const u8) ?Slip {
         .path = path,
         .author = str(o.get("ship")) orelse return null,
         .created = str(o.get("created")) orelse return null,
-        .address = str(o.get("address")) orelse return null,
+        .fqsp = str(o.get("fqsp")) orelse return null,
         .text = str(o.get("text")) orelse return null,
     };
 }
