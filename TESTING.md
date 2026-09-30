@@ -54,13 +54,10 @@ boot and answer scries, and `|hi` between them never completes.
 
 Three files carry the difference: `sys/vane/ames.hoon`, `ted/aqua/ames.hoon`
 and `lib/aqua-azimuth.hoon`. Point `-Dgroundwire` at a checkout of the commit
-the ship's kernel was built from.
-
-XX the fakezod used to develop this desk runs a kernel older than the
-   `gwbtc/urbit` checkout, and nobody recorded which. Until it is rebuilt on
-   a recent kernel, copy those three files onto the mounted desk from a
-   `|merge` of the ship's committed `%base` after each `zig build -Ddesk`.
-   Do not copy from a mounted `base/` folder; a mount can be stale.
+the ship's kernel was built from. To check, compare the three files in the
+built desk with those in a `|merge` of the ship's committed `%base`, such as
+the `%aqua-base` desk below. Do not compare with a mounted `base/` folder; a
+mount can be stale.
 
 ## Build the Aqua pill
 
@@ -74,11 +71,18 @@ the test:
 |mount %aqua-base
 ```
 
-Write `:~  %dojo  %dbug  %hood  %herm  %spider  ==` to the mounted
-`aqua-base/desk.bill` and commit it. Then give `%aqua` a pill:
+The build writes that bill. `-Daqua-base` takes the mounted desk and copies
+`desk.bill` into it from the pinned `gwbtc/kademlia` import:
+
+```console
+zig build -Dtests -Dgroundwire=/path/to/gw-urbit -Ddesk=/path/to/pier/chorus -Daqua-base=/path/to/pier/aqua-base
+```
+
+Commit both desks and give `%aqua` a pill:
 
 ```hoon
 |commit %aqua-base
+|commit %chorus
 :aqua &pill +pill/brass %aqua-base %chorus, =prime .y, =cache .y
 ```
 

@@ -36,7 +36,7 @@ zig build -Ddesk=/path/to/pier/chorus
 
 Then load the chorus tools into `%mcp-server`: have your agent call `mcp/import-mcp-tools`, `mcp/import-mcp-resources` and `mcp/import-mcp-templates` with `desk` set to `chorus`. Call them again whenever a build changes a tool or a type a tool pokes; `%mcp-server` keeps the tools compiled.
 
-A change to the agent's state needs `|nuke %chorus, =hard &` before the commit. The nuke also empties the content store. `scripts/backup-cabinet.py` saves the cabinet first, and `scripts/restore-cabinet.py` publishes it again.
+A change to the agent's state needs `|nuke %chorus, =hard &` before the commit. The nuke also empties the content store.
 
 `zig build` alone assembles the desk in `zig-out/`. See `TESTING.md` for the Aqua integration tests.
 
@@ -66,20 +66,22 @@ Kademlia itself has no such list: any ship may join the routing table, ask for a
 
 | Mark | Noun | Effect |
 |---|---|---|
-| `%chorus-list` | `[?(%add %remove) who]` | poll a ship, or stop; `who` is a `@p` or `[%nym nym]` |
+| `%chorus-list` | `[?(%add %remove) who]` | poll a ship, or stop; `who` is `[%ship @p]` or `[%nym nym]` |
 | `%chorus-publish` | `[public=? =resource]` | list a resource |
 | `%chorus-retract` | `retract` | take a listing back |
 | `%chorus-hearsay` | `[public=? topic=path =cask]` | publish any cask at a topic outside `/chorus` |
 | `%chorus-seek` | `[who=ship topic=path]` | fetch what a ship published at a topic |
 
-A public listing goes to the content store. A private one grows in the agent's own `%grow` namespace, at a path that mirrors its topic, such as `/chorus/cabinet/notes/foo`. Chorus cannot yet read its own `%grow` namespace (see urbit/urbit#7423), so its scries and facts leave private listings out.
+A public listing goes to the content store. A private one grows in the agent's own `%grow` namespace, at a path that mirrors its topic, such as `/chorus/mcp/tools/~~my-tool`. Chorus reads its own `%grow` namespace back, so its scries and facts show our private listings beside our public ones, and no ship that polls us hears of them.
+
+The agent stamps each slip with its author, its time and its FQSP; a `%slip` resource is `[%slip =path txt=@t]`. Every slip grows at `/chorus/cabinet/<path>`, public or private, so that its FQSP resolves. A retraction grows an empty value over the listing and leaves the older revisions in place.
 
 ## Scries
 
 | Path | Result |
 |---|---|
-| `/x/chorus/<topic>` | the topic, from us and every ship we poll |
-| `/x/chorus/<topic>/<ship>` | the topic, from one ship |
+| `/x/topic/<topic>` | the topic, from us and every ship we poll; `<topic>` is the topic's path less `/chorus`, such as `mcp/tools` |
+| `/x/topic/<topic>/<ship>` | the topic, from one ship |
 | `/x/cabinet/slip/<path>` | one slip |
 | `/x/cabinet/drawer/<path>` | the slips under a path |
 | `/x/cabinet/paths/<path>` | the same tree, bodies blanked |
@@ -88,7 +90,7 @@ A public listing goes to the content store. A private one grows in the agent's o
 | `/x/nym/<ship>` | a ship's Groundwire nym |
 | `/x/kademlia/{summary,settings,seeds,delivery}` | Kademlia's diagnostics, as JSON |
 
-The cabinet merges every ship's slips into one tree. Where authors share a path, ours stays put and each other author's slip moves under the path to a segment naming their ship: `/notes/foo/~sampel`. A slip's address is its author and the path its author keeps it at, `/~sampel/notes/foo`; slips link to each other as `[[/~sampel/notes/foo]]`.
+The cabinet merges every ship's slips into one tree. Where authors share a path, ours stays put and each other author's slip moves under the path to a segment naming their ship: `/notes/foo/~sampel`. A slip's FQSP, its fully qualified slip path, is the remote scry path of one revision of it: `/~sampel/g/x/3/chorus//1/chorus/cabinet/notes/foo`. Slips link to each other as `[[<fqsp>]]`, so a link names the revision its author read, and a later revision does not change what it points at. The `chorus/fetch-slip` tool reads the revision an FQSP names from its host, which may be our own ship.
 
 The agent gives `%chorus-update` facts on `/updates` for every listing that changes, on `/cabinet` for slips, and on `/heard` for slips by other ships.
 
