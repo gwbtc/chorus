@@ -12,7 +12,7 @@
     |=  lit=listing:template:resource:mcp:chorus
     %-  pairs:enjs:format
     :*  ['ship' s+(scot %p ship.lit)]
-        ['source' s+(scot %uv source.lit)]
+        ['source' s+(scot %uv hax.lit)]
         (template-pairs:cho meta.lit)
     ==
   --

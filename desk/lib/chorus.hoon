@@ -267,7 +267,13 @@
           %cabinet
         %+  levy  ~(tap of p.shelf)
         |=  [pax=path =slip:chorus]
-        &(=(who ship.slip) ?=(~ (vet-slip:slp pax txt.slip)))
+        =/  fin  (parse-fqsp:slp fqsp.slip)
+        ?&  =(who ship.slip)
+            ?=(^ fin)
+            =(who host.u.fin)
+            =(pax pax.u.fin)
+            ?=(~ (vet-slip:slp pax txt.slip))
+        ==
       ::
           %mcp-tools
         (~(all in p.shelf) |=(lit=listing:tool:mcp:chorus =(who ship.lit)))
@@ -323,6 +329,15 @@
     ?>  ?=(%cabinet -.shelf)
     shelf(p (~(put of p.shelf) path.p.item slip.p.item))
   ==
+::
+::  the things a shelf holds, one item each
+++  items
+  |=  =shelf:chorus
+  ^-  (list item)
+  ?:  ?=(%cabinet -.shelf)
+    (turn ~(tap of p.shelf) |=(p=[path slip:chorus] [%cabinet p]))
+  %+  turn  ~(tap in `(set *)`p.shelf)
+  |=(lit=* ;;(item [-.shelf lit]))
 ::
 ::  what a retraction would name to take this item back
 ++  item-key
@@ -649,36 +664,36 @@
   ::
       %mcp-tool-listed
     :*  ['ship' s+(scot %p ship.val)]
-        ['source' s+(scot %uv source.val)]
+        ['source' s+(scot %uv hax.val)]
         (tool-pairs meta.val)
     ==
   ::
       %mcp-prompt-listed
     :*  ['ship' s+(scot %p ship.val)]
-        ['source' s+(scot %uv source.val)]
+        ['source' s+(scot %uv hax.val)]
         (prompt-pairs meta.val)
     ==
   ::
       %mcp-resource-listed
     :*  ['ship' s+(scot %p ship.val)]
-        ['source' s+(scot %uv source.val)]
+        ['source' s+(scot %uv hax.val)]
         (resource-pairs meta.val)
     ==
   ::
       %mcp-resource-template-listed
     :*  ['ship' s+(scot %p ship.val)]
-        ['source' s+(scot %uv source.val)]
+        ['source' s+(scot %uv hax.val)]
         (template-pairs meta.val)
     ==
   ::
       %agent-skill-listed
     :*  ['ship' s+(scot %p ship.val)]
-        ['skill' s+(scot %uv skill.val)]
+        ['skill' s+(scot %uv hax.val)]
         (skill-pairs meta.val)
     ==
   ::
       %chorus-slip
-    ['path' s+(spat path.val)]^(slip-pairs:slp path.val slip.val)
+    ['path' s+(spat path.val)]^(slip-pairs:slp slip.val)
   ::
       %chorus-slip-discarded
     ['path' s+(spat path.val)]~

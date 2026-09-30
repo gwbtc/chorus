@@ -9,16 +9,10 @@
   ::  a nested object mirroring the tree: the slip at
   ::  each node, if any, and its children by segment
   ++  json
-    =|  pax=path
     |-  ^-  ^json
     %-  pairs:enjs:format
-    :~  ['slip' ?~(fil.val ~ (enjs:slp pax u.fil.val))]
-        :-  'dir'
-        :-  %o
-        %-  ~(gas by *(map @t ^json))
-        %+  turn  ~(tap by dir.val)
-        |=  [seg=@ta kid=cabinet:chorus]
-        [seg ^$(val kid, pax (snoc pax seg))]
+    :~  ['slip' ?~(fil.val ~ (enjs:slp u.fil.val))]
+        ['dir' o+(~(run by dir.val) |=(kid=cabinet:chorus ^$(val kid)))]
     ==
   ::
   ::  one path per line

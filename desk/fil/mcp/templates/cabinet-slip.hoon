@@ -8,7 +8,7 @@
     Read one slip from the Chorus cabinet. The path is
     the cabinet path of the slip, such as projects/chorus/notes.
     Returns the slip body with its ship, creation time,
-    address, and links.
+    FQSP, and links.
     '''
     `'application/json'
     ~

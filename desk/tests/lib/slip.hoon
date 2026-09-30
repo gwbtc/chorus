@@ -8,9 +8,9 @@
   ^-  path
   /notes/foo
 ::
-++  fixture-address
+++  fixture-fqsp
   ^-  path
-  /~sampel-palnet/notes/foo
+  /~sampel-palnet/g/x/3/chorus//1/chorus/cabinet/notes/foo
 ::
 ::  a body of exactly n characters, using a non-ascii
 ::  character so bytes and characters differ
@@ -20,30 +20,26 @@
   (rap 3 (reap n 'é'))
 --
 |%
-++  test-address-roundtrip
+++  test-fqsp-roundtrip
   %+  expect-eq
-    !>  `[host=ship pax=path]`[host fixture-path]
-  !>  (need (parse-address:slp (address:slp host fixture-path)))
+    !>  `[host=ship rev=@ud pax=path]`[host 3 fixture-path]
+  !>  (need (parse-fqsp:slp (fqsp:slp host 3 fixture-path)))
 ::
-++  test-address-literal
+++  test-fqsp-literal
   %+  expect-eq
-    !>  fixture-address
-  !>  (address:slp host fixture-path)
+    !>  fixture-fqsp
+  !>  (fqsp:slp host 3 fixture-path)
 ::
-++  test-parse-address-rejects
+++  test-parse-fqsp-rejects
   ;:  weld
-    (expect-eq !>(~) !>((parse-address:slp /notes/foo)))
-    (expect-eq !>(~) !>((parse-address:slp /~sampel-palnet)))
-    (expect-eq !>(~) !>((parse-address:slp /~sampel-palnet/notes/'Foo')))
-    (expect-eq !>(~) !>((parse-address:slp /~sampel-palnet/g/x/3/chorus//1/cabinet/foo)))
-  ==
-::
-++  test-home
-  =/  =slip:chorus  [host ~2026.9.1 'hi']
-  ;:  weld
-    (expect-eq !>(`path`/notes/foo) !>((home:slp /notes/foo slip)))
-    (expect-eq !>(`path`/notes/foo) !>((home:slp /notes/foo/~sampel-palnet slip)))
-    (expect-eq !>(`path`/notes/foo/~zod) !>((home:slp /notes/foo/~zod slip)))
+    (expect-eq !>(~) !>((parse-fqsp:slp /~sampel-palnet/g/x/3/chorus//1/chorus/skills/foo)))
+    (expect-eq !>(~) !>((parse-fqsp:slp /~sampel-palnet/g/x/3/chorus//1/chorus/cabinet)))
+    (expect-eq !>(~) !>((parse-fqsp:slp /~sampel-palnet/g/x/3/chorus//1/cabinet/foo)))
+    (expect-eq !>(~) !>((parse-fqsp:slp /~sampel-palnet/c/x/3/chorus//1/chorus/cabinet/foo)))
+    (expect-eq !>(~) !>((parse-fqsp:slp /~sampel-palnet/g/x/3/chorus//2/chorus/cabinet/foo)))
+    (expect-eq !>(~) !>((parse-fqsp:slp /~sampel-palnet/g/x/three/chorus//1/chorus/cabinet/foo)))
+    (expect-eq !>(~) !>((parse-fqsp:slp /fine/~sampel-palnet/g/x/3/chorus//1/chorus/cabinet/foo)))
+    (expect-eq !>(~) !>((parse-fqsp:slp /~sampel-palnet/notes/foo)))
   ==
 ::
 ++  test-vet-path-ok
@@ -86,13 +82,15 @@
   =/  txt=@t
     %-  crip
     ;:  welp
-      "see [[/~sampel-palnet/notes/foo]] and "
+      "see [[/~sampel-palnet/g/x/3/chorus//1/chorus/cabinet/notes/foo]] and "
       "[[foo bar]] and [not] and [[/notes/foo]] "
-      "and [[/~sampel-palnet/g/x/3/chorus//1/cabinet/notes/foo]] "
+      "and [[/~sampel-palnet/notes/foo]] "
+      "and [[/~sampel-palnet/g/x/3/chorus//1/chorus/skills/foo]] "
+      "and [[/fine/~sampel-palnet/g/x/3/chorus//1/chorus/cabinet/notes/foo]] "
       "and [[wire://nonsense]]"
     ==
   %+  expect-eq
     !>  ^-  (list @t)
-    ~['/~sampel-palnet/notes/foo']
+    ~['/~sampel-palnet/g/x/3/chorus//1/chorus/cabinet/notes/foo']
   !>  (links:slp txt)
 --

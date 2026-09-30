@@ -26,35 +26,35 @@
 =/  ok=?
   ?-  kind
     %bio
-      %-  ~(any in .^((set listing:bio) %gx (weld pre /chorus/rolodex/noun)))
+      %-  ~(any in .^((set listing:bio) %gx (weld pre /topic/rolodex/noun)))
       |=(lit=listing:bio &(=(from ship.lit) =(value txt.lit)))
     %announcement
       %-  %~  any  in
           .^  (set listing:announcement)
               %gx
-              (weld pre /chorus/announcements/noun)
+              (weld pre /topic/announcements/noun)
           ==
       |=(lit=listing:announcement &(=(from ship.lit) =(value txt.lit)))
     %mcp-tool
       %-  %~  any  in
-          .^((set listing:tool:mcp) %gx (weld pre /chorus/mcp/tools/noun))
+          .^((set listing:tool:mcp) %gx (weld pre /topic/mcp/tools/noun))
       |=(lit=listing:tool:mcp &(=(from ship.lit) =(value name.meta.lit)))
     %mcp-prompt
       %-  %~  any  in
-          .^((set listing:prompt:mcp) %gx (weld pre /chorus/mcp/prompts/noun))
+          .^((set listing:prompt:mcp) %gx (weld pre /topic/mcp/prompts/noun))
       |=(lit=listing:prompt:mcp &(=(from ship.lit) =(value name.meta.lit)))
     %mcp-resource
       %-  %~  any  in
           .^  (set listing:resource:mcp)
               %gx
-              (weld pre /chorus/mcp/resources/noun)
+              (weld pre /topic/mcp/resources/noun)
           ==
       |=(lit=listing:resource:mcp &(=(from ship.lit) =(value name.meta.lit)))
     %mcp-resource-template
       %-  %~  any  in
           .^  (set listing:template:resource:mcp)
               %gx
-              (weld pre /chorus/mcp/resources/templates/noun)
+              (weld pre /topic/mcp/resources/templates/noun)
           ==
       |=  lit=listing:template:resource:mcp
       &(=(from ship.lit) =(value name.meta.lit))

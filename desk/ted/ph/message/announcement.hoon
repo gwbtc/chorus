@@ -18,13 +18,16 @@
   ;<  ~  bind:m  (poll ship-a ship-b)
   (await-update ship-a 0v21 ship-b [%announcement 'announcement from ship b'])
 ::
-::  a private announcement never reaches a ship that polls us: the
-::  public one published after it arrives alone
+::  a private announcement shows on the ship that made it and
+::  never reaches a ship that polls us: the public one published
+::  after it arrives alone
 ++  ph-test-message-announcement-private
   =/  m  (strand ,~)
   ^-  form:m
   ;<  ~  bind:m  prepare-pair
   ;<  ~  bind:m  (make-private-announcement ship-a 'kept at home')
+  ;<  ~  bind:m
+    (probe-want ship-a 0v23 ship-a [%announcement 'kept at home'])
   ;<  ~  bind:m  (make-announcement ship-a 'sent abroad')
   ;<  ~  bind:m  (expect-update ship-b 0v22)
   ;<  ~  bind:m  (poll ship-b ship-a)

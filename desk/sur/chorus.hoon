@@ -33,7 +33,7 @@
     [=ship =^desk =desc hash=@uvI]
   --
 ::
-::  an mcp listing carries the digest of its source file,
+::  an mcp listing carries .hax, the digest of its source file,
 ::  which its publisher serves through the content store
 ++  mcp
   |%
@@ -49,7 +49,7 @@
     ::
     +$  listing
       $+  chorus-mcp-tool-listing
-      [=ship =meta source=digest]
+      [=ship =meta hax=digest]
     --
   ::
   ++  prompt
@@ -63,7 +63,7 @@
       ==
     +$  listing
       $+  chorus-mcp-prompt-listing
-      [=ship =meta source=digest]
+      [=ship =meta hax=digest]
     --
   ::
   ++  resource
@@ -77,7 +77,7 @@
       ==
     +$  listing
       $+  chorus-mcp-resource-listing
-      [=ship =meta source=digest]
+      [=ship =meta hax=digest]
     ::
     ++  template
       |%
@@ -90,7 +90,7 @@
         ==
       +$  listing
         $+  chorus-mcp-resource-template-listing
-        [=ship =meta source=digest]
+        [=ship =meta hax=digest]
       --
     --
   --
@@ -101,10 +101,10 @@
   =<  skill
   |%
   ::
-  ::  .skill is the digest of the %chorus-skill manifest
+  ::  .hax is the digest of the %chorus-skill manifest
   +$  listing
     $+  chorus-agent-skill-listing
-    [=ship =meta skill=digest]
+    [=ship =meta hax=digest]
   ::
   +$  meta
     $+  chorus-agent-skill-metadata
@@ -132,9 +132,11 @@
     ==
   --
 ::
-::  shared wiki
+::  shared wiki. .fqsp is the fully qualified slip path: the
+::  remote scry path of this revision of the slip, e.g.
+::  /~zod/g/x/3/chorus//1/chorus/cabinet/notes/foo
 +$  cabinet  (axal slip)
-+$  slip     [=ship =time txt=@t]
++$  slip     [=ship =time fqsp=path txt=@t]
 ::
 ::  the reserved topics. under each a ship publishes one value,
 ::  named by the topic in the %chorus namespace; chorus checks its
@@ -178,7 +180,7 @@
 ::  %chorus-list: add or remove a ship we poll
 +$  list-action
   $+  chorus-list
-  [?(%add %remove) who=$@(ship [%nym =nym])]
+  [?(%add %remove) who=$%([%ship =ship] [%nym =nym])]
 ::
 ::  %chorus-publish: list a resource, to everyone or to nobody
 +$  publish
@@ -220,7 +222,7 @@
       [%mcp-resource =^desk =path]
       [%mcp-resource-template =^desk =path]
       [%agent-skill =skill]
-      [%slip =path =slip]
+      [%slip =path txt=@t]
   ==
 ::
 ::  ship-to-client facts
@@ -229,11 +231,11 @@
   $%  [%chorus-bio-updated =ship txt=cord]
       [%chorus-announcement =ship =time txt=cord]
       [%chorus-desk-published =ship =^desk =desc:desk hash=@uvI]
-      [%mcp-tool-listed =ship =meta:tool:mcp source=digest]
-      [%mcp-prompt-listed =ship =meta:prompt:mcp source=digest]
-      [%mcp-resource-listed =ship =meta:resource:mcp source=digest]
-      [%mcp-resource-template-listed =ship =meta:template:resource:mcp source=digest]
-      [%agent-skill-listed =ship =meta:skill skill=digest]
+      [%mcp-tool-listed =ship =meta:tool:mcp hax=digest]
+      [%mcp-prompt-listed =ship =meta:prompt:mcp hax=digest]
+      [%mcp-resource-listed =ship =meta:resource:mcp hax=digest]
+      [%mcp-resource-template-listed =ship =meta:template:resource:mcp hax=digest]
+      [%agent-skill-listed =ship =meta:skill hax=digest]
       [%chorus-slip =path =slip]
       [%chorus-slip-discarded =path]
       ::  our publish at a topic reached its replicas, or failed to

@@ -94,13 +94,13 @@
   |=  [who=ship peer=ship]
   =/  m  (strand ,~)
   ^-  form:m
-  (poke-list who [%add peer])
+  (poke-list who [%add %ship peer])
 ::
 ++  unlist
   |=  [who=ship peer=ship]
   =/  m  (strand ,~)
   ^-  form:m
-  (poke-list who [%remove peer])
+  (poke-list who [%remove %ship peer])
 ::
 ++  update-bio
   |=  [who=ship bio=cord]
@@ -125,7 +125,7 @@
   |=  [who=ship pax=path txt=cord]
   =/  m  (strand ,~)
   ^-  form:m
-  (poke-publish who [& %slip pax who *@da txt])
+  (poke-publish who [& %slip pax txt])
 ::
 ++  publish-mcp
   |=  $:  who=ship
@@ -276,7 +276,7 @@
   %-  pure:m
   %-  need
   %+  scry-aqua:util  (unit (set listing:bio))
-  [our.bowl now.bowl (scry-path who now.bowl /chorus/rolodex)]
+  [our.bowl now.bowl (scry-path who now.bowl /topic/rolodex)]
 ::
 +$  anns  (set listing:announcement)
 ::
@@ -288,7 +288,7 @@
   %-  pure:m
   %-  need
   %+  scry-aqua:util  (unit anns)
-  [our.bowl now.bowl (scry-path who now.bowl /chorus/announcements)]
+  [our.bowl now.bowl (scry-path who now.bowl /topic/announcements)]
 ::
 ++  heard-announcement
   |=  [heard=anns from=ship text=cord]

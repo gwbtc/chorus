@@ -12,7 +12,7 @@
     |=  lit=listing:skill:chorus
     %-  pairs:enjs:format
     :*  ['ship' s+(scot %p ship.lit)]
-        ['skill' s+(scot %uv skill.lit)]
+        ['skill' s+(scot %uv hax.lit)]
         (skill-pairs:cho meta.lit)
     ==
   --

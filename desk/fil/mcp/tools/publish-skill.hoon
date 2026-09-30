@@ -6,7 +6,6 @@
 ::
 ::  read each extra skill file, a path into the given clay
 ::  desk, as a cask of its text
-::  XX read /https and other protocols here
 ++  aux-casks
   |=  [our=ship now=@da dek=@tas args=(list argument:tool:mcp)]
   ^-  (each (list (cask)) @t)
@@ -74,8 +73,8 @@
         :-  %boolean
         '''
         Publish to every ship that polls us. Defaults to true.
-        False keeps the listing in this ship's own namespace,
-        where Chorus cannot yet read it back.
+        False lists it on this ship alone: our own scries show
+        it, and no ship that polls us hears of it.
         '''
     ==
     ~['desk' 'skill']

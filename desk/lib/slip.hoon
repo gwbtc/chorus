@@ -8,32 +8,27 @@
 ::  the most characters a slip may hold
 ++  max-chars  2.048
 ::
-::  the address of a slip: its author, then the path its
-::  author keeps it at, e.g. /~zod/notes/foo. slips link to
-::  each other by address
-++  address
-  |=  [host=ship pax=path]
+::  the fully qualified slip path: the grow path of one
+::  revision of a slip, as a peer would request it, e.g.
+::  /~zod/g/x/3/chorus//1/chorus/cabinet/notes/foo. slips
+::  link to each other by fqsp
+++  fqsp
+  |=  [host=ship rev=@ud pax=path]
   ^-  path
-  [(scot %p host) pax]
+  %+  welp
+    /(scot %p host)/g/x/(scot %ud rev)/chorus//1/chorus/cabinet
+  pax
 ::
-++  parse-address
+++  parse-fqsp
   |=  pax=path
-  ^-  (unit [host=ship pax=path])
-  ?.  ?=([@ ^] pax)  ~
+  ^-  (unit [host=ship rev=@ud pax=path])
+  ?.  ?=([@ %g %x @ %chorus %$ %'1' %chorus %cabinet ^] pax)
+    ~
   =/  host=(unit @p)  (slaw %p i.pax)
-  ?~  host  ~
-  ?^  (vet-path t.pax)  ~
-  `[u.host t.pax]
-::
-::  the path a slip's author keeps it at, given the path it
-::  sits at in a merged cabinet; see +shuffle in lib/chorus
-++  home
-  |=  [pax=path =slip:chorus]
-  ^-  path
-  ?~  pax  pax
-  ?.  =((rear pax) (scot %p ship.slip))
-    pax
-  (snip `path`pax)
+  =/  rev=(unit @ud)  (slaw %ud i.t.t.t.pax)
+  ?:  |(?=(~ host) ?=(~ rev))
+    ~
+  `[u.host u.rev (slag 9 `path`pax)]
 ::
 ::  a cabinet path: non-empty segments of lowercase
 ::  letters, numbers and hyphens, at most 256 bytes long
@@ -57,7 +52,7 @@
     `'path is too long'
   ~
 ::
-::  every [[...]] target in the text that is a slip address
+::  every [[...]] target in the text that is an fqsp
 ++  links
   |=  txt=@t
   ^-  (list @t)
@@ -75,7 +70,7 @@
   =/  ok=?
     =/  pax=(unit path)  (rush tar stap)
     ?~  pax  |
-    ?=(^ (parse-address u.pax))
+    ?=(^ (parse-fqsp u.pax))
   %=  $
     tap  (slag (add 2 u.clo) rest)
     out  ?.(ok out [tar out])
@@ -154,19 +149,19 @@
   ~
 ::
 ::  a slip as json pairs, shared by the slip and cabinet marks
-::  and by updates. .pax is where the slip sits in a cabinet
+::  and by updates
 ++  slip-pairs
-  |=  [pax=path =slip:chorus]
+  |=  =slip:chorus
   ^-  (list [@t json])
   :~  ['ship' s+(scot %p ship.slip)]
       ['created' s+(scot %da time.slip)]
-      ['address' s+(spat (address ship.slip (home pax slip)))]
+      ['fqsp' s+(spat fqsp.slip)]
       ['links' a+(turn (links txt.slip) |=(l=@t s+l))]
       ['text' s+txt.slip]
   ==
 ::
 ++  enjs
-  |=  [pax=path =slip:chorus]
+  |=  =slip:chorus
   ^-  json
-  (pairs:enjs:format (slip-pairs pax slip))
+  (pairs:enjs:format (slip-pairs slip))
 --

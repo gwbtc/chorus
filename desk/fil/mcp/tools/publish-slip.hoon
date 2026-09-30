@@ -6,11 +6,12 @@
     Publish a slip to this ship's cabinet: a note of at most
     2,048 characters of GitHub-flavoured Markdown, with no HTML
     and no frontmatter. Publishing to a path that already holds
-    our slip replaces it. Open the slip with a one-line summary;
-    clients show that line in their indexes. Link to other slips
-    with [[<address>]], where the address is the author's ship
-    and then the slip's cabinet path, e.g. /~sampel/projects/foo.
-    Returns the slip's path and address, or an error explaining
+    our slip replaces it with a new revision. Open the slip with
+    a one-line summary; clients show that line in their indexes.
+    Link to other slips with [[<fqsp>]], where the FQSP is the
+    remote scry path of a slip revision, e.g.
+    /~host/g/x/{revision-number}/chorus//1/chorus/cabinet/{+path}.
+    Returns the slip's path and FQSP, or an error explaining
     why the slip was refused.
     '''
     %-  my
@@ -28,15 +29,8 @@
         :-  %boolean
         '''
         Publish to every ship that polls us. Defaults to true.
-        False keeps the slip in this ship's own namespace,
-        where Chorus cannot yet read it back.
-        '''
-        :-  'created'
-        :-  %string
-        '''
-        Optional @da the slip was first written, e.g.
-        ~2026.9.17..16.37.23, for restoring a slip from a backup.
-        Leave out to stamp the slip with the present time.
+        False keeps the slip on this ship alone: our own cabinet
+        shows it, and no ship that polls us hears of it.
         '''
     ==
     ~['path' 'text']
@@ -54,14 +48,6 @@
     ?>  ?=([%string @t] u.pat)
     ?>  ?=([%string @t] u.txt)
     =/  public=?  !=([~ %boolean |] (~(get by args) 'public'))
-    =/  wen  (~(get by args) 'created')
-    =/  created=(unit @da)
-      ?.  ?=([~ %string @t] wen)  `*@da
-      (slaw %da p.u.wen)
-    ?~  created
-      %-  pure:m
-      !>  ^-  response:tool:mcp
-      [%error 'could not parse created; it must be a @da' ~]
     ;<  our=ship  bind:m  get-our:io
     ::  vet the slip here, so a bad one comes back as a
     ::  helpful error rather than a failed poke
@@ -86,15 +72,19 @@
           %agent  [our %chorus]
           %poke   %chorus-publish
           !>  ^-  publish:chorus
-          [public %slip u.pax our u.created p.u.txt]
+          [public %slip u.pax p.u.txt]
       ==
     ;<  ~  bind:m  (take-poke-ack:io /publish-slip)
+    ::  the agent stamps the slip, so read its fqsp back
+    ;<  [* =slip:chorus]  bind:m
+      %+  scry:io  ,[path slip:chorus]
+      (weld /gx/chorus/cabinet/slip (snoc u.pax %noun))
     %-  pure:m
     !>  ^-  response:tool:mcp
     :-  %result
     :-  %structured
     %-  pairs:enjs:format
     :~  ['path' s+(spat u.pax)]
-        ['address' s+(spat (address:slp our u.pax))]
+        ['fqsp' s+(spat fqsp.slip)]
     ==
 ==

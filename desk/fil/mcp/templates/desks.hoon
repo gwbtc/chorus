@@ -1,6 +1,6 @@
 /-  mcp
 ^-  template:resource:mcp
-:*  'scry://gx/chorus/chorus/desks{/ship}/json'
+:*  'scry://gx/chorus/topic/desks{/ship}/json'
     'chorus/desks'
     `'List Chorus desks'
     %-  some

@@ -1,6 +1,6 @@
 /-  mcp
 ^-  resource:mcp
-:*  'scry://gx/chorus/chorus/rolodex/json'
+:*  'scry://gx/chorus/topic/rolodex/json'
     'chorus/example-resource'
     `'Example resource'
     `'A mock resource for testing Chorus publishes.'

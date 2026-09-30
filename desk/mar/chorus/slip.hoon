@@ -163,7 +163,7 @@
 ++  grow
   |%
   ++  noun  val
-  ++  json  (enjs:slp val)
+  ++  json  (enjs:slp slip.val)
   ::
   ::  the body under yaml frontmatter
   ++  md
@@ -173,9 +173,7 @@
       :~  '---'
           (cat 3 'ship: ' (scot %p ship.slip.val))
           (cat 3 'created: ' (scot %da time.slip.val))
-          %+  cat  3
-          :-  'address: '
-          (spat (address:slp ship.slip.val (home:slp val)))
+          (cat 3 'fqsp: ' (spat fqsp.slip.val))
       ==
     ::
       =/  links  (links:slp txt.slip.val)
@@ -204,7 +202,7 @@
     :-  :-  %slip
         :~  [%ship (scow %p ship.slip.val)]
             [%created (scow %da time.slip.val)]
-            [%address (spud (address:slp ship.slip.val (home:slp val)))]
+            [%fqsp (spud fqsp.slip.val)]
         ==
     :~  :-  [%links ~]
         %+  turn  (links:slp txt.slip.val)

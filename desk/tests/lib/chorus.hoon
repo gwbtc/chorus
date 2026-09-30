@@ -1,5 +1,5 @@
 /-  chorus
-/+  *test, cho=chorus
+/+  *test, cho=chorus, slp=slip
 =>
 |%
 ++  our  ~zod
@@ -7,10 +7,11 @@
 ++  pal  ~palnet-sampel
 ++  wen  ~2026.9.1
 ::
+::  a slip whose fqsp names /notes/foo
 ++  slip
   |=  [who=ship txt=@t]
   ^-  slip:chorus
-  [who wen txt]
+  [who wen (fqsp:slp who 1 /notes/foo) txt]
 ::
 ++  cab
   |=  slips=(list [path slip:chorus])
@@ -92,6 +93,11 @@
   =/  fake=cabinet:chorus  (cab ~[[/notes/foo (slip pal 'hi')]])
   =/  html=cabinet:chorus  (cab ~[[/notes/foo (slip sam '<div>hi</div>')]])
   =/  path=cabinet:chorus  (cab ~[[/notes/'Foo' (slip sam 'hi')]])
+  ::  an fqsp that names another path, and one that names
+  ::  another host
+  =/  away=cabinet:chorus  (cab ~[[/notes/bar (slip sam 'hi')]])
+  =/  host=cabinet:chorus
+    (cab ~[[/notes/foo [sam wen (fqsp:slp pal 1 /notes/foo) 'hi']]])
   ;:  weld
     %+  expect-eq
       !>  `(unit shelf:chorus)``[%cabinet good]
@@ -99,6 +105,8 @@
     (expect-eq !>(~) !>((vet-shelf:cho sam %cabinet %chorus-cabinet fake)))
     (expect-eq !>(~) !>((vet-shelf:cho sam %cabinet %chorus-cabinet html)))
     (expect-eq !>(~) !>((vet-shelf:cho sam %cabinet %chorus-cabinet path)))
+    (expect-eq !>(~) !>((vet-shelf:cho sam %cabinet %chorus-cabinet away)))
+    (expect-eq !>(~) !>((vet-shelf:cho sam %cabinet %chorus-cabinet host)))
   ==
 ::
 ++  test-blend-joins-sets

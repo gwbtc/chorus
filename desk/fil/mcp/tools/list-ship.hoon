@@ -28,10 +28,10 @@
     ?~  who
       (pure:m !>([%error %missing-who ~]))
     ?>  ?=([%string @t] u.who)
-    =/  him=(unit $@(ship [%nym nym:chorus]))
+    =/  him=(unit $%([%ship ship] [%nym nym:chorus]))
       ?:  =('.' (end 3 p.u.who))
         `[%nym p.u.who]
-      (slaw %p p.u.who)
+      (bind (slaw %p p.u.who) (lead %ship))
     ?~  him
       %-  pure:m
       !>  ^-  response:tool:mcp

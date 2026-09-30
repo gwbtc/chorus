@@ -16,8 +16,8 @@
         :-  %boolean
         '''
         Publish to every ship that polls us. Defaults to true.
-        False keeps the listing in this ship's own namespace,
-        where Chorus cannot yet read it back.
+        False lists it on this ship alone: our own scries show
+        it, and no ship that polls us hears of it.
         '''
     ==
     ~['announcement']
