@@ -15,6 +15,9 @@ const RepoImport = struct {
     paths: []const []const u8, // relative or prefix-qualified filepaths
 };
 
+const kademlia_url = "https://github.com/gwbtc/kademlia";
+const kademlia_commit = "4a8dad4fbd4747d7f51144deb21a5a1bd1908445";
+
 const dependencies = [_]RepoImport{
     .{
         .name = "mcp",
@@ -55,8 +58,8 @@ const dependencies = [_]RepoImport{
     },
     .{
         .name = "kademlia",
-        .url = "https://github.com/gwbtc/kademlia",
-        .commit = "4a8dad4fbd4747d7f51144deb21a5a1bd1908445",
+        .url = kademlia_url,
+        .commit = kademlia_commit,
         .prefix = "desk",
         .paths = &.{
             "lib/bounded-poke.hoon",
@@ -148,6 +151,17 @@ const test_dependency_paths = [_][]const u8{
     "ted/aqua/eyre.hoon",
 };
 
+// the bill of the base desk that aqua guests boot from: a copy of
+// %base that starts no background agents, whose timers and traffic
+// would swamp a test. -Daqua-base copies it into that desk's mount
+const aqua_base_bill = RepoImport{
+    .name = "kademlia-aqua-base",
+    .url = kademlia_url,
+    .commit = kademlia_commit,
+    .prefix = "aqua-base",
+    .paths = &.{"desk.bill"},
+};
+
 // the chorus claude code adapter ships inside the desk, one static
 // binary per target, at /fil/claude/chorus-<os>-<arch>/bin
 const sync_source = "sync/main.zig";
@@ -191,6 +205,7 @@ const DeskStep = struct {
     copy_target: ?[]const u8,
     include_tests: bool,
     groundwire_path: []const u8,
+    aqua_base: ?[]const u8 = null,
     sync_binaries: []const SyncBinary = &.{},
 
     fn create(b: *std.Build, name: []const u8, action: Action, copy_target: ?[]const u8, include_tests: bool, groundwire_path: []const u8) *DeskStep {
@@ -217,7 +232,7 @@ const DeskStep = struct {
         const allocator = step.owner.allocator;
 
         switch (self.action) {
-            .build => try buildDesk(step, allocator, self.install_path, self.copy_target, self.include_tests, self.groundwire_path, self.sync_binaries),
+            .build => try buildDesk(step, allocator, self.install_path, self.copy_target, self.include_tests, self.groundwire_path, self.aqua_base, self.sync_binaries),
             .clean => try clean(self.install_path),
             .clear => try clear(step),
         }
@@ -241,7 +256,10 @@ pub fn build(b: *std.Build) void {
     const include_tests = b.option(bool, "tests", "Include Aqua integration-test dependencies") orelse false;
     const groundwire_path = b.option([]const u8, "groundwire", "Path to the Groundwire Urbit checkout used by Aqua tests") orelse "../gw-urbit";
 
+    const aqua_base = b.option([]const u8, "aqua-base", "Write the Aqua base desk's desk.bill into the desk mounted at this path");
+
     const build_step = DeskStep.create(b, "build desk", .build, desk, include_tests, groundwire_path);
+    build_step.aqua_base = aqua_base;
     build_step.sync_binaries = addSyncBinaries(b, &build_step.step);
     b.default_step.dependOn(&build_step.step);
 
@@ -287,7 +305,7 @@ fn addSyncBinaries(b: *std.Build, desk_step: *std.Build.Step) []const SyncBinary
     return binaries;
 }
 
-fn buildDesk(step: *std.Build.Step, allocator: std.mem.Allocator, install_path: []const u8, copy_target: ?[]const u8, include_tests: bool, groundwire_path: []const u8, sync_binaries: []const SyncBinary) !void {
+fn buildDesk(step: *std.Build.Step, allocator: std.mem.Allocator, install_path: []const u8, copy_target: ?[]const u8, include_tests: bool, groundwire_path: []const u8, aqua_base: ?[]const u8, sync_binaries: []const SyncBinary) !void {
     try requireGitVersion(step);
 
     if (!pathExists("desk") and !pathExists("desk-dev")) {
@@ -315,6 +333,13 @@ fn buildDesk(step: *std.Build.Step, allocator: std.mem.Allocator, install_path: 
             .paths = &test_dependency_paths,
         };
         try collectDependencyImports(step, allocator, aqua_dependency, install_path, &import_copies, &fetches);
+    }
+    if (aqua_base) |target| {
+        const target_path = try expandHomePath(allocator, step, target);
+        if (!pathExists(target_path)) {
+            return step.fail("aqua base desk '{s}' does not exist", .{target_path});
+        }
+        try collectDependencyImports(step, allocator, aqua_base_bill, target_path, &import_copies, &fetches);
     }
 
     try fetchMissingImports(step, allocator, fetches.items);
