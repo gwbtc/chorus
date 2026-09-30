@@ -28,8 +28,8 @@
         :-  'public'
         :-  %boolean
         '''
-        Publish to every ship that polls us. Defaults to true.
-        False keeps the slip on this ship alone: our own cabinet
+        Publish to every ship that polls us. Defaults to false,
+        which keeps the slip on this ship alone: our own cabinet
         shows it, and no ship that polls us hears of it.
         '''
     ==
@@ -47,7 +47,7 @@
       (pure:m !>([%error %missing-text ~]))
     ?>  ?=([%string @t] u.pat)
     ?>  ?=([%string @t] u.txt)
-    =/  public=?  !=([~ %boolean |] (~(get by args) 'public'))
+    =/  public=?  =([~ %boolean &] (~(get by args) 'public'))
     ;<  our=ship  bind:m  get-our:io
     ::  vet the slip here, so a bad one comes back as a
     ::  helpful error rather than a failed poke

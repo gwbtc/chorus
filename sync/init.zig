@@ -75,9 +75,8 @@ const skill_md =
     \\  segment is the title; the rest are drawers.
     \\- Only slips in a synced drawer come back to this folder. The drawers
     \\  are listed in `.claude/chorus/config.json`.
-    \\- A slip is public unless `public` is false: every ship that polls
-    \\  ours can read it. Memory often holds local paths and working
-    \\  habits; keep those, and secrets, out of public slips.
+    \\- Leave `public` false unless the user wants the slip shared. Memory
+    \\  often holds local paths and working habits.
     \\
     \\Remove a slip with `chorus/discard-slip`.
     \\

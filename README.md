@@ -69,10 +69,9 @@ Kademlia itself has no such list: any ship may join the routing table, ask for a
 | `%chorus-list` | `[?(%add %remove) who]` | poll a ship, or stop; `who` is `[%ship @p]` or `[%nym nym]` |
 | `%chorus-publish` | `[public=? =resource]` | list a resource |
 | `%chorus-retract` | `retract` | take a listing back |
-| `%chorus-hearsay` | `[public=? topic=path =cask]` | publish any cask at a topic outside `/chorus` |
 | `%chorus-seek` | `[who=ship topic=path]` | fetch what a ship published at a topic |
 
-A public listing goes to the content store. A private one grows in the agent's own `%grow` namespace, at a path that mirrors its topic, such as `/chorus/mcp/tools/~~my-tool`. Chorus reads its own `%grow` namespace back, so its scries and facts show our private listings beside our public ones, and no ship that polls us hears of them.
+A public listing goes to the content store. A private one grows in the agent's own `%grow` namespace, at a path that mirrors its topic, such as `/chorus/mcp/tools/~~my-tool`. Chorus reads its own `%grow` namespace back, so its scries and facts show our private listings beside our public ones, and no ship that polls us hears of them. The MCP tools publish privately unless `public` is true.
 
 The agent stamps each slip with its author, its time and its FQSP; a `%slip` resource is `[%slip =path txt=@t]`. Every slip grows at `/chorus/cabinet/<path>`, public or private, so that its FQSP resolves. A retraction grows an empty value over the listing and leaves the older revisions in place.
 

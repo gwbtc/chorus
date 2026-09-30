@@ -231,16 +231,22 @@
     (lent ~(tap of p.shelf))
   ~(wyt in `(set *)`p.shelf)
 ::
+::  type a cask under a topic. produce nothing for a cask of
+::  the wrong mark or the wrong shape
+++  type-shelf
+  |=  [=topic:chorus cask=(cask)]
+  ^-  (unit shelf:chorus)
+  ?.  =(p.cask (topic-mark topic))
+    ~
+  (mole |.(;;(shelf:chorus [topic q.cask])))
+::
 ::  type a cask heard from .who under a topic, and check that
 ::  it keeps the rules we keep when we publish. produce
 ::  nothing for a cask that fails
 ++  vet-shelf
   |=  [who=ship =topic:chorus cask=(cask)]
   ^-  (unit shelf:chorus)
-  ?.  =(p.cask (topic-mark topic))
-    ~
-  =/  got=(unit shelf:chorus)
-    (mole |.(;;(shelf:chorus [topic q.cask])))
+  =/  got=(unit shelf:chorus)  (type-shelf topic cask)
   ?~  got  ~
   =*  shelf  u.got
   =/  short  |=(txt=@t (lte (lent (trip txt)) 256))

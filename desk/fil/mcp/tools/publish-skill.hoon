@@ -72,8 +72,8 @@
         :-  'public'
         :-  %boolean
         '''
-        Publish to every ship that polls us. Defaults to true.
-        False lists it on this ship alone: our own scries show
+        Publish to every ship that polls us. Defaults to false,
+        which lists it on this ship alone: our own scries show
         it, and no ship that polls us hears of it.
         '''
     ==
@@ -90,7 +90,7 @@
     ?>  ?=([%string @t] u.dek)
     ?>  ?=([%string @t] u.pat)
     =/  dsk  `@tas`p.u.dek
-    =/  public=?  !=([~ %boolean |] (~(get by args) 'public'))
+    =/  public=?  =([~ %boolean &] (~(get by args) 'public'))
     ;<  =bowl:spider  bind:m  get-bowl:io
     =*  our  our.bowl
     =*  now  now.bowl

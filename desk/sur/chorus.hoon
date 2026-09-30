@@ -201,12 +201,6 @@
       [%slip =path]
   ==
 ::
-::  %chorus-hearsay: untyped gossip at a topic of the caller's
-::  choosing, outside the reserved topics
-+$  hearsay
-  $+  chorus-hearsay
-  [public=? topic=path cask=(cask)]
-::
 ::  %chorus-seek: fetch what a ship published at any topic
 +$  seek
   $+  chorus-seek

@@ -11,8 +11,8 @@
         :-  'public'
         :-  %boolean
         '''
-        Publish to every ship that polls us. Defaults to true.
-        False lists it on this ship alone: our own scries show
+        Publish to every ship that polls us. Defaults to false,
+        which lists it on this ship alone: our own scries show
         it, and no ship that polls us hears of it.
         '''
     ==
@@ -32,7 +32,7 @@
       ?:  =('/' (snag 0 (trip p.u.pax)))
         (stab p.u.pax)
       (stab (crip (slag 1 (trip p.u.pax))))
-    =/  public=?  !=([~ %boolean |] (~(get by args) 'public'))
+    =/  public=?  =([~ %boolean &] (~(get by args) 'public'))
     ;<  our=ship  bind:m  get-our:io
     ;<  ~  bind:m
       %-  send-raw-card:io

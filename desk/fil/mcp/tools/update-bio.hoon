@@ -13,8 +13,8 @@
         :-  'public'
         :-  %boolean
         '''
-        Publish to every ship that polls us. Defaults to true.
-        False lists it on this ship alone: our own scries show
+        Publish to every ship that polls us. Defaults to false,
+        which lists it on this ship alone: our own scries show
         it, and no ship that polls us hears of it.
         '''
     ==
@@ -28,7 +28,7 @@
     ?~  bio
       ~|(%missing-argument !!)
     ?>  ?=([%string @t] u.bio)
-    =/  public=?  !=([~ %boolean |] (~(get by args) 'public'))
+    =/  public=?  =([~ %boolean &] (~(get by args) 'public'))
     ;<  our=ship  bind:m  get-our:io
     ;<  ~  bind:m
       %-  send-raw-card:io

@@ -302,19 +302,6 @@
         (tell:hc our.bowl old new)
     ==
   ::
-      %chorus-hearsay
-    =/  act  !<(hearsay:chorus vase)
-    ?:  ?=([%chorus *] topic.act)
-      ~|  "{<dap.bowl>}: topics under /chorus are reserved"
-      !!
-    ?~  topic.act
-      ~|  "{<dap.bowl>}: hearsay needs a topic"
-      !!
-    :_  this
-    ?.  public.act
-      [%pass /grow %grow topic.act cask.act]~
-    (put:hc topic.act cask.act 1 topic.act)
-  ::
       %chorus-seek
     =/  act  !<(seek:chorus vase)
     [(get:hc who.act topic.act) this]
@@ -438,13 +425,18 @@
             (weld pyk /~/content-store/cask/(scot %uv u.content)/noun)
         ==
   ::
-  ::  a ship's shelf under a topic, if we hold one that passes
+  ::  a ship's shelf under a topic, if we hold one that passes.
+  ::  the content store keeps a cask before we see it and we
+  ::  keep no record of which passed, so we vet another ship's
+  ::  shelf each time we read it. our own we made, and only type
   ++  held
     |=  [who=ship =topic:chorus]
     ^-  (unit shelf:chorus)
     =/  got=(unit (cask))  (heard who (topic-path:cho topic))
     ?~  got
       ~
+    ?:  =(our.bowl who)
+      (type-shelf:cho topic u.got)
     (vet-shelf:cho who topic u.got)
   ::
   ::  every path under /chorus in our own %grow namespace
@@ -484,7 +476,7 @@
           %cabinet    &(!=(top pax) =(top (scag (lent top) pax)))
         ==
       ~
-    %^  vet-shelf:cho  our.bowl  topic
+    %+  type-shelf:cho  topic
     [(topic-mark:cho topic) .^(* %gx (weld fam pax))]
   ::
   ::  our shelf under a topic as the content store holds it:
