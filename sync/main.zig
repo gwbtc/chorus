@@ -268,7 +268,8 @@ const Sync = struct {
         const drawer = self.cfg.drawerFor(slip.path) orelse return;
         const a = self.store.allocator();
         const nym = self.nyms.get(slip.author) orelse nym: {
-            const fresh = try self.ship.nym(a, slip.author);
+            // an author with no nym goes by their @p
+            const fresh = (try self.ship.nym(a, slip.author)) orelse try a.dupe(u8, slip.author);
             try self.nyms.put(a, try a.dupe(u8, slip.author), fresh);
             break :nym fresh;
         };

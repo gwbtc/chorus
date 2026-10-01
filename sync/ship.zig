@@ -69,11 +69,13 @@ pub const Ship = struct {
     }
 
     // the nym the ship credits an author with: one-dot if the ship
-    // finds them under the %gw-btc domain, two-dot if not
-    pub fn nym(self: *Ship, arena: std.mem.Allocator, who: []const u8) ![]const u8 {
+    // finds them under the %gw-btc domain, two-dot if not. null for
+    // an author who is no comet, and so has no nym
+    pub fn nym(self: *Ship, arena: std.mem.Allocator, who: []const u8) !?[]const u8 {
         const url = try std.fmt.allocPrint(arena, "{s}/~/scry/chorus/nym/{s}.json", .{ self.url, who });
         const body = try self.get(arena, url);
         const value = std.json.parseFromSliceLeaky(std.json.Value, arena, body, .{}) catch return Error.BadResponse;
+        if (value == .null) return null;
         return str(value) orelse Error.BadResponse;
     }
 

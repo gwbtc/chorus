@@ -8,8 +8,9 @@ const Slip = @import("ship.zig").Slip;
 
 pub const Entry = struct {
     slip: Slip,
-    // the author's groundwire id, which is how we name them. the @p in
-    // .slip.author stays for trust and for links
+    // the author's groundwire id, which is how we name them, or their
+    // @p if they have none. the @p in .slip.author stays for trust and
+    // for links
     nym: []const u8,
 };
 
