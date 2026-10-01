@@ -47,8 +47,10 @@ pub fn trusted(drawer: Drawer, ours: bool, nym: []const u8) bool {
 // whether a nym in the config names an author. the words are the id.
 // a one-dot name asks for an author the ship found under %gw-btc, so
 // it turns away the same words at two dots; a two-dot or bare name
-// takes either
+// takes either. an author with no nym comes here as an @p, which no
+// name matches
 fn names(name: []const u8, nym: []const u8) bool {
+    if (nym.len == 0 or nym[0] != '.') return false;
     const words = std.mem.trimLeft(u8, name, ".");
     if (words.len == 0) return false;
     if (!std.mem.eql(u8, words, std.mem.trimLeft(u8, nym, "."))) return false;
@@ -116,6 +118,10 @@ test "our own slips always sync; others need naming by nym" {
     // a one-dot name turns away the same words unverified
     try std.testing.expect(trusted(open, false, ".cabin.dawn"));
     try std.testing.expect(!trusted(open, false, "..cabin.dawn"));
+    // an author with no nym goes by an @p, and no name reaches them
+    const sigged = Drawer{ .path = "/a", .who = &.{ "..~zod", ".~zod" } };
+    try std.testing.expect(!trusted(sigged, false, "~zod"));
+    try std.testing.expect(trusted(sigged, true, "~zod"));
 }
 
 test "an urbit id is no author" {
