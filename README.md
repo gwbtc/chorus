@@ -86,7 +86,7 @@ The agent stamps each slip with its author, its time and its FQSP; a `%slip` res
 | `/x/cabinet/paths/<path>` | the same tree, bodies blanked |
 | `/x/heard/<ship>/<topic>` | the cask a ship published at any topic |
 | `/x/polled` | the ships we poll |
-| `/x/nym/<ship>` | a ship's Groundwire nym |
+| `/x/nym/<ship>` | a comet's Groundwire nym; null for any other ship |
 | `/x/kademlia/{summary,settings,seeds,delivery}` | Kademlia's diagnostics, as JSON |
 
 The cabinet merges every ship's slips into one tree. Where authors share a path, ours stays put and each other author's slip moves under the path to a segment naming their ship: `/notes/foo/~sampel`. A slip's FQSP, its fully qualified slip path, is the remote scry path of one revision of it: `/~sampel/g/x/3/chorus//1/chorus/cabinet/notes/foo`. Slips link to each other as `[[<fqsp>]]`, so a link names the revision its author read, and a later revision does not change what it points at. The `chorus/fetch-slip` tool reads the revision an FQSP names from its host, which may be our own ship.

@@ -126,10 +126,12 @@
     !>  ^-  json
     a+(turn ~(tap in polled) |=(who=ship s+(scot %p who)))
   ::
-  ::  the nym to credit a ship with; see +author-nym
+  ::  the nym to credit a ship with, or null for a ship that
+  ::  has none; see +author-nym
   ::  .^(json %gx /=/chorus/=/nym/(scot %p who)/json)
       [%x %nym who=@ ~]
-    ``json+!>(`json`s+(author-nym:cho bowl (slav %p who.pole)))
+    =/  nym  (author-nym:cho bowl (slav %p who.pole))
+    ``json+!>(`json`?~(nym ~ s+u.nym))
   ::
   ::  .^([path slip] %gx /=/chorus/=/cabinet/slip/notes/foo/noun)
       [%x %cabinet %slip pax=*]

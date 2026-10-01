@@ -145,18 +145,16 @@
 ::
 ::  the nym we credit a ship's words to: one-dot if the ship
 ::  exists under the %gw-btc domain, two-dot if not. only comets
-::  have nyms, so any other ship takes the nym of its cometized
-::  form
+::  have nyms, so any other ship gets none
 ++  author-nym
   |=  [=bowl:gall who=ship]
-  ^-  nym:chorus
-  =/  paw=@pH
-    ?:  =(%pawn (clan:title who))
-      who
-    (come:mu bowl who)
+  ^-  (unit nym:chorus)
+  ?.  =(%pawn (clan:title who))
+    ~
+  :-  ~
   ?:  (veri:mu bowl %gw-btc who)
-    (de:ship:me paw)
-  (de:ship:mu paw)
+    (de:ship:me who)
+  (de:ship:mu who)
 ::
 ::  the comet a nym names: two-dot nyms are unverified, one-dot
 ::  nyms verified
