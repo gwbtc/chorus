@@ -9,6 +9,9 @@ pub const Error = error{
     Unauthorized,
     // the ship answered with something we did not expect
     BadResponse,
+    // the ship gave a slip in a shape we cannot read: this binary and
+    // the agent disagree. dropping the slip would empty the folder
+    BadSlip,
 };
 
 // one slip as the chorus json marks give it, at its cabinet tree path
@@ -203,11 +206,11 @@ pub const Ship = struct {
         if (fact != .object) return false;
         const kind = str(fact.object.get("type")) orelse return false;
         if (std.mem.eql(u8, kind, "chorus-slip")) {
-            const path = str(fact.object.get("path")) orelse return false;
-            const slip = slipOf(fact, path) orelse return false;
+            const path = str(fact.object.get("path")) orelse return Error.BadSlip;
+            const slip = slipOf(fact, path) orelse return Error.BadSlip;
             try handler(ctx, arena, .{ .slip = slip });
         } else if (std.mem.eql(u8, kind, "chorus-slip-discarded")) {
-            const path = str(fact.object.get("path")) orelse return false;
+            const path = str(fact.object.get("path")) orelse return Error.BadSlip;
             try handler(ctx, arena, .{ .discard = path });
         }
         return false;
@@ -246,8 +249,9 @@ fn slipOf(value: std.json.Value, path: []const u8) ?Slip {
 // flatten the cabinet mark's nested json: {slip, dir: {segment: tree}}
 fn walk(arena: std.mem.Allocator, tree: std.json.Value, path: []const u8, out: *std.ArrayList(Slip)) !void {
     if (tree != .object) return Error.BadResponse;
+    // a node that holds no slip gives null
     if (tree.object.get("slip")) |leaf| {
-        if (slipOf(leaf, path)) |slip| try out.append(arena, slip);
+        if (leaf != .null) try out.append(arena, slipOf(leaf, path) orelse return Error.BadSlip);
     }
     const dir = tree.object.get("dir") orelse return;
     if (dir != .object) return;
@@ -294,4 +298,27 @@ pub fn login(gpa: std.mem.Allocator, url: []const u8, code: []const u8) ![]const
         return gpa.dupe(u8, header.value[0..end]);
     }
     return Error.Unauthorized;
+}
+
+test "a slip we cannot read fails the walk; an empty node does not" {
+    var arena_state = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena_state.deinit();
+    const arena = arena_state.allocator();
+    const good =
+        \\{"slip":null,"dir":{"foo":{"slip":{"ship":"~zod","created":"~2026.9.17",
+        \\"fqsp":"/~zod/g/x/1/chorus//1/chorus/cabinet/notes/foo","text":"a note"},"dir":{}}}}
+    ;
+    var slips = std.ArrayList(Slip).empty;
+    try walk(arena, try std.json.parseFromSliceLeaky(std.json.Value, arena, good, .{}), "/notes", &slips);
+    try std.testing.expectEqual(@as(usize, 1), slips.items.len);
+    try std.testing.expectEqualStrings("/notes/foo", slips.items[0].path);
+    // the shape an older agent gave: an address where the fqsp belongs
+    const bad =
+        \\{"slip":null,"dir":{"foo":{"slip":{"ship":"~zod","created":"~2026.9.17",
+        \\"address":"/~zod/notes/foo","text":"a note"},"dir":{}}}}
+    ;
+    try std.testing.expectError(
+        Error.BadSlip,
+        walk(arena, try std.json.parseFromSliceLeaky(std.json.Value, arena, bad, .{}), "/notes", &slips),
+    );
 }

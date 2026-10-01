@@ -492,4 +492,5 @@ test {
     _ = claude;
     _ = config;
     _ = setup;
+    _ = ship_lib;
 }
