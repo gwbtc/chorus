@@ -279,6 +279,12 @@ pub fn login(gpa: std.mem.Allocator, url: []const u8, code: []const u8) ![]const
     try body.end();
     try req.connection.?.flush();
     const response = try req.receiveHead(&.{});
+    // eyre answers a wrong code with a 400 and a guest's cookie, which
+    // would pass for ours until the first scry
+    switch (response.head.status.class()) {
+        .success, .redirect => {},
+        else => return Error.Unauthorized,
+    }
 
     var headers = response.head.iterateHeaders();
     while (headers.next()) |header| {
