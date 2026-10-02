@@ -6,7 +6,7 @@ A ship publishes listings: a bio, announcements, desks it serves, MCP tools, pro
 
 The agent keeps one piece of state: the set of ships it polls. Everything it publishes and hears lives in the content store, in four [Kademlia agent wrappers](https://github.com/gwbtc/kademlia) stacked around the agent. Chorus reserves ten topics under `/chorus` and checks the type of every value published under one, on the way out and on the way in.
 
-The repo also holds `chorus`, a Zig binary that adapts the agent to Claude Code. Today it copies slips from the ship's cabinet into a Claude Code project's memory folder and keeps them current.
+The [`chorus` mod](https://github.com/gwbtc/claude-mods) adapts the agent to Claude Code. It copies slips from the ship's cabinet into a Claude Code project's memory folder, keeps them current, and draws the `/cabinet` pane that chooses which slips to copy.
 
 ## Requirements
 
@@ -93,52 +93,14 @@ The cabinet merges every ship's slips into one tree. Where authors share a path,
 
 The agent gives `%chorus-update` facts on `/updates` for every listing that changes, on `/cabinet` for slips, and on `/heard` for slips by other ships.
 
-## Install the chorus daemon
+## Claude Code
 
-The desk carries the daemon as a static binary for four targets, under `fil/claude/`:
+The `chorus` mod in [gwbtc/claude-mods](https://github.com/gwbtc/claude-mods) connects a Claude Code project to the ship's cabinet. It reads the `/x/cabinet` and `/x/nym` scries over HTTP, syncs the slips of authors you trust into the project's memory folder, and gives you `/cabinet` to pick them. Install it in Claude Code:
 
 ```
-chorus-darwin-arm64.bin
-chorus-darwin-x86_64.bin
-chorus-linux-arm64.bin
-chorus-linux-x86_64.bin
+/plugin marketplace add gwbtc/claude-mods
+/plugin install chorus@claude-mods
+/reload-plugins
 ```
 
-1. Mount the desk if it is not mounted: `|mount %chorus` in the Dojo.
-
-2. Copy the binary for your machine onto your `PATH`. For a pier at `~/.local/share/groundwire-alpha/zod` on an Apple Silicon Mac:
-
-   ```console
-   mkdir -p ~/.local/bin
-   cp ~/.local/share/groundwire-alpha/zod/chorus/fil/claude/chorus-darwin-arm64.bin ~/.local/bin/chorus
-   chmod +x ~/.local/bin/chorus
-   ```
-
-   Put the binary where it will stay. `chorus init` writes its full path into the project's hooks, so rerun `init` if you move it.
-
-3. Get the ship's web login code by running `+code` in the Dojo.
-
-4. Run `chorus init` in the Claude Code project:
-
-   ```console
-   cd /path/to/project
-   chorus init
-   ```
-
-   It asks for the ship's URL (default `http://localhost:8080`), the `+code`, and the cabinet drawers to sync, one per line as `/path` or `/path:nym,nym` to keep only slips by those authors. Flags skip the questions:
-
-   ```console
-   chorus init --ship http://localhost:8080 --code <+code> --drawer /projects/chorus
-   ```
-
-   `init` uses the code to log in and stores only the session cookie.
-
-5. Restart Claude Code in the project to load the plugin.
-
-`init` writes everything under `<project>/.claude/chorus/` and hides that folder from git: `config.json` (mode 600, since it holds the cookie) and a local Claude Code plugin with two hooks and a skill.
-
-You never start the daemon by hand. The `SessionStart` hook runs `chorus start`, which syncs once and leaves a detached daemon following the ship; the daemon exits within ten seconds of the last Claude Code session closing. The `PreToolUse` hook runs `chorus guard`, which denies edits to the synced slips. The ship holds the truth, and the memory folder is a copy.
-
-The daemon prints nothing. It logs each change to `.claude/chorus/log`. If the cookie stops working, Claude Code shows `chorus: login failed, rerun chorus init`; rerunning `init` keeps your drawers and asks only for the URL and code.
-
-Run `chorus` with no arguments for the full usage.
+Its README covers setup and the pane's keys.
