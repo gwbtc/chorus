@@ -16,7 +16,7 @@ const RepoImport = struct {
 };
 
 const kademlia_url = "https://github.com/gwbtc/kademlia";
-const kademlia_commit = "4a8dad4fbd4747d7f51144deb21a5a1bd1908445";
+const kademlia_commit = "8b5c9d4afb48878b7d5ae471e3063906ba15fce8";
 
 const dependencies = [_]RepoImport{
     .{
