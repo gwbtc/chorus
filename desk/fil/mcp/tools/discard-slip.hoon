@@ -31,18 +31,19 @@
       !>  ^-  response:tool:mcp
       [%error 'could not parse the path; it must look like /drawer/slug' ~]
     ;<  our=ship  bind:m  get-our:io
-    ;<  =cabinet:chorus  bind:m
-      %+  scry:io  cabinet:chorus
-      (weld /gx/chorus/cabinet/drawer (snoc u.pax %noun))
-    ?~  fil.cabinet
+    ;<  listed=(axal listed:chorus)  bind:m
+      %+  scry:io  (axal listed:chorus)
+      (weld /gx/chorus/cabinet/paths (snoc u.pax %noun))
+    ?~  fil.listed
       %-  pure:m
       !>  ^-  response:tool:mcp
       [%error (crip "no slip at {(trip p.u.pat)}") ~]
-    ?.  =(our ship.u.fil.cabinet)
+    ?.  =(our ship.stub.u.fil.listed)
       %-  pure:m
       !>  ^-  response:tool:mcp
       :+  %error
-        (crip "the slip at {(trip p.u.pat)} belongs to {<ship.u.fil.cabinet>}")
+        %-  crip
+        "the slip at {(trip p.u.pat)} belongs to {<ship.stub.u.fil.listed>}"
       ~
     ;<  ~  bind:m
       %-  send-raw-card:io

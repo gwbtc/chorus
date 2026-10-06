@@ -211,6 +211,9 @@
 ++  topic-mark
   |=  =topic:chorus
   ^-  mark
+  ::  %chorus-cabinet is the mark of whole slips: a slip's page
+  ?:  ?=(%cabinet topic)
+    %chorus-index
   (cat 3 'chorus-' topic)
 ::
 ::  an empty shelf
@@ -218,7 +221,7 @@
   |=  =topic:chorus
   ^-  shelf:chorus
   ?:  ?=(%cabinet topic)
-    [%cabinet *cabinet:chorus]
+    [%cabinet *index:chorus]
   ;;(shelf:chorus [topic ~])
 ::
 ::  how many things a shelf holds
@@ -240,7 +243,8 @@
 ::
 ::  type a cask heard from .who under a topic, and check that
 ::  it keeps the rules we keep when we publish. produce
-::  nothing for a cask that fails
+::  nothing for a cask that fails. a slip's text is not here to
+::  check: +vet-page in /lib/slip checks it when its page comes in
 ++  vet-shelf
   |=  [who=ship =topic:chorus cask=(cask)]
   ^-  (unit shelf:chorus)
@@ -270,13 +274,13 @@
       ::
           %cabinet
         %+  levy  ~(tap of p.shelf)
-        |=  [pax=path =slip:chorus]
-        =/  fin  (parse-fqsp:slp fqsp.slip)
-        ?&  =(who ship.slip)
+        |=  [pax=path =stub:chorus]
+        =/  fin  (parse-fqsp:slp fqsp.stub)
+        ?&  =(who ship.stub)
             ?=(^ fin)
             =(who host.u.fin)
             =(pax pax.u.fin)
-            ?=(~ (vet-slip:slp pax txt.slip))
+            ?=(~ (vet-path:slp pax))
         ==
       ::
           %mcp-tools
@@ -301,7 +305,7 @@
       [%announcements p=listing:announcement:chorus]
       [%desks p=listing:desk:chorus]
       [%skills p=listing:skill:chorus]
-      [%cabinet p=[=path =slip:chorus]]
+      [%cabinet p=[=path =stub:chorus]]
       [%mcp-tools p=listing:tool:mcp:chorus]
       [%mcp-prompts p=listing:prompt:mcp:chorus]
       [%mcp-resources p=listing:resource:mcp:chorus]
@@ -331,7 +335,7 @@
   ::
       %cabinet
     ?>  ?=(%cabinet -.shelf)
-    shelf(p (~(put of p.shelf) path.p.item slip.p.item))
+    shelf(p (~(put of p.shelf) path.p.item stub.p.item))
   ==
 ::
 ::  the things a shelf holds, one item each
@@ -339,7 +343,7 @@
   |=  =shelf:chorus
   ^-  (list item)
   ?:  ?=(%cabinet -.shelf)
-    (turn ~(tap of p.shelf) |=(p=[path slip:chorus] [%cabinet p]))
+    (turn ~(tap of p.shelf) |=(p=[path stub:chorus] [%cabinet p]))
   %+  turn  ~(tap in `(set *)`p.shelf)
   |=(lit=* ;;(item [-.shelf lit]))
 ::
@@ -387,7 +391,7 @@
     ::  rebuild the tree, so no empty drawer stays behind
     %=    shelf
         p
-      %-  ~(gas of *cabinet:chorus)
+      %-  ~(gas of *index:chorus)
       %+  skip  ~(tap of p.shelf)
       |=([pax=path *] =(pax path.retract))
     ==
@@ -476,38 +480,38 @@
   ?<  ?=(%cabinet -.shelf.i.all)
   $(all t.all, out (~(uni in out) `(set *)`p.shelf.i.all))
 ::
-::  merge the cabinets of many ships into one tree. a slip
+::  merge the indexes of many ships into one tree. a slip
 ::  sits at the path its author keeps it at. where authors
 ::  share a path, ours stays put and each other author's slip
 ::  moves under the path to a segment naming their ship:
 ::  /foo/bar/~sampel and /foo/bar/~palnet
 ++  shuffle
-  |=  [our=ship all=(list [who=ship =cabinet:chorus])]
-  ^-  cabinet:chorus
-  =/  slips=(list [pax=path =slip:chorus])
+  |=  [our=ship all=(list [who=ship =index:chorus])]
+  ^-  index:chorus
+  =/  slips=(list [pax=path =stub:chorus])
     %-  zing
     %+  turn  all
-    |=([who=ship =cabinet:chorus] ~(tap of cabinet))
+    |=([who=ship =index:chorus] ~(tap of index))
   =/  tally=(map path @ud)
     %+  roll  slips
     |=  [[pax=path *] out=(map path @ud)]
     (~(put by out) pax +((~(gut by out) pax 0)))
-  %-  ~(gas of *cabinet:chorus)
+  %-  ~(gas of *index:chorus)
   %+  turn  slips
-  |=  [pax=path =slip:chorus]
-  :_  slip
-  ?:  |(=(our ship.slip) =(1 (~(got by tally) pax)))
+  |=  [pax=path =stub:chorus]
+  :_  stub
+  ?:  |(=(our ship.stub) =(1 (~(got by tally) pax)))
     pax
-  (snoc pax (scot %p ship.slip))
+  (snoc pax (scot %p ship.stub))
 ::
 ::  where a ship's slip at a path sits in the merged tree
 ++  spot
-  |=  [our=ship all=(list [who=ship =cabinet:chorus]) who=ship pax=path]
+  |=  [our=ship all=(list [who=ship =index:chorus]) who=ship pax=path]
   ^-  path
   ?:  =(our who)  pax
   ?:  %+  lien  all
-      |=  [him=ship =cabinet:chorus]
-      &(!=(him who) ?=(^ (~(get of cabinet) pax)))
+      |=  [him=ship =index:chorus]
+      &(!=(him who) ?=(^ (~(get of index) pax)))
     (snoc pax (scot %p who))
   pax
 ::
@@ -527,10 +531,10 @@
       ?^  (~(get of p.new) pax)  ~
       `[%chorus-slip-discarded pax]
     %+  murn  ~(tap of p.new)
-    |=  [pax=path =slip:chorus]
+    |=  [pax=path =stub:chorus]
     ^-  (unit update:chorus)
-    ?:  =(`slip (~(get of p.old) pax))  ~
-    `[%chorus-slip pax slip]
+    ?:  =(`stub (~(get of p.old) pax))  ~
+    `[%chorus-slip-listed pax stub]
   ::
       %rolodex
     ?>  ?=(%rolodex -.old)
@@ -695,6 +699,9 @@
         ['skill' s+(scot %uv hax.val)]
         (skill-pairs meta.val)
     ==
+  ::
+      %chorus-slip-listed
+    ['path' s+(spat path.val)]^(stub-pairs:slp stub.val)
   ::
       %chorus-slip
     ['path' s+(spat path.val)]^(slip-pairs:slp slip.val)

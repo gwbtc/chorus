@@ -2,7 +2,7 @@
 ::  slip: pure helpers for cabinet slips, shared by the
 ::  agent, lib/chorus, the marks and the tests
 /-  chorus, mds=markdown
-/+  mdl=markdown
+/+  mdl=markdown, cr=content-routing
 |%
 ::
 ::  the most characters a slip may hold
@@ -147,6 +147,60 @@
   ?:  (has-html u.doc)
     `'slip must not contain html'
   ~
+::
+::  the page a slip's author grows at its fqsp: a cabinet that
+::  holds the one slip
+++  page-of
+  |=  [pax=path =slip:chorus]
+  ^-  (cask)
+  [%chorus-cabinet (~(put of *cabinet:chorus) pax slip)]
+::
+::  what a ship lists of a slip at a path
+++  stub-of
+  |=  [pax=path =slip:chorus]
+  ^-  stub:chorus
+  [ship.slip time.slip fqsp.slip (digest-cask:cr (page-of pax slip))]
+::
+::  the slip a page holds, if it is the page of this fqsp: its
+::  author is its host, and it is the revision named
+++  read-page
+  |=  [fqsp=path page=(cask)]
+  ^-  (unit slip:chorus)
+  =/  fin  (parse-fqsp fqsp)
+  ?.  &(?=(^ fin) =(%chorus-cabinet p.page))
+    ~
+  =/  cab=(unit cabinet:chorus)  (mole |.(;;(cabinet:chorus q.page)))
+  ?~  cab
+    ~
+  =/  got=(unit slip:chorus)  (~(get of u.cab) pax.u.fin)
+  ?~  got
+    ~
+  ?.  &(=(host.u.fin ship.u.got) =(fqsp fqsp.u.got))
+    ~
+  got
+::
+::  check a page as it comes in: that it is the page of this
+::  fqsp, and that its slip keeps the rules
+++  vet-page
+  |=  [fqsp=path page=(cask)]
+  ^-  (unit slip:chorus)
+  =/  got=(unit slip:chorus)  (read-page fqsp page)
+  ?~  got
+    ~
+  ?^  (vet-slip (slag 9 fqsp) txt.u.got)
+    ~
+  got
+::
+::  a stub as json pairs, shared by the index and paths marks
+::  and by updates
+++  stub-pairs
+  |=  =stub:chorus
+  ^-  (list [@t json])
+  :~  ['ship' s+(scot %p ship.stub)]
+      ['created' s+(scot %da time.stub)]
+      ['fqsp' s+(spat fqsp.stub)]
+      ['digest' s+(scot %uv hax.stub)]
+  ==
 ::
 ::  a slip as json pairs, shared by the slip and cabinet marks
 ::  and by updates

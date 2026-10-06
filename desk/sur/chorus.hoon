@@ -138,6 +138,16 @@
 +$  cabinet  (axal slip)
 +$  slip     [=ship =time fqsp=path txt=@t]
 ::
+::  what a ship lists of a slip: all but its text. .hax is the
+::  digest of the page its author grew at .fqsp, a %chorus-cabinet
+::  cask holding the one slip. a ship that wants the text fetches
+::  that page, and the content store keeps it by .hax
++$  stub   [=ship =time fqsp=path hax=digest]
++$  index  (axal stub)
+::
+::  a listing of the cabinet: each stub, and whether we hold its page
++$  listed  [=stub held=?]
+::
 ::  the reserved topics. under each a ship publishes one value,
 ::  named by the topic in the %chorus namespace; chorus checks its
 ::  type on the way out and on the way in. the types are those of
@@ -158,7 +168,7 @@
   $%  [%desks p=(set listing:desk)]
       [%rolodex p=(set listing:bio)]
       [%announcements p=(set listing:announcement)]
-      [%cabinet p=cabinet]
+      [%cabinet p=index]
       [%skills p=(set listing:skill)]
       [%mcp-tools p=(set listing:tool:mcp)]
       [%mcp-prompts p=(set listing:prompt:mcp)]
@@ -206,6 +216,12 @@
   $+  chorus-seek
   [who=ship topic=path]
 ::
+::  %chorus-fetch: fetch the pages of the slips other ships list
+::  under a drawer. no .ships means every ship we poll
++$  fetch
+  $+  chorus-fetch
+  [drawer=path ships=(set ship)]
+::
 +$  resource
   $+  chorus-resource
   $%  [%bio bio=@t]
@@ -230,6 +246,8 @@
       [%mcp-resource-listed =ship =meta:resource:mcp hax=digest]
       [%mcp-resource-template-listed =ship =meta:template:resource:mcp hax=digest]
       [%agent-skill-listed =ship =meta:skill hax=digest]
+      ::  a ship lists a slip, and we hold a slip's page
+      [%chorus-slip-listed =path =stub]
       [%chorus-slip =path =slip]
       [%chorus-slip-discarded =path]
       ::  our publish at a topic reached its replicas, or failed to

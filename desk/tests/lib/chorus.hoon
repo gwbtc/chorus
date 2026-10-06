@@ -13,10 +13,16 @@
   ^-  slip:chorus
   [who wen (fqsp:slp who 1 /notes/foo) txt]
 ::
-++  cab
-  |=  slips=(list [path slip:chorus])
-  ^-  cabinet:chorus
-  (~(gas of *cabinet:chorus) slips)
+::  what its author lists of that slip
+++  stub
+  |=  [who=ship txt=@t]
+  ^-  stub:chorus
+  (stub-of:slp /notes/foo (slip who txt))
+::
+++  dex
+  |=  stubs=(list [path stub:chorus])
+  ^-  index:chorus
+  (~(gas of *index:chorus) stubs)
 ::
 ++  tool
   |=  [who=ship name=@t desc=@t]
@@ -60,10 +66,10 @@
 ::
 ++  test-strip
   =/  full=shelf:chorus
-    [%cabinet (cab ~[[/a (slip our 'a')] [/b/c (slip our 'c')]])]
+    [%cabinet (dex ~[[/a (stub our 'a')] [/b/c (stub our 'c')]])]
   ;:  weld
     %+  expect-eq
-      !>  `shelf:chorus`[%cabinet (cab ~[[/a (slip our 'a')]])]
+      !>  `shelf:chorus`[%cabinet (dex ~[[/a (stub our 'a')]])]
     !>  (strip:cho full [%slip /b/c])
     (expect-eq !>(full) !>((strip:cho full [%slip /nope])))
   ==
@@ -81,7 +87,7 @@
     ::  the wrong mark
     (expect-eq !>(~) !>((vet-shelf:cho sam %rolodex %chorus-desks good)))
     ::  the wrong topic for the noun
-    (expect-eq !>(~) !>((vet-shelf:cho sam %cabinet %chorus-cabinet good)))
+    (expect-eq !>(~) !>((vet-shelf:cho sam %cabinet %chorus-index good)))
     ::  not a shelf at all
     (expect-eq !>(~) !>((vet-shelf:cho sam %rolodex %chorus-rolodex 'junk')))
     (expect-eq !>(~) !>((vet-shelf:cho sam %rolodex %chorus-rolodex long)))
@@ -89,24 +95,28 @@
   ==
 ::
 ++  test-vet-shelf-cabinet
-  =/  good=cabinet:chorus  (cab ~[[/notes/foo (slip sam 'hi')]])
-  =/  fake=cabinet:chorus  (cab ~[[/notes/foo (slip pal 'hi')]])
-  =/  html=cabinet:chorus  (cab ~[[/notes/foo (slip sam '<div>hi</div>')]])
-  =/  path=cabinet:chorus  (cab ~[[/notes/'Foo' (slip sam 'hi')]])
+  =/  good=index:chorus  (dex ~[[/notes/foo (stub sam 'hi')]])
+  =/  fake=index:chorus  (dex ~[[/notes/foo (stub pal 'hi')]])
+  =/  path=index:chorus  (dex ~[[/notes/'Foo' (stub sam 'hi')]])
   ::  an fqsp that names another path, and one that names
   ::  another host
-  =/  away=cabinet:chorus  (cab ~[[/notes/bar (slip sam 'hi')]])
-  =/  host=cabinet:chorus
-    (cab ~[[/notes/foo [sam wen (fqsp:slp pal 1 /notes/foo) 'hi']]])
+  =/  away=index:chorus  (dex ~[[/notes/bar (stub sam 'hi')]])
+  =/  host=index:chorus
+    (dex ~[[/notes/foo [sam wen (fqsp:slp pal 1 /notes/foo) 0v1]]])
   ;:  weld
     %+  expect-eq
       !>  `(unit shelf:chorus)``[%cabinet good]
-    !>  (vet-shelf:cho sam %cabinet %chorus-cabinet good)
-    (expect-eq !>(~) !>((vet-shelf:cho sam %cabinet %chorus-cabinet fake)))
-    (expect-eq !>(~) !>((vet-shelf:cho sam %cabinet %chorus-cabinet html)))
-    (expect-eq !>(~) !>((vet-shelf:cho sam %cabinet %chorus-cabinet path)))
-    (expect-eq !>(~) !>((vet-shelf:cho sam %cabinet %chorus-cabinet away)))
-    (expect-eq !>(~) !>((vet-shelf:cho sam %cabinet %chorus-cabinet host)))
+    !>  (vet-shelf:cho sam %cabinet %chorus-index good)
+    (expect-eq !>(~) !>((vet-shelf:cho sam %cabinet %chorus-index fake)))
+    (expect-eq !>(~) !>((vet-shelf:cho sam %cabinet %chorus-index path)))
+    (expect-eq !>(~) !>((vet-shelf:cho sam %cabinet %chorus-index away)))
+    (expect-eq !>(~) !>((vet-shelf:cho sam %cabinet %chorus-index host)))
+    ::  a shelf of whole slips, as ships published before slips
+    ::  left the shelf: its mark is a page's
+    %+  expect-eq  !>(~)
+    !>  %:  vet-shelf:cho  sam  %cabinet  %chorus-cabinet
+            (~(put of *cabinet:chorus) /notes/foo (slip sam 'hi'))
+        ==
   ==
 ::
 ++  test-blend-joins-sets
@@ -120,21 +130,21 @@
   !>  (blend:cho our %mcp-tools all)
 ::
 ++  test-shuffle-splits-shared-paths
-  =/  all=(list [ship cabinet:chorus])
-    :~  [our (cab ~[[/a (slip our 'ours')] [/b (slip our 'b')]])]
-        [sam (cab ~[[/a (slip sam 'sam')] [/c (slip sam 'c')] [/d (slip sam 'd')]])]
-        [pal (cab ~[[/a (slip pal 'pal')] [/d (slip pal 'd')]])]
+  =/  all=(list [ship index:chorus])
+    :~  [our (dex ~[[/a (stub our 'ours')] [/b (stub our 'b')]])]
+        [sam (dex ~[[/a (stub sam 'sam')] [/c (stub sam 'c')] [/d (stub sam 'd')]])]
+        [pal (dex ~[[/a (stub pal 'pal')] [/d (stub pal 'd')]])]
     ==
   ;:  weld
     %+  expect-eq
-      !>  %-  cab
-          :~  [/a (slip our 'ours')]
-              [/a/~sampel-palnet (slip sam 'sam')]
-              [/a/~palnet-sampel (slip pal 'pal')]
-              [/b (slip our 'b')]
-              [/c (slip sam 'c')]
-              [/d/~sampel-palnet (slip sam 'd')]
-              [/d/~palnet-sampel (slip pal 'd')]
+      !>  %-  dex
+          :~  [/a (stub our 'ours')]
+              [/a/~sampel-palnet (stub sam 'sam')]
+              [/a/~palnet-sampel (stub pal 'pal')]
+              [/b (stub our 'b')]
+              [/c (stub sam 'c')]
+              [/d/~sampel-palnet (stub sam 'd')]
+              [/d/~palnet-sampel (stub pal 'd')]
           ==
     !>  (shuffle:cho our all)
     (expect-eq !>(`path`/a) !>((spot:cho our all our /a)))
@@ -144,15 +154,15 @@
 ::
 ++  test-updates-of-cabinet
   =/  old=shelf:chorus
-    [%cabinet (cab ~[[/a (slip sam 'a')] [/b (slip sam 'b')] [/c (slip sam 'c')]])]
+    [%cabinet (dex ~[[/a (stub sam 'a')] [/b (stub sam 'b')] [/c (stub sam 'c')]])]
   =/  new=shelf:chorus
-    [%cabinet (cab ~[[/a (slip sam 'a')] [/b (slip sam 'new')] [/d (slip sam 'd')]])]
+    [%cabinet (dex ~[[/a (stub sam 'a')] [/b (stub sam 'new')] [/d (stub sam 'd')]])]
   %+  expect-eq
     !>  ^-  (set update:chorus)
     %-  sy
     :~  [%chorus-slip-discarded /c]
-        [%chorus-slip /b (slip sam 'new')]
-        [%chorus-slip /d (slip sam 'd')]
+        [%chorus-slip-listed /b (stub sam 'new')]
+        [%chorus-slip-listed /d (stub sam 'd')]
     ==
   !>  (sy (updates-of:cho old new))
 ::

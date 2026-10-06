@@ -48,7 +48,7 @@
   ^-  (quip card _this)
   =/  saved  !<(versioned-state:chorus old)
   ?-  -.saved
-    %0  [tick:hc this(state saved)]
+    %0  [(weld tick:hc relist:hc) this(state saved)]
   ==
 ::
 ++  on-peek
@@ -133,31 +133,40 @@
     =/  nym  (author-nym:cho bowl (slav %p who.pole))
     ``json+!>(`json`?~(nym ~ s+u.nym))
   ::
+  ::  a slip whose page we hold
   ::  .^([path slip] %gx /=/chorus/=/cabinet/slip/notes/foo/noun)
       [%x %cabinet %slip pax=*]
     =/  pax=path  ;;(path pax.pole)
-    =/  lef  (~(get of cabinet:hc) pax)
+    =/  lef=(unit slip:chorus)
+      (biff (~(get of index:hc) pax) whole:hc)
     ?~  lef
       [~ ~]
     ``chorus-slip+!>(`[path slip:chorus]`[pax u.lef])
   ::
+  ::  every slip under a path whose page we hold
   ::  .^(cabinet %gx /=/chorus/=/cabinet/drawer/noun)
   ::  .^(cabinet %gx /=/chorus/=/cabinet/drawer/notes/noun)
       [%x %cabinet %drawer pax=*]
-    ``chorus-cabinet+!>((~(dip of cabinet:hc) ;;(path pax.pole)))
-  ::
-  ::  the same tree with every body blanked, for listing
-  ::  .^(cabinet %gx /=/chorus/=/cabinet/paths/noun)
-      [%x %cabinet %paths pax=*]
-    :^    ~
-        ~
-      %chorus-cabinet
+    :^  ~  ~  %chorus-cabinet
     !>  ^-  cabinet:chorus
-    =/  fat  (~(dip of cabinet:hc) ;;(path pax.pole))
+    =/  get  whole:hc
+    %-  ~(gas of *cabinet:chorus)
+    %+  murn  ~(tap of (~(dip of index:hc) ;;(path pax.pole)))
+    |=  [pax=path =stub:chorus]
+    (bind (get stub) (lead pax))
+  ::
+  ::  every slip a ship lists under a path, and whether we
+  ::  hold its page
+  ::  .^((axal listed) %gx /=/chorus/=/cabinet/paths/noun)
+      [%x %cabinet %paths pax=*]
+    :^  ~  ~  %chorus-paths
+    !>  ^-  (axal listed:chorus)
+    =/  get  whole:hc
+    =/  fat  (~(dip of index:hc) ;;(path pax.pole))
     |-
-    ^-  cabinet:chorus
-    :-  ?~(fil.fat ~ `u.fil.fat(txt ''))
-    (~(run by dir.fat) |=(kid=cabinet:chorus ^$(fat kid)))
+    ^-  (axal listed:chorus)
+    :-  ?~(fil.fat ~ `[u.fil.fat ?=(^ (get u.fil.fat))])
+    (~(run by dir.fat) |=(kid=index:chorus ^$(fat kid)))
   ::
   ::  kademlia's diagnostics, as json
   ::  .^(json %gx /=/chorus/=/kademlia/summary/json)
@@ -254,10 +263,12 @@
     ^-  (list card)
     %-  zing
     ^-  (list (list card))
-    :~  ::  a private listing grows, and so does every slip, so
-        ::  that its fqsp resolves. a public listing covers one
-        ::  we grew before it
-        ?:  |(!public.act ?=(%cabinet -.item))
+    :~  ::  every slip grows its page, so that its fqsp resolves.
+        ::  a private listing grows too, and a public listing
+        ::  covers one we grew before it
+        ?^  slip.made
+          [%pass /grow %grow pax (page-of:slp u.slip.made)]~
+        ?.  public.act
           [%pass /grow %grow pax (topic-mark:cho -.one) p.one]~
         ?.  (grew:hc pax)
           ~
@@ -275,6 +286,14 @@
         (put-shelf:hc (stock:cho (public:hc -.item) item))
       ::
         (tell:hc our.bowl old (stock:cho old item))
+      ::
+      ::  our own slip is whole from the start
+        ?~  slip.made
+          ~
+        :_  ~
+        :*  %give  %fact  ~[/updates /cabinet]  %chorus-update
+            !>(`update:chorus`[%chorus-slip u.slip.made])
+        ==
     ==
   ::
       %chorus-retract
@@ -295,10 +314,13 @@
           ~
         (put-shelf:hc cut)
       ::
-      ::  an empty shelf covers what we grew. the revisions
-      ::  under it stay, so a slip's fqsp still resolves
+      ::  an empty shelf covers what we grew, and an empty
+      ::  page a slip. the revisions under it stay, so a slip's
+      ::  fqsp still resolves
         ?.  (grew:hc pax)
           ~
+        ?:  ?=(%cabinet topic)
+          [%pass /grow %grow pax %chorus-cabinet *cabinet:chorus]~
         [%pass /grow %grow pax (topic-mark:cho topic) p:(bare:cho topic)]~
       ::
         (tell:hc our.bowl old new)
@@ -307,6 +329,29 @@
       %chorus-seek
     =/  act  !<(seek:chorus vase)
     [(get:hc who.act topic.act) this]
+  ::
+  ::  ask for each page we lack under a drawer. the answers
+  ::  come back below, at /page
+      %chorus-fetch
+    =/  act  !<(fetch:chorus vase)
+    =/  had=(set digest)  digests:hc
+    :_  this
+    ^-  (list card)
+    %-  zing
+    %+  turn  indexes:hc
+    |=  [who=ship =index:chorus]
+    ^-  (list card)
+    ?:  ?|  =(our.bowl who)
+            &(!=(~ ships.act) !(~(has in ships.act) who))
+        ==
+      ~
+    %-  zing
+    %+  turn  ~(tap of (~(dip of index) drawer.act))
+    |=  [pax=path =stub:chorus]
+    ^-  (list card)
+    ?:  (~(has in had) hax.stub)
+      ~
+    (get-page:hc stub)
   ::
       %content-store-result
     =/  notice  !<(content-store-notice vase)
@@ -332,9 +377,10 @@
           [%chorus-published t.t.reply-path.notice ?=(%put -.result)]
       ==
     ::
-    ::  what a polled ship holds under a name. under a reserved
-    ::  topic a cask that fails its type is never shown, and a
-    ::  ship we no longer poll is not heard
+    ::  what a ship holds under a name. under a reserved topic
+    ::  we vet the cask here, once, and drop the name and the
+    ::  cask of one that fails, so it is never shown. a ship we
+    ::  no longer poll is not heard
         [%get @ @ *]
       :_  this
       %+  weld  (forget:hc i.t.reply-path.notice)
@@ -342,21 +388,64 @@
       ?.  ?=(%get -.result)
         ~
       =/  who=ship  (slav %p i.t.t.reply-path.notice)
-      =/  topic=(unit topic:chorus)
-        (path-topic:cho t.t.t.reply-path.notice)
-      ?~  topic
+      =/  name=path  t.t.t.reply-path.notice
+      =/  topic=(unit topic:chorus)  (path-topic:cho name)
+      ?:  =(our.bowl who)
         ~
-      ?.  (~(has in polled) who)
+      ?~  topic
+        ::  a page comes in by its fqsp alone, where we vet it
+        ?.  =(%chorus-cabinet p.value.value.result)
+          ~
+        (evict:hc content.value.result)
+      ::  the content store still shows us the last event's
+      ::  names, so what we held is what we hold there now. a
+      ::  digest we hold passed when it came in
+      ?:  =(`content.value.result (~(get by names:hc) [who %chorus name]))
         ~
       =/  new=(unit shelf:chorus)
         (vet-shelf:cho who u.topic value.value.result)
       ?~  new
-        (warn:hc & "{<who>} published a bad {<u.topic>}")
-      ::  the content store still shows us the last event's
-      ::  names, so what we held is what we hold there now
+        =/  ignored
+          (warn:hc & "{<who>} published a bad {<u.topic>}")
+        ::  the content store takes both inside this event
+        :_  (evict:hc content.value.result)
+        %:  poke:client
+          our.bowl
+          dap.bowl
+          (unname:client who %chorus name)
+          /unname
+        ==
+      ?.  (~(has in polled) who)
+        ~
       %^  tell:hc  who
         (fall (held:hc who u.topic) (bare:cho u.topic))
       u.new
+    ::
+    ::  a slip's page, fetched from its fqsp. the content store
+    ::  checked it against the digest its author listed and keeps
+    ::  it; we vet the slip here, once, and have the store forget
+    ::  a page that fails, so a page the store holds passed
+        [%page @ *]
+      :_  this
+      %+  weld  (forget:hc i.t.reply-path.notice)
+      ^-  (list card)
+      =/  fqsp=path  t.t.reply-path.notice
+      ?.  ?=(%get -.result)
+        =/  ignored
+          (warn:hc & "could not fetch {<fqsp>}: {<result>}")
+        ~
+      =/  fin  (parse-fqsp:slp fqsp)
+      =/  got=(unit slip:chorus)  (vet-page:slp fqsp value.value.result)
+      ?.  &(?=(^ fin) ?=(^ got))
+        =/  ignored  (warn:hc & "a bad page at {<fqsp>}")
+        (evict:hc content.value.result)
+      :_  ~
+      :*  %give  %fact  ~[/updates /cabinet /heard]  %chorus-update
+          !>  ^-  update:chorus
+          :+  %chorus-slip
+            (spot:cho our.bowl indexes:hc host.u.fin pax.u.fin)
+          u.got
+      ==
     ==
   ==
 ::
@@ -414,6 +503,24 @@
         (weld pyk /~/content-store/names/noun)
     ==
   ::
+  ::  the digest of every cask the content store holds
+  ++  digests
+    ^-  (set digest)
+    .^  (set digest)
+        %gx
+        (weld pyk /~/content-store/digests/noun)
+    ==
+  ::
+  ::  a cask the content store holds. the scry blocks on a
+  ::  digest the store lacks, so ask +digests first
+  ++  stored
+    |=  content=digest
+    ^-  (cask)
+    .^  (cask)
+        %gx
+        (weld pyk /~/content-store/cask/(scot %uv content)/noun)
+    ==
+  ::
   ::  the cask a ship last published under a name, if we hold it
   ++  heard
     |=  [who=ship name=path]
@@ -421,25 +528,26 @@
     =/  content=(unit digest)  (~(get by names) [who %chorus name])
     ?~  content
       ~
-    %-  mole
-    |.  .^  (cask)
-            %gx
-            (weld pyk /~/content-store/cask/(scot %uv u.content)/noun)
-        ==
+    (mole |.((stored u.content)))
   ::
-  ::  a ship's shelf under a topic, if we hold one that passes.
-  ::  the content store keeps a cask before we see it and we
-  ::  keep no record of which passed, so we vet another ship's
-  ::  shelf each time we read it. our own we made, and only type
+  ::  have the content store forget a cask. it takes this
+  ::  inside the event that sends it
+  ++  evict
+    |=  content=digest
+    ^-  (list card)
+    [(poke:client our.bowl dap.bowl (evict:client content) /evict)]~
+  ::
+  ::  a ship's shelf under a topic, if we hold one. we vet
+  ::  another ship's cask when it comes in and drop the name of
+  ::  one that fails, so a name the content store holds passed,
+  ::  and a read only types
   ++  held
     |=  [who=ship =topic:chorus]
     ^-  (unit shelf:chorus)
     =/  got=(unit (cask))  (heard who (topic-path:cho topic))
     ?~  got
       ~
-    ?:  =(our.bowl who)
-      (type-shelf:cho topic u.got)
-    (vet-shelf:cho who topic u.got)
+    (type-shelf:cho topic u.got)
   ::
   ::  every path under /chorus in our own %grow namespace
   ++  farm
@@ -465,7 +573,8 @@
   ::  what we grew under a topic, read back from our own %grow
   ::  namespace: one shelf for each listing, empty if we took
   ::  the listing back. a listing grows one segment below its
-  ::  topic, a slip at any depth, our bio at the topic itself
+  ::  topic, our bio at the topic itself. a slip grows its page
+  ::  at any depth, and we list the page's slip
   ++  grown
     |=  =topic:chorus
     ^-  (list shelf:chorus)
@@ -478,8 +587,50 @@
           %cabinet    &(!=(top pax) =(top (scag (lent top) pax)))
         ==
       ~
-    %+  type-shelf:cho  topic
-    [(topic-mark:cho topic) .^(* %gx (weld fam pax))]
+    =/  val  .^(* %gx (weld fam pax))
+    ?.  ?=(%cabinet topic)
+      (type-shelf:cho topic [(topic-mark:cho topic) val])
+    =/  kid=path  (slag (lent top) pax)
+    =/  cab=(unit cabinet:chorus)  (mole |.(;;(cabinet:chorus val)))
+    =/  got=(unit slip:chorus)  ?~(cab ~ (~(get of u.cab) kid))
+    ?~  got
+      ~
+    `[%cabinet (~(put of *index:chorus) kid (stub-of:slp kid u.got))]
+  ::
+  ::  the whole slip a stub lists, if we hold its page: ours in
+  ::  our farm, another ship's in the content store. the farm
+  ::  and the store are read once for all the stubs we are asked
+  ++  whole
+    =/  far=(list path)  farm
+    =/  had=(set digest)  digests
+    |=  =stub:chorus
+    ^-  (unit slip:chorus)
+    ?.  =(our.bowl ship.stub)
+      ?.  (~(has in had) hax.stub)
+        ~
+      (read-page:slp fqsp.stub (stored hax.stub))
+    =/  pax=path  (weld (topic-path:cho %cabinet) (slag 9 fqsp.stub))
+    ?.  (lien far |=(one=path =(one pax)))
+      ~
+    (read-page:slp fqsp.stub [%chorus-cabinet .^(* %gx (weld fam pax))])
+  ::
+  ::  a cabinet we published before slips left their shelf holds
+  ::  whole slips, under the mark their pages keep. list it again
+  ::  as stubs: each slip in it grew its page when we published it
+  ++  relist
+    ^-  (list card)
+    =/  got=(unit (cask))
+      (fall (mole |.((heard our.bowl (topic-path:cho %cabinet)))) ~)
+    ?.  ?=([~ %chorus-cabinet *] got)
+      ~
+    =/  old=(unit cabinet:chorus)  (mole |.(;;(cabinet:chorus q.u.got)))
+    ?~  old
+      ~
+    %-  put-shelf
+    :-  %cabinet
+    %-  ~(gas of *index:chorus)
+    %+  turn  ~(tap of u.old)
+    |=([pax=path =slip:chorus] [pax (stub-of:slp pax slip)])
   ::
   ::  our shelf under a topic as the content store holds it:
   ::  what we published to everyone
@@ -521,14 +672,14 @@
     ^-  shelf:chorus
     (blend:cho our.bowl topic (shelves topic who))
   ::
-  ++  cabinet
-    ^-  cabinet:chorus
+  ++  index
+    ^-  index:chorus
     =/  all=shelf:chorus  (folded %cabinet ~)
     ?>  ?=(%cabinet -.all)
     p.all
   ::
-  ++  cabinets
-    ^-  (list [ship cabinet:chorus])
+  ++  indexes
+    ^-  (list [ship index:chorus])
     %+  turn  (shelves %cabinet ~)
     |=  [who=ship =shelf:chorus]
     ?>  ?=(%cabinet -.shelf)
@@ -596,6 +747,22 @@
         [(topic-mark:cho -.shelf) p.shelf]
         (count:cho shelf)
         (topic-path:cho -.shelf)
+    ==
+  ::
+  ::  ask for the page a stub lists, from the fqsp its author
+  ::  grew it at
+  ++  get-page
+    |=  =stub:chorus
+    ^-  (list card)
+    =/  id  (new-id /page/(scot %uv hax.stub))
+    %:  start:client
+        our.bowl
+        dap.bowl
+        id
+        dap.bowl
+        (weld /page/(scot %uv id) fqsp.stub)
+        %^  get-direct:client  id  hax.stub
+        [%scry ship.stub (slag 1 fqsp.stub)]
     ==
   ::
   ::  ask for what a ship published under a name
@@ -669,17 +836,17 @@
   ++  tell
     |=  [who=ship old=shelf:chorus new=shelf:chorus]
     ^-  (list card)
-    =/  all=(list [ship cabinet:chorus])
+    =/  all=(list [ship index:chorus])
       ?.  ?=(%cabinet -.new)
         ~
       :-  [who p.new]
-      (skip cabinets |=([him=ship *] =(him who)))
+      (skip indexes |=([him=ship *] =(him who)))
     %+  turn  (updates-of:cho old new)
     |=  =update:chorus
     ^-  card
     =/  moved=(unit update:chorus)
       ?+    -.update  ~
-          %chorus-slip
+          %chorus-slip-listed
         `update(path (spot:cho our.bowl all who path.update))
       ::
           %chorus-slip-discarded
@@ -721,30 +888,30 @@
     :-  .^(vase %ca (welp bek pax))
     [%hoon .^(@t %cx (welp bek pax))]
   ::
-  ::  turn a resource into the item we list, and the casks its
-  ::  listing points at
+  ::  turn a resource into the item we list, the casks its
+  ::  listing points at, and for a slip the slip itself
   ++  make
     |=  =resource:chorus
-    ^-  [=item:cho casks=(list (cask))]
+    ^-  [=item:cho casks=(list (cask)) slip=(unit [path slip:chorus])]
     =*  our  our.bowl
     ?-    -.resource
         %bio
       ?.  (lte (lent (trip bio.resource)) 256)
         ~|  "{<dap.bowl>}: bio must be 256 characters or less"
         !!
-      [[%rolodex our bio.resource] ~]
+      [[%rolodex our bio.resource] ~ ~]
     ::
         %announcement
       ?.  (lte (lent (trip announcement.resource)) 256)
         ~|  "{<dap.bowl>}: announcement must be 256 characters or less"
         !!
-      [[%announcements our now.bowl announcement.resource] ~]
+      [[%announcements our now.bowl announcement.resource] ~ ~]
     ::
         %desk
       ?.  (lte (lent (trip desc.resource)) 256)
         ~|  "{<dap.bowl>}: desk description must be 256 characters or less"
         !!
-      :_  ~
+      :_  [~ ~]
       :*  %desks  our  desk.resource  desc.resource
           .^(@uvI %cz /(scot %p our)/[desk.resource]/(scot %da now.bowl))
       ==
@@ -752,7 +919,7 @@
         %mcp-tool
       =/  src  (source desk.resource path.resource)
       =/  =tool:mcp  !<(tool:mcp vase.src)
-      :_  [cask.src]~
+      :_  [[cask.src]~ ~]
       :*  %mcp-tools  our
           [name.tool desc.tool parameters.tool required.tool]
           (digest-cask:cr cask.src)
@@ -761,7 +928,7 @@
         %mcp-prompt
       =/  src  (source desk.resource path.resource)
       =/  =prompt:mcp  !<(prompt:mcp vase.src)
-      :_  [cask.src]~
+      :_  [[cask.src]~ ~]
       :*  %mcp-prompts  our
           [name.prompt title.prompt desc.prompt arguments.prompt]
           (digest-cask:cr cask.src)
@@ -770,7 +937,7 @@
         %mcp-resource
       =/  src  (source desk.resource path.resource)
       =/  res=resource:mcp  !<(resource:mcp vase.src)
-      :_  [cask.src]~
+      :_  [[cask.src]~ ~]
       :*  %mcp-resources  our
           [uri.res name.res title.res desc.res]
           (digest-cask:cr cask.src)
@@ -779,7 +946,7 @@
         %mcp-resource-template
       =/  src  (source desk.resource path.resource)
       =/  tem=template:resource:mcp  !<(template:resource:mcp vase.src)
-      :_  [cask.src]~
+      :_  [[cask.src]~ ~]
       :*  %mcp-resource-templates  our
           [uri-template.tem name.tem title.tem desc.tem]
           (digest-cask:cr cask.src)
@@ -795,7 +962,7 @@
         ~|  "{<dap.bowl>}: {(trip u.err)}"
         !!
       =/  cask=(cask)  [%chorus-skill skill.resource]
-      [[%skills our meta (digest-cask:cr cask)] [cask]~]
+      [[%skills our meta (digest-cask:cr cask)] [cask]~ ~]
     ::
         %slip
       =/  err  (vet-slip:slp path.resource txt.resource)
@@ -804,13 +971,16 @@
         !!
       ::  we alone stamp a slip: its author, its time, and the
       ::  revision its fqsp names, which the %grow lands at
-      :_  ~
-      :*  %cabinet  path.resource  our  now.bowl
-          %^  fqsp:slp  our
-            (next-rev (weld (topic-path:cho %cabinet) path.resource))
-          path.resource
-          txt.resource
-      ==
+      =/  =slip:chorus
+        :*  our  now.bowl
+            %^  fqsp:slp  our
+              (next-rev (weld (topic-path:cho %cabinet) path.resource))
+            path.resource
+            txt.resource
+        ==
+      :+  [%cabinet path.resource (stub-of:slp path.resource slip)]
+        ~
+      `[path.resource slip]
     ==
   ::
   ++  en-summary

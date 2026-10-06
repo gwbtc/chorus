@@ -20,10 +20,20 @@
 ::  Typed compatibility adapters for this Groundwire ph-io revision.
 ::  Its generic +poke-app accepts data as *, losing atom auras before
 ::  formatting the Dojo command.  Keep each payload typed instead.
-::  publish, and wait until the publish settles: until then a
-::  ship that holds our last pointer answers a poll with it
 ++  poke-publish
   |=  [=ship act=publish]
+  =/  m  (strand ,~)
+  ^-  form:m
+  =/  command=tape  ":chorus &chorus-publish {<act>}"
+  ?.  public.act
+    (send-events (dojo:ph-util ship command))
+  (dojo-publish ship command)
+::
+::  run a dojo command that publishes, and wait until the
+::  publish settles: until then a ship that holds our last
+::  pointer answers a poll with it
+++  dojo-publish
+  |=  [=ship command=tape]
   =/  m  (strand ,~)
   ^-  form:m
   ;<  now=@da  bind:m  get-time
@@ -31,10 +41,7 @@
   =/  =task:gall
     [%deal [ship ship /] %chorus %watch /published]
   ;<  ~  bind:m  (send-events [%event ship [%g wire] task]~)
-  ;<  ~  bind:m
-    (send-events (dojo:ph-util ship ":chorus &chorus-publish {<act>}"))
-  ?.  public.act
-    (pure:m ~)
+  ;<  ~  bind:m  (send-events (dojo:ph-util ship command))
   |-
   ;<  [her=^ship =unix-effect]  bind:m  take-unix-effect
   ?.  ?&  =(her ship)
@@ -126,6 +133,29 @@
   =/  m  (strand ,~)
   ^-  form:m
   (poke-publish who [& %slip pax txt])
+::
+::  publish a cabinet that breaks the rules, past chorus and
+::  straight through the content store: it lists a slip that
+::  another ship wrote. chorus hears the result as it does its
+::  own publishes
+++  publish-bad-cabinet
+  |=  who=ship
+  =/  m  (strand ,~)
+  ^-  form:m
+  ;<  ~  bind:m
+    %-  send-events
+    %+  dojo:ph-util  who
+    ;:  weld
+      ":chorus &content-store-command "
+      "[%observe 0v99 %chorus /put/0v99/chorus/cabinet]"
+    ==
+  %+  dojo-publish  who
+  ;:  weld
+    ":chorus &content-store-command [%put 0v99 [%chorus-index "
+    "(~(put of *(axal [@p @da path @uv])) /notes/foo "
+    "[~zod ~2026.1.1 /bad 0v0])] "
+    "[`[%chorus /chorus/cabinet [%auto ~] ~] ~] ~]"
+  ==
 ::
 ++  publish-mcp
   |=  $:  who=ship
@@ -226,7 +256,32 @@
       (matches-want from.exp want.exp noun.unto.q.unix-effect)
   ==
 ::
-::  wait for the fact, then check the ship's own scries agree
+::  did .who.exp just hear that .from.exp lists the slip we want?
+++  listed
+  |=  [her=ship =unix-effect exp=expectation]
+  ^-  ?
+  ?.  ?&  =(her who.exp)
+          =((update-wire id.exp) p.unix-effect)
+          ?=([%unto %raw-fact *] q.unix-effect)
+          =(%chorus-update mark.unto.q.unix-effect)
+          ?=(%slip -.want.exp)
+      ==
+    |
+  =/  got=(unit update)  ((soft update) noun.unto.q.unix-effect)
+  ?.  ?=([~ %chorus-slip-listed *] got)
+    |
+  &(=(from.exp ship.stub.u.got) =(pax.want.exp path.u.got))
+::
+::  fetch the page of every slip .who hears of and lacks
+++  fetch-pages
+  |=  who=ship
+  =/  m  (strand ,~)
+  ^-  form:m
+  (send-events (dojo:ph-util who ":chorus &chorus-fetch [/ ~]"))
+::
+::  wait for the fact, then check the ship's own scries agree.
+::  a ship hears of another's slip before it holds the text: when
+::  the listing lands, fetch, and wait for the slip itself
 ++  await-update
   |=  exp=expectation
   =/  m  (strand ,~)
@@ -235,8 +290,27 @@
     (probe-want exp)
   |-
   ;<  [her=^ship =unix-effect]  bind:m  take-unix-effect
+  ?:  (listed her unix-effect exp)
+    ;<  ~  bind:m  (fetch-pages who.exp)
+    $
   ?.  (observed her unix-effect exp)  $
   (probe-want exp)
+::
+::  wait until .who holds nothing from .from under a name
+++  await-unheard
+  |=  [who=ship from=ship name=path]
+  =/  m  (strand ,~)
+  ^-  form:m
+  |-
+  ;<  =bowl:strand  bind:m  get-bowl
+  =/  got=(unit (unit (cask)))
+    %+  scry-aqua:util  (unit (unit (cask)))
+    :+  our.bowl  now.bowl
+    (scry-path who now.bowl (weld /heard/(scot %p from) name))
+  ?:  =([~ ~] got)
+    (pure:m ~)
+  ;<  ~  bind:m  (sleep ~s2)
+  $
 ::
 ::  the chorus test fleet
 ::

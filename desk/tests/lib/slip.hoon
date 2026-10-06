@@ -93,4 +93,38 @@
     !>  ^-  (list @t)
     ~['/~sampel-palnet/g/x/3/chorus//1/chorus/cabinet/notes/foo']
   !>  (links:slp txt)
+::
+++  test-page-roundtrip
+  =/  =slip:chorus  [host ~2026.9.1 fixture-fqsp 'hi']
+  =/  page=(cask)  (page-of:slp fixture-path slip)
+  =/  =stub:chorus  (stub-of:slp fixture-path slip)
+  ;:  weld
+    %+  expect-eq  !>(`stub:chorus`[host ~2026.9.1 fixture-fqsp hax.stub])
+    !>  stub
+    (expect-eq !>(`(unit slip:chorus)``slip) !>((read-page:slp fixture-fqsp page)))
+    (expect-eq !>(`(unit slip:chorus)``slip) !>((vet-page:slp fixture-fqsp page)))
+  ==
+::
+++  test-page-rejects
+  =/  =slip:chorus  [host ~2026.9.1 fixture-fqsp 'hi']
+  =/  html=slip:chorus  slip(txt '<div>hi</div>')
+  =/  page=(cask)  (page-of:slp fixture-path slip)
+  ;:  weld
+    ::  another revision's page, and another host's
+    %+  expect-eq  !>(~)
+    !>  (read-page:slp (fqsp:slp host 4 fixture-path) page)
+    %+  expect-eq  !>(~)
+    !>  %+  read-page:slp  (fqsp:slp ~palnet-sampel 3 fixture-path)
+        (page-of:slp fixture-path slip(ship ~palnet-sampel))
+    ::  the slip sits at another path, the wrong mark, no cabinet
+    %+  expect-eq  !>(~)
+    !>  (read-page:slp fixture-fqsp (page-of:slp /notes/bar slip))
+    (expect-eq !>(~) !>((read-page:slp fixture-fqsp [%noun q.page])))
+    (expect-eq !>(~) !>((read-page:slp fixture-fqsp [%chorus-cabinet 'junk'])))
+    ::  a page reads whatever its text, and is vetted for it
+    %+  expect-eq  !>(`(unit slip:chorus)``html)
+    !>  (read-page:slp fixture-fqsp (page-of:slp fixture-path html))
+    %+  expect-eq  !>(~)
+    !>  (vet-page:slp fixture-fqsp (page-of:slp fixture-path html))
+  ==
 --
