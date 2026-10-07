@@ -53,8 +53,8 @@
         ~
       fil.fat
     ?:  &(?=(^ listed) held.u.listed)
-      ;<  got=[path =slip:chorus]  bind:m
-        %+  scry:io  ,[path slip:chorus]
+      ;<  got=[path nym:chorus =slip:chorus]  bind:m
+        %+  scry:io  ,[path nym:chorus slip:chorus]
         `path`(snoc (weld /gx/chorus/cabinet/slip pax.u.fin) %noun)
       %-  pure:m
       !>  ^-  response:tool:mcp

@@ -1,20 +1,13 @@
+::
+::  a wire mark: the cask a ship publishes under a topic. a
+::  client reads the topic through %chorus-shelf, which credits
+::  each listing to a nym
 /-  chorus
-/+  cho=chorus
 |_  val=(set listing:skill:chorus)
 ++  grad  %noun
 ++  grow
   |%
   ++  noun  val
-  ++  json
-    ^-  ^json
-    :-  %a
-    %+  turn  ~(tap in val)
-    |=  lit=listing:skill:chorus
-    %-  pairs:enjs:format
-    :*  ['ship' s+(scot %p ship.lit)]
-        ['skill' s+(scot %uv hax.lit)]
-        (skill-pairs:cho meta.lit)
-    ==
   --
 ++  grab
   |%
