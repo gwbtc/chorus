@@ -1,6 +1,7 @@
 ::
-::  a slip and the cabinet path it sits at, with renderers
-::  for the formats a client might want it in
+::  a slip, the nym we credit it to and the cabinet path it
+::  sits at, with renderers for the formats a client might want
+::  it in
 /-  chorus, mds=markdown
 /+  mdl=markdown, slp=slip
 =>
@@ -158,12 +159,14 @@
   ?~  i.back  $(back t.back)
   (flop `(list tape)`back)
 --
-|_  val=[=path =slip:chorus]
+|_  val=[=path =nym:chorus =slip:chorus]
 ++  grad  %noun
 ++  grow
   |%
   ++  noun  val
-  ++  json  (enjs:slp slip.val)
+  ++  json
+    ^-  ^json
+    (pairs:enjs:format [['nym' s+nym.val] (slip-pairs:slp slip.val)])
   ::
   ::  the body under yaml frontmatter
   ++  md
@@ -171,7 +174,7 @@
     %-  of-wain:format
     ;:  welp
       :~  '---'
-          (cat 3 'ship: ' (scot %p ship.slip.val))
+          (cat 3 'author: ' nym.val)
           (cat 3 'created: ' (scot %da time.slip.val))
           (cat 3 'fqsp: ' (spat fqsp.slip.val))
       ==
@@ -200,7 +203,7 @@
     %-  en-xml:html
     ^-  manx
     :-  :-  %slip
-        :~  [%ship (scow %p ship.slip.val)]
+        :~  [%author (trip nym.val)]
             [%created (scow %da time.slip.val)]
             [%fqsp (spud fqsp.slip.val)]
         ==
@@ -219,6 +222,6 @@
   --
 ++  grab
   |%
-  ++  noun  ,[=path =slip:chorus]
+  ++  noun  ,[=path =nym:chorus =slip:chorus]
   --
 --

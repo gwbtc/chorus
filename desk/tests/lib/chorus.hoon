@@ -7,6 +7,9 @@
 ++  pal  ~palnet-sampel
 ++  wen  ~2026.9.1
 ::
+::  the nym we credit ~sampel-palnet with
+++  nym  '..sampel.palnet'
+::
 ::  a slip whose fqsp names /notes/foo
 ++  slip
   |=  [who=ship txt=@t]
@@ -161,16 +164,16 @@
     !>  ^-  (set update:chorus)
     %-  sy
     :~  [%chorus-slip-discarded /c]
-        [%chorus-slip-listed /b (stub sam 'new')]
-        [%chorus-slip-listed /d (stub sam 'd')]
+        [%chorus-slip-listed /b nym (stub sam 'new')]
+        [%chorus-slip-listed /d nym (stub sam 'd')]
     ==
-  !>  (sy (updates-of:cho old new))
+  !>  (sy (updates-of:cho nym old new))
 ::
 ++  test-updates-of-set
   =/  old=shelf:chorus  [%mcp-tools (sy (tool sam 'a' 'a') ~)]
   =/  new=shelf:chorus
     [%mcp-tools (sy (tool sam 'a' 'a') (tool sam 'b' 'b') ~)]
   %+  expect-eq
-    !>  `(list update:chorus)`[%mcp-tool-listed (tool sam 'b' 'b')]~
-  !>  (updates-of:cho old new)
+    !>  `(list update:chorus)`[%mcp-tool-listed nym +:(tool sam 'b' 'b')]~
+  !>  (updates-of:cho nym old new)
 --

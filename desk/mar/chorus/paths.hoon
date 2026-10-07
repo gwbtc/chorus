@@ -1,6 +1,6 @@
 ::
 ::  the listing of a cabinet: every slip a ship lists, at its
-::  path, and whether we hold its page
+::  path, credited to its author's nym, and whether we hold its page
 /-  chorus
 /+  slp=slip
 |_  val=(axal listed:chorus)
@@ -22,7 +22,8 @@
         %-  pairs:enjs:format
         %+  weld  (stub-pairs:slp stub.u.fil.val)
         ^-  (list [@t ^json])
-        :~  ['held' b+held.u.fil.val]
+        :~  ['nym' s+nym.u.fil.val]
+            ['held' b+held.u.fil.val]
             ['links' a+~]
             ['text' s+'']
         ==

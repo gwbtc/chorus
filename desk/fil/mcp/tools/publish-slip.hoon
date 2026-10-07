@@ -76,8 +76,8 @@
       ==
     ;<  ~  bind:m  (take-poke-ack:io /publish-slip)
     ::  the agent stamps the slip, so read its fqsp back
-    ;<  [* =slip:chorus]  bind:m
-      %+  scry:io  ,[path slip:chorus]
+    ;<  [* * =slip:chorus]  bind:m
+      %+  scry:io  ,[path nym:chorus slip:chorus]
       (weld /gx/chorus/cabinet/slip (snoc u.pax %noun))
     %-  pure:m
     !>  ^-  response:tool:mcp

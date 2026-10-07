@@ -144,8 +144,9 @@
   ~
 ::
 ::  the nym we credit a ship's words to: one-dot if the ship
-::  exists under the %gw-btc domain, two-dot if not. only comets
-::  have nyms, so any other ship gets none
+::  exists under the %gw-btc domain, two-dot if not. only a
+::  comet has a nym, and we poll comets alone; any other ship
+::  gets none
 ++  author-nym
   |=  [=bowl:gall who=ship]
   ^-  (unit nym:chorus)
@@ -155,6 +156,7 @@
   ?:  (veri:mu bowl %gw-btc who)
     (de:ship:me who)
   (de:ship:mu who)
+::
 ::
 ::  the comet a nym names: two-dot nyms are unverified, one-dot
 ::  nyms verified
@@ -363,6 +365,22 @@
     %mcp-resource-templates  [%mcp-resource-template uri-template.meta.p.item]
   ==
 ::
+::  the ship that published an item
+++  item-ship
+  |=  =item
+  ^-  ship
+  ?-  -.item
+    %rolodex                 ship.p.item
+    %announcements           ship.p.item
+    %desks                   ship.p.item
+    %skills                  ship.p.item
+    %cabinet                 ship.stub.p.item
+    %mcp-tools               ship.p.item
+    %mcp-prompts             ship.p.item
+    %mcp-resources           ship.p.item
+    %mcp-resource-templates  ship.p.item
+  ==
+::
 ::  the topic a retraction touches
 ++  retract-topic
   |=  =retract:chorus
@@ -516,9 +534,10 @@
   pax
 ::
 ::  the facts a client hears when one ship's shelf changes
-::  from .old to .new; slip paths are as that ship keeps them
+::  from .old to .new, credited to .nym, the ship's nym; slip
+::  paths are as that ship keeps them
 ++  updates-of
-  |=  [old=shelf:chorus new=shelf:chorus]
+  |=  [=nym:chorus old=shelf:chorus new=shelf:chorus]
   ^-  (list update:chorus)
   ?>  =(-.old -.new)
   ?-    -.new
@@ -534,48 +553,48 @@
     |=  [pax=path =stub:chorus]
     ^-  (unit update:chorus)
     ?:  =(`stub (~(get of p.old) pax))  ~
-    `[%chorus-slip-listed pax stub]
+    `[%chorus-slip-listed pax nym stub]
   ::
       %rolodex
     ?>  ?=(%rolodex -.old)
     %+  turn  ~(tap in (~(dif in p.new) p.old))
-    |=(lit=listing:bio:chorus `update:chorus`[%chorus-bio-updated lit])
+    |=(lit=listing:bio:chorus `update:chorus`[%chorus-bio-updated nym +.lit])
   ::
       %announcements
     ?>  ?=(%announcements -.old)
     %+  turn  ~(tap in (~(dif in p.new) p.old))
-    |=(lit=listing:announcement:chorus `update:chorus`[%chorus-announcement lit])
+    |=(lit=listing:announcement:chorus `update:chorus`[%chorus-announcement nym +.lit])
   ::
       %desks
     ?>  ?=(%desks -.old)
     %+  turn  ~(tap in (~(dif in p.new) p.old))
-    |=(lit=listing:desk:chorus `update:chorus`[%chorus-desk-published lit])
+    |=(lit=listing:desk:chorus `update:chorus`[%chorus-desk-published nym +.lit])
   ::
       %skills
     ?>  ?=(%skills -.old)
     %+  turn  ~(tap in (~(dif in p.new) p.old))
-    |=(lit=listing:skill:chorus `update:chorus`[%agent-skill-listed lit])
+    |=(lit=listing:skill:chorus `update:chorus`[%agent-skill-listed nym +.lit])
   ::
       %mcp-tools
     ?>  ?=(%mcp-tools -.old)
     %+  turn  ~(tap in (~(dif in p.new) p.old))
-    |=(lit=listing:tool:mcp:chorus `update:chorus`[%mcp-tool-listed lit])
+    |=(lit=listing:tool:mcp:chorus `update:chorus`[%mcp-tool-listed nym +.lit])
   ::
       %mcp-prompts
     ?>  ?=(%mcp-prompts -.old)
     %+  turn  ~(tap in (~(dif in p.new) p.old))
-    |=(lit=listing:prompt:mcp:chorus `update:chorus`[%mcp-prompt-listed lit])
+    |=(lit=listing:prompt:mcp:chorus `update:chorus`[%mcp-prompt-listed nym +.lit])
   ::
       %mcp-resources
     ?>  ?=(%mcp-resources -.old)
     %+  turn  ~(tap in (~(dif in p.new) p.old))
-    |=(lit=listing:resource:mcp:chorus `update:chorus`[%mcp-resource-listed lit])
+    |=(lit=listing:resource:mcp:chorus `update:chorus`[%mcp-resource-listed nym +.lit])
   ::
       %mcp-resource-templates
     ?>  ?=(%mcp-resource-templates -.old)
     %+  turn  ~(tap in (~(dif in p.new) p.old))
     |=  lit=listing:template:resource:mcp:chorus
-    `update:chorus`[%mcp-resource-template-listed lit]
+    `update:chorus`[%mcp-resource-template-listed nym +.lit]
   ==
 ::
 ::  a mcp tool's metadata as json, less its closing brace:
@@ -645,6 +664,112 @@
       ['compatibility' s+compatibility.s]
   ==
 ::
+::  a shelf as a client sees it: each listing credited to the
+::  nym of the ship that published it. a cabinet is a tree, the
+::  stub at each node and its children by segment; the rest are
+::  arrays
+++  enjs-shelf
+  |=  =view:chorus
+  ^-  json
+  |^
+  ?-    -.shelf.view
+      %cabinet  (tree p.shelf.view)
+      %rolodex
+    :-  %a
+    %+  turn  ~(tap in p.shelf.view)
+    |=  lit=listing:bio:chorus
+    (pairs:enjs:format ~[(nym ship.lit) ['bio' s+txt.lit]])
+  ::
+      %announcements
+    :-  %a
+    %+  turn  ~(tap in p.shelf.view)
+    |=  lit=listing:announcement:chorus
+    %-  pairs:enjs:format
+    :~  (nym ship.lit)
+        ['time' s+(scot %da time.lit)]
+        ['text' s+txt.lit]
+    ==
+  ::
+      %desks
+    :-  %a
+    %+  turn  ~(tap in p.shelf.view)
+    |=  lit=listing:desk:chorus
+    %-  pairs:enjs:format
+    :~  (nym ship.lit)
+        ['desk' s+desk.lit]
+        ['desc' s+desc.lit]
+        ['hash' s+(scot %uv hash.lit)]
+    ==
+  ::
+      %skills
+    :-  %a
+    %+  turn  ~(tap in p.shelf.view)
+    |=  lit=listing:skill:chorus
+    %-  pairs:enjs:format
+    :*  (nym ship.lit)
+        ['skill' s+(scot %uv hax.lit)]
+        (skill-pairs meta.lit)
+    ==
+  ::
+      %mcp-tools
+    :-  %a
+    %+  turn  ~(tap in p.shelf.view)
+    |=  lit=listing:tool:mcp:chorus
+    %-  pairs:enjs:format
+    :*  (nym ship.lit)
+        ['source' s+(scot %uv hax.lit)]
+        (tool-pairs meta.lit)
+    ==
+  ::
+      %mcp-prompts
+    :-  %a
+    %+  turn  ~(tap in p.shelf.view)
+    |=  lit=listing:prompt:mcp:chorus
+    %-  pairs:enjs:format
+    :*  (nym ship.lit)
+        ['source' s+(scot %uv hax.lit)]
+        (prompt-pairs meta.lit)
+    ==
+  ::
+      %mcp-resources
+    :-  %a
+    %+  turn  ~(tap in p.shelf.view)
+    |=  lit=listing:resource:mcp:chorus
+    %-  pairs:enjs:format
+    :*  (nym ship.lit)
+        ['source' s+(scot %uv hax.lit)]
+        (resource-pairs meta.lit)
+    ==
+  ::
+      %mcp-resource-templates
+    :-  %a
+    %+  turn  ~(tap in p.shelf.view)
+    |=  lit=listing:template:resource:mcp:chorus
+    %-  pairs:enjs:format
+    :*  (nym ship.lit)
+        ['source' s+(scot %uv hax.lit)]
+        (template-pairs meta.lit)
+    ==
+  ==
+  ::
+  ++  nym
+    |=  who=ship
+    ^-  [@t json]
+    ['nym' s+(~(got by nyms.view) who)]
+  ::
+  ++  tree
+    |=  =index:chorus
+    ^-  json
+    %-  pairs:enjs:format
+    :~  :-  'slip'
+        ?~  fil.index
+          ~
+        (pairs:enjs:format [(nym ship.u.fil.index) (stub-pairs:slp u.fil.index)])
+      ::
+        ['dir' o+(~(run by dir.index) tree)]
+    ==
+  --
+::
 ::  an update as json, shared by the update and updates marks
 ++  enjs-update
   |=  val=update:chorus
@@ -653,58 +778,62 @@
   :-  ['type' [%s -.val]]
   ?-    -.val
       %chorus-bio-updated
-    :~  ['ship' s+(scot %p ship.val)]
+    :~  ['nym' s+nym.val]
         ['bio' s+txt.val]
     ==
   ::
       %chorus-announcement
-    :~  ['ship' s+(scot %p ship.val)]
+    :~  ['nym' s+nym.val]
         ['time' s+(scot %da time.val)]
         ['text' s+txt.val]
     ==
   ::
       %chorus-desk-published
-    :~  ['ship' s+(scot %p ship.val)]
+    :~  ['nym' s+nym.val]
         ['desk' s+desk.val]
         ['desc' s+desc.val]
         ['hash' s+(scot %uv hash.val)]
     ==
   ::
       %mcp-tool-listed
-    :*  ['ship' s+(scot %p ship.val)]
+    :*  ['nym' s+nym.val]
         ['source' s+(scot %uv hax.val)]
         (tool-pairs meta.val)
     ==
   ::
       %mcp-prompt-listed
-    :*  ['ship' s+(scot %p ship.val)]
+    :*  ['nym' s+nym.val]
         ['source' s+(scot %uv hax.val)]
         (prompt-pairs meta.val)
     ==
   ::
       %mcp-resource-listed
-    :*  ['ship' s+(scot %p ship.val)]
+    :*  ['nym' s+nym.val]
         ['source' s+(scot %uv hax.val)]
         (resource-pairs meta.val)
     ==
   ::
       %mcp-resource-template-listed
-    :*  ['ship' s+(scot %p ship.val)]
+    :*  ['nym' s+nym.val]
         ['source' s+(scot %uv hax.val)]
         (template-pairs meta.val)
     ==
   ::
       %agent-skill-listed
-    :*  ['ship' s+(scot %p ship.val)]
+    :*  ['nym' s+nym.val]
         ['skill' s+(scot %uv hax.val)]
         (skill-pairs meta.val)
     ==
   ::
       %chorus-slip-listed
-    ['path' s+(spat path.val)]^(stub-pairs:slp stub.val)
+    :+  ['path' s+(spat path.val)]
+      ['nym' s+nym.val]
+    (stub-pairs:slp stub.val)
   ::
       %chorus-slip
-    ['path' s+(spat path.val)]^(slip-pairs:slp slip.val)
+    :+  ['path' s+(spat path.val)]
+      ['nym' s+nym.val]
+    (slip-pairs:slp slip.val)
   ::
       %chorus-slip-discarded
     ['path' s+(spat path.val)]~

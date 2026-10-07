@@ -66,7 +66,7 @@ Kademlia itself has no such list: any ship may join the routing table, ask for a
 
 | Mark | Noun | Effect |
 |---|---|---|
-| `%chorus-list` | `[?(%add %remove) who]` | poll a ship, or stop; `who` is `[%ship @p]` or `[%nym nym]` |
+| `%chorus-list` | `[?(%add %remove) who]` | poll a comet, or stop; `who` is `[%ship @p]` or `[%nym nym]` |
 | `%chorus-publish` | `[public=? =resource]` | list a resource |
 | `%chorus-retract` | `retract` | take a listing back |
 | `%chorus-seek` | `[who=ship topic=path]` | fetch what a ship published at a topic |
@@ -79,19 +79,21 @@ The agent stamps each slip with its author, its time and its FQSP; a `%slip` res
 
 | Path | Result |
 |---|---|
-| `/x/topic/<topic>` | the topic, from us and every ship we poll; `<topic>` is the topic's path less `/chorus`, such as `mcp/tools` |
+| `/x/topic/<topic>` | the topic, from us and every ship we poll, as a `%chorus-shelf`; `<topic>` is the topic's path less `/chorus`, such as `mcp/tools` |
 | `/x/topic/<topic>/<ship>` | the topic, from one ship |
-| `/x/cabinet/slip/<path>` | one slip |
-| `/x/cabinet/drawer/<path>` | the slips under a path |
+| `/x/cabinet/slip/<path>` | one slip, with its author's nym |
+| `/x/cabinet/drawer/<path>` | the slips under a path, as a `%chorus-drawer` |
 | `/x/cabinet/paths/<path>` | the same tree, bodies blanked |
 | `/x/heard/<ship>/<topic>` | the cask a ship published at any topic |
-| `/x/polled` | the ships we poll |
+| `/x/polled` | the nyms of the ships we poll |
 | `/x/nym/<ship>` | a comet's Groundwire nym; null for any other ship |
 | `/x/kademlia/{summary,settings,seeds,delivery}` | Kademlia's diagnostics, as JSON |
 
 The cabinet merges every ship's slips into one tree. Where authors share a path, ours stays put and each other author's slip moves under the path to a segment naming their ship: `/notes/foo/~sampel`. A slip's FQSP, its fully qualified slip path, is the remote scry path of one revision of it: `/~sampel/g/x/3/chorus//1/chorus/cabinet/notes/foo`. Slips link to each other as `[[<fqsp>]]`, so a link names the revision its author read, and a later revision does not change what it points at. The `chorus/fetch-slip` tool reads the revision an FQSP names from its host, which may be our own ship.
 
 The agent gives `%chorus-update` facts on `/updates` for every listing that changes, on `/cabinet` for slips, and on `/heard` for slips by other ships.
+
+A client sees authors as Groundwire nyms, never as Urbit IDs. Chorus polls comets alone, and `%chorus-list` refuses any other ship, because only a comet has a nym: its words encode its address. The nym has one leading dot when Jael finds the comet under the `%gw-btc` domain and two when it does not. Our own ship may be no comet, and then goes by its Urbit ID. A ship shows in what a client sees only where it names a host: in an FQSP, in the segment a merged cabinet moves a shared path's slips under, and in the `ship` field beside a slip's nym, which the `chorus` mod reads. Scry paths take ships; `%chorus-fetch` takes a ship or its nym.
 
 ## Claude Code
 

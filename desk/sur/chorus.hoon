@@ -1,7 +1,11 @@
 /-  mcp, *content-routing
 |%
 ::
-::  a groundwire nym
+::  the groundwire nym a client sees an author as: one leading
+::  dot for a ship found under the %gw-btc domain, two for one
+::  that is not; see +author-nym in /lib/chorus. a client sees a
+::  ship only where it names a host: in an fqsp, and in the
+::  segment a merged cabinet moves a shared path's slips under
 +$  nym  @t
 ::
 ::  every listing names the ship that published it. a hearer
@@ -145,8 +149,12 @@
 +$  stub   [=ship =time fqsp=path hax=digest]
 +$  index  (axal stub)
 ::
-::  a listing of the cabinet: each stub, and whether we hold its page
-+$  listed  [=stub held=?]
+::  what a client sees of the cabinet. a slip and a stub are
+::  credited to their author's nym; a listing says whether we
+::  hold the stub's page
++$  whole   [=nym =slip]
++$  drawer  (axal whole)
++$  listed  [=nym =stub held=?]
 ::
 ::  the reserved topics. under each a ship publishes one value,
 ::  named by the topic in the %chorus namespace; chorus checks its
@@ -175,6 +183,10 @@
       [%mcp-resources p=(set listing:resource:mcp)]
       [%mcp-resource-templates p=(set listing:template:resource:mcp)]
   ==
+::
+::  a shelf as a client sees it: the nym of every ship with a
+::  listing on it. the shelves of many ships fold into one
++$  view  [nyms=(map ship nym) =shelf]
 ::
 ::  state: the ships we seed kademlia with and poll for their
 ::  shelves. everything heard lives in the content store
@@ -235,20 +247,20 @@
       [%slip =path txt=@t]
   ==
 ::
-::  ship-to-client facts
+::  ship-to-client facts. each credits its author's nym
 +$  update
   $+  chorus-update
-  $%  [%chorus-bio-updated =ship txt=cord]
-      [%chorus-announcement =ship =time txt=cord]
-      [%chorus-desk-published =ship =^desk =desc:desk hash=@uvI]
-      [%mcp-tool-listed =ship =meta:tool:mcp hax=digest]
-      [%mcp-prompt-listed =ship =meta:prompt:mcp hax=digest]
-      [%mcp-resource-listed =ship =meta:resource:mcp hax=digest]
-      [%mcp-resource-template-listed =ship =meta:template:resource:mcp hax=digest]
-      [%agent-skill-listed =ship =meta:skill hax=digest]
+  $%  [%chorus-bio-updated =nym txt=cord]
+      [%chorus-announcement =nym =time txt=cord]
+      [%chorus-desk-published =nym =^desk =desc:desk hash=@uvI]
+      [%mcp-tool-listed =nym =meta:tool:mcp hax=digest]
+      [%mcp-prompt-listed =nym =meta:prompt:mcp hax=digest]
+      [%mcp-resource-listed =nym =meta:resource:mcp hax=digest]
+      [%mcp-resource-template-listed =nym =meta:template:resource:mcp hax=digest]
+      [%agent-skill-listed =nym =meta:skill hax=digest]
       ::  a ship lists a slip, and we hold a slip's page
-      [%chorus-slip-listed =path =stub]
-      [%chorus-slip =path =slip]
+      [%chorus-slip-listed =path =nym =stub]
+      [%chorus-slip =path =nym =slip]
       [%chorus-slip-discarded =path]
       ::  our publish at a topic reached its replicas, or failed to
       [%chorus-published topic=path done=?]

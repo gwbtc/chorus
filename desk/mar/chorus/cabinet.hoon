@@ -1,19 +1,13 @@
+::
+::  a wire mark: the page a slip's author grows at its fqsp, a
+::  cabinet holding the one slip. a client reads slips through
+::  %chorus-slip and %chorus-drawer, which credit each to a nym
 /-  chorus
-/+  slp=slip
 |_  val=cabinet:chorus
 ++  grad  %noun
 ++  grow
   |%
   ++  noun  val
-  ::
-  ::  a nested object mirroring the tree: the slip at
-  ::  each node, if any, and its children by segment
-  ++  json
-    |-  ^-  ^json
-    %-  pairs:enjs:format
-    :~  ['slip' ?~(fil.val ~ (enjs:slp u.fil.val))]
-        ['dir' o+(~(run by dir.val) |=(kid=cabinet:chorus ^$(val kid)))]
-    ==
   ::
   ::  one path per line
   ++  txt

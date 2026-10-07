@@ -1,22 +1,13 @@
 ::
-::  what ships list of the slips in a cabinet: every slip
-::  at its path, less its text
+::  a wire mark: what a ship lists of the slips in its cabinet,
+::  every slip at its path, less its text. a client reads the
+::  cabinet through %chorus-shelf, which credits each stub to a nym
 /-  chorus
-/+  slp=slip
 |_  val=index:chorus
 ++  grad  %noun
 ++  grow
   |%
   ++  noun  val
-  ::
-  ::  a nested object mirroring the tree: the stub at
-  ::  each node, if any, and its children by segment
-  ++  json
-    |-  ^-  ^json
-    %-  pairs:enjs:format
-    :~  ['slip' ?~(fil.val ~ (pairs:enjs:format (stub-pairs:slp u.fil.val)))]
-        ['dir' o+(~(run by dir.val) |=(kid=index:chorus ^$(val kid)))]
-    ==
   --
 ++  grab
   |%

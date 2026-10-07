@@ -100,9 +100,10 @@
     !<(template:resource:mcp .^(vase %ca (welp dek:hc pax)))
   ::
   ::  a reserved topic, from us and every ship we poll, or from
-  ::  one ship: the path may end with a @p
-  ::  .^((set listing:bio) %gx /=/chorus/=/topic/rolodex/noun)
-  ::  .^((set listing:tool:mcp) %gx /=/chorus/=/topic/mcp/tools/~zod/noun)
+  ::  one ship: the path may end with a @p. the shelf comes with
+  ::  the nym of each ship on it
+  ::  .^(view %gx /=/chorus/=/topic/rolodex/noun)
+  ::  .^(view %gx /=/chorus/=/topic/mcp/tools/~zod/noun)
       [%x %topic rest=*]
     =/  pax=path  ;;(path rest.pole)
     ?~  pax
@@ -112,19 +113,19 @@
       (path-topic:cho [%chorus ?~(who pax (snip `path`pax))])
     ?~  topic
       [~ ~]
-    ``(shelf-cage:hc (folded:hc u.topic who))
+    ``(view:hc (folded:hc u.topic who))
   ::
   ::  what a ship published at any topic, reserved or not
   ::  .^((unit (cask)) %gx /=/chorus/=/heard/~zod/some/topic/noun)
       [%x %heard who=@ name=*]
     ``noun+!>((heard:hc (slav %p who.pole) ;;(path name.pole)))
   ::
-  ::  the ships we poll
+  ::  the nyms of the ships we poll
   ::  .^(json %gx /=/chorus/=/polled/json)
       [%x %polled ~]
     :^  ~  ~  %json
     !>  ^-  json
-    a+(turn ~(tap in polled) |=(who=ship s+(scot %p who)))
+    a+(turn ~(tap in polled) |=(who=ship s+(credit:hc who)))
   ::
   ::  the nym to credit a ship with, or null for a ship that
   ::  has none; see +author-nym
@@ -133,27 +134,33 @@
     =/  nym  (author-nym:cho bowl (slav %p who.pole))
     ``json+!>(`json`?~(nym ~ s+u.nym))
   ::
-  ::  a slip whose page we hold
-  ::  .^([path slip] %gx /=/chorus/=/cabinet/slip/notes/foo/noun)
+  ::  a slip whose page we hold, credited to its author's nym
+  ::  .^([path nym slip] %gx /=/chorus/=/cabinet/slip/notes/foo/noun)
       [%x %cabinet %slip pax=*]
     =/  pax=path  ;;(path pax.pole)
     =/  lef=(unit slip:chorus)
       (biff (~(get of index:hc) pax) whole:hc)
     ?~  lef
       [~ ~]
-    ``chorus-slip+!>(`[path slip:chorus]`[pax u.lef])
+    :^  ~  ~  %chorus-slip
+    !>  ^-  [path nym:chorus slip:chorus]
+    [pax (credit:hc ship.u.lef) u.lef]
   ::
   ::  every slip under a path whose page we hold
-  ::  .^(cabinet %gx /=/chorus/=/cabinet/drawer/noun)
-  ::  .^(cabinet %gx /=/chorus/=/cabinet/drawer/notes/noun)
+  ::  .^(drawer %gx /=/chorus/=/cabinet/drawer/noun)
+  ::  .^(drawer %gx /=/chorus/=/cabinet/drawer/notes/noun)
       [%x %cabinet %drawer pax=*]
-    :^  ~  ~  %chorus-cabinet
-    !>  ^-  cabinet:chorus
+    :^  ~  ~  %chorus-drawer
+    !>  ^-  drawer:chorus
     =/  get  whole:hc
-    %-  ~(gas of *cabinet:chorus)
-    %+  murn  ~(tap of (~(dip of index:hc) ;;(path pax.pole)))
+    =/  fat  (~(dip of index:hc) ;;(path pax.pole))
+    =/  nyms  (credits:hc fat)
+    %-  ~(gas of *drawer:chorus)
+    %+  murn  ~(tap of fat)
     |=  [pax=path =stub:chorus]
-    (bind (get stub) (lead pax))
+    ^-  (unit [path whole:chorus])
+    %+  bind  (get stub)
+    |=(=slip:chorus [pax (~(got by nyms) ship.stub) slip])
   ::
   ::  every slip a ship lists under a path, and whether we
   ::  hold its page
@@ -163,9 +170,12 @@
     !>  ^-  (axal listed:chorus)
     =/  get  whole:hc
     =/  fat  (~(dip of index:hc) ;;(path pax.pole))
+    =/  nyms  (credits:hc fat)
     |-
     ^-  (axal listed:chorus)
-    :-  ?~(fil.fat ~ `[u.fil.fat ?=(^ (get u.fil.fat))])
+    :-  ?~  fil.fat
+          ~
+        `[(~(got by nyms) ship.u.fil.fat) u.fil.fat ?=(^ (get u.fil.fat))]
     (~(run by dir.fat) |=(kid=index:chorus ^$(fat kid)))
   ::
   ::  kademlia's diagnostics, as json
@@ -192,7 +202,7 @@
     %+  turn
       .^((list @ux) %gx (weld pyk:hc /~/kademlia/seeds/noun))
     |=  id=@ux
-    s+(scot %p (~(node-to-ship kad kad-cfg:csl) id))
+    s+(credit:hc (~(node-to-ship kad kad-cfg:csl) id))
   ::
       [%x %kademlia %delivery ~]
     :^  ~  ~  %json
@@ -242,6 +252,10 @@
       `this
     ?-    -.act
         %add
+      ::  only a comet has a nym to credit its listings to
+      ?.  =(%pawn (clan:title who))
+        ~|  "{<dap.bowl>}: {<who>} is no comet"
+        !!
       =.  polled  (~(put in polled) who)
       [[seed:hc (poll-ship:hc who)] this]
     ::
@@ -292,7 +306,8 @@
           ~
         :_  ~
         :*  %give  %fact  ~[/updates /cabinet]  %chorus-update
-            !>(`update:chorus`[%chorus-slip u.slip.made])
+            !>  ^-  update:chorus
+            [%chorus-slip -.u.slip.made (credit:hc our.bowl) +.u.slip.made]
         ==
     ==
   ::
@@ -442,8 +457,9 @@
       :_  ~
       :*  %give  %fact  ~[/updates /cabinet /heard]  %chorus-update
           !>  ^-  update:chorus
-          :+  %chorus-slip
-            (spot:cho our.bowl indexes:hc host.u.fin pax.u.fin)
+          :^  %chorus-slip
+              (spot:cho our.bowl indexes:hc host.u.fin pax.u.fin)
+            (credit:hc host.u.fin)
           u.got
       ==
     ==
@@ -685,24 +701,35 @@
     ?>  ?=(%cabinet -.shelf)
     [who p.shelf]
   ::
-  ++  shelf-cage
+  ::  the nym we credit a ship with. we poll comets alone, so
+  ::  only our own ship can lack one, and goes by its @p
+  ++  credit
+    |=  who=ship
+    ^-  nym:chorus
+    (fall (author-nym:cho bowl who) (scot %p who))
+  ::
+  ::  the nym of every ship with a slip in an index, each
+  ::  looked up once
+  ++  credits
+    |=  =index:chorus
+    ^-  (map ship nym:chorus)
+    %-  ~(gas by *(map ship nym:chorus))
+    %+  turn
+      ~(tap in (silt (turn ~(tap of index) |=([* =stub:chorus] ship.stub))))
+    |=(who=ship [who (credit who)])
+  ::
+  ::  a shelf as a client sees it, with the nym of every ship
+  ::  that has a listing on it
+  ++  view
     |=  =shelf:chorus
     ^-  cage
-    ::  each case gives the vase its own type. without the
-    ::  switch the vase holds the union of every shelf, which no
-    ::  mark's sample takes, and the scry crashes in the tube
-    :-  (topic-mark:cho -.shelf)
-    ?-  -.shelf
-      %desks                   !>(p.shelf)
-      %rolodex                 !>(p.shelf)
-      %announcements           !>(p.shelf)
-      %cabinet                 !>(p.shelf)
-      %skills                  !>(p.shelf)
-      %mcp-tools               !>(p.shelf)
-      %mcp-prompts             !>(p.shelf)
-      %mcp-resources           !>(p.shelf)
-      %mcp-resource-templates  !>(p.shelf)
-    ==
+    :-  %chorus-shelf
+    !>  ^-  view:chorus
+    :_  shelf
+    %-  ~(gas by *(map ship nym:chorus))
+    %+  turn
+      ~(tap in (silt (turn (items:cho shelf) item-ship:cho)))
+    |=(who=ship [who (credit who)])
   ::
   ::  publish a cask under a name and topic. the result comes
   ::  back to +on-poke at the reply path
@@ -831,8 +858,9 @@
       ~
     [(poke:client our.bowl dap.bowl [%forget u.got] /forget/[id])]~
   ::
-  ::  tell clients what changed on one ship's shelf. slips go
-  ::  out at the paths they take in our merged cabinet
+  ::  tell clients what changed on one ship's shelf, credited
+  ::  to its nym. slips go out at the paths they take in our
+  ::  merged cabinet
   ++  tell
     |=  [who=ship old=shelf:chorus new=shelf:chorus]
     ^-  (list card)
@@ -841,7 +869,7 @@
         ~
       :-  [who p.new]
       (skip indexes |=([him=ship *] =(him who)))
-    %+  turn  (updates-of:cho old new)
+    %+  turn  (updates-of:cho (credit who) old new)
     |=  =update:chorus
     ^-  card
     =/  moved=(unit update:chorus)
