@@ -127,8 +127,8 @@
     !>  ^-  json
     a+(turn ~(tap in polled) |=(who=ship s+(credit:hc who)))
   ::
-  ::  the nym to credit a ship with, or null for a ship whose
-  ::  key jael lacks; see +author-nym
+  ::  the nym to credit a ship with, or null for a ship that
+  ::  has none; see +author-nym
   ::  .^(json %gx /=/chorus/=/nym/(scot %p who)/json)
       [%x %nym who=@ ~]
     =/  nym  (author-nym:cho bowl (slav %p who.pole))
@@ -252,6 +252,10 @@
       `this
     ?-    -.act
         %add
+      ::  only a comet has a nym to credit its listings to
+      ?.  =(%pawn (clan:title who))
+        ~|  "{<dap.bowl>}: {<who>} is no comet"
+        !!
       =.  polled  (~(put in polled) who)
       [[seed:hc (poll-ship:hc who)] this]
     ::
@@ -697,8 +701,8 @@
     ?>  ?=(%cabinet -.shelf)
     [who p.shelf]
   ::
-  ::  the nym we credit a ship with. a ship whose key jael lacks
-  ::  has none, and goes by its @p
+  ::  the nym we credit a ship with. we poll comets alone, so
+  ::  only our own ship can lack one, and goes by its @p
   ++  credit
     |=  who=ship
     ^-  nym:chorus

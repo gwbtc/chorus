@@ -3,9 +3,11 @@
 ^-  tool:mcp
 :*  'chorus/list-ship'
     '''
-    Add a ship to, or remove a ship from, the ships Chorus polls
+    Add a comet to, or remove a ship from, the ships Chorus polls
     for listings. Chorus shows what it hears from these ships and
-    from no others, and seeds its Kademlia table with them.
+    from no others, and seeds its Kademlia table with them. Only
+    a comet has a Groundwire nym, so Chorus polls comets alone
+    and refuses to add any other ship.
     '''
     %-  my
     :~  :-  'who'

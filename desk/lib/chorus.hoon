@@ -144,23 +144,18 @@
   ~
 ::
 ::  the nym we credit a ship's words to: one-dot if the ship
-::  exists under the %gw-btc domain, two-dot if not. a comet is
-::  its own nym's address; any other ship goes by the comet
-::  address of its public key, so a ship whose key jael lacks
+::  exists under the %gw-btc domain, two-dot if not. only a
+::  comet has a nym, and we poll comets alone; any other ship
 ::  gets none
 ++  author-nym
   |=  [=bowl:gall who=ship]
   ^-  (unit nym:chorus)
-  =/  comet=(unit ship)
-    ?:  =(%pawn (clan:title who))
-      `who
-    (mole |.(`ship`(come:mu bowl `@pG`who)))
-  ?~  comet
+  ?.  =(%pawn (clan:title who))
     ~
   :-  ~
   ?:  (veri:mu bowl %gw-btc who)
-    (de:ship:me u.comet)
-  (de:ship:mu u.comet)
+    (de:ship:me who)
+  (de:ship:mu who)
 ::
 ::
 ::  the comet a nym names: two-dot nyms are unverified, one-dot
