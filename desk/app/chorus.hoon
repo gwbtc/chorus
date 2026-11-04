@@ -47,8 +47,13 @@
   |=  old=vase
   ^-  (quip card _this)
   =/  saved  !<(versioned-state:chorus old)
+  ::  relist reads our own shelf back through a scry into this agent.
+  ::  gall is still installing us while +on-load runs, so that peek
+  ::  comes back [~ ~], and a blocked scry cannot be caught by +mole:
+  ::  the whole load event bails. that killed every |revive and every
+  ::  kernel update on a ship running %chorus. do it one event later.
   ?-  -.saved
-    %0  [(weld tick:hc relist:hc) this(state saved)]
+    %0  [(snoc tick:hc relist-later:hc) this(state saved)]
   ==
 ::
 ++  on-peek
@@ -452,6 +457,10 @@
 ++  on-arvo
   |=  [=wire =sign-arvo]
   ^-  (quip card _this)
+  ?:  ?=([%relist ~] wire)
+    ?.  ?=([%behn %wake *] sign-arvo)
+      (on-arvo:def wire sign-arvo)
+    [relist:hc this]
   ?.  ?=([%poll @ ~] wire)
     (on-arvo:def wire sign-arvo)
   ?.  ?=([%behn %wake *] sign-arvo)
@@ -797,6 +806,12 @@
     %+  turn
       (murn topics:cho |=(=topic:chorus (held our.bowl topic)))
     put-shelf
+  ::
+  ::  run +relist in the next event, once gall has finished
+  ::  installing us (see +on-load)
+  ++  relist-later
+    ^-  card
+    [%pass /relist %arvo %b %wait now.bowl]
   ::
   ::  one timer, at the next multiple of the poll interval, so
   ::  that setting it again replaces it
